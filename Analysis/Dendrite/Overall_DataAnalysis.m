@@ -25,11 +25,12 @@ starterID = folder_name(end);
 %% Step 2: plot orientation tuning curve
 colorID = load( strcat( folder_name, '_colorID.mat' ) );
 [tunePars, xval] = OriTune_Figure(folder_name, colorID);
-close;
+% close;
 
 %% Step 3: plot retinotopic tree
-[tree, tree1, retX, retY] = RetinoMap( folder_name ); 
-close;
+load( strcat( folder_name, '_neuRF_column_svd.mat' ) );
+[tree, tree1, retX, retY] = RetinoMap( folder_name, dbVis ); 
+% close;
 
 %% Step 4: compute dendritic histogram in visual space
 file_name_vis = strcat(folder_name, '_V');
@@ -45,7 +46,7 @@ ThetaPlot( thetaBox.theta_axial, fname_V, db, 'box', colorID ); % [-90 90]
 PlotCorticalView( tree, thetaBox.theta_deg , fname_V, 'box' ); % box-by-box 
 
 %% Step 7: plot dendritic histogram in visual space with von Mises fit 
-histFinal( thetaBox.theta_deg, db, colorID, tunePars, folder_name );
-close;
+[VM_std, OT_std] = histFinal( thetaBox.theta_deg, db, colorID, tunePars, folder_name );
+% close;
 
 %% Step 8: analysis complete

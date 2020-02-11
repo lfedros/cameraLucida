@@ -55,7 +55,7 @@ axis_cleaner;
 title('');
 img_2 = strcat(img_1, '_c'); % '_c' where c = cortical space
 print(img_2, '-dtiff');
-close all;
+% close all;
 
 end
 

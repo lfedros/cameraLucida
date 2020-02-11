@@ -1,4 +1,4 @@
-function [] = densityNeuron( neuronData, ind )
+function [] = densityNeuronXY( neuronData, ind )
 
 % DENSITYNEURON	density plot of average of neurons
 % 
@@ -21,14 +21,14 @@ cd('/home/naureeng/cameraLucida/');
 n = length(neuronData); % number of cells
 
 % parameters for plot_Density2D
-spaceBin = 1;
+spaceBin = 20;
 sigma = 0.1;
-mlims = [20, 20];
+mlims = [400, 400];
 NaNbkg = 0;
 
 xy_tree = cell(n,1);
 for i = 1 : n
-    tree = neuronData(i).AE; % load tree
+    tree = neuronData(i).XY; % load tree
     db = neuronData(ind(i)).db; % load db
     prefOri = db.prefDir; % get prefOri
     tree_rot = rot_tree( tree, [0 0 prefOri] ); % rotate tree in z-axis
@@ -53,11 +53,11 @@ colormap ( cmap );
 imagesc( xbins, ybins, xyProf ); axis image
 scale = caxis/2;
 caxis( scale );
-xlabel(' Azimuth [deg] ');
-ylabel(' Elevation [deg] ');
+xlabel(' X [microns] ');
+ylabel(' Y [microns] ');
 formatAxes
 caxis([0 0.04]);
-colorbar; 
+colorbar;
 set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with Helvetica font
 
 end

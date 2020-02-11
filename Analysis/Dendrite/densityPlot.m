@@ -10,6 +10,15 @@ densityNeuron( neuronData, 1:n ); % non-shuffle in visual space [AE]
 print( 'AE' , '-dpng' );
 densityNeuron( neuronData, randperm(n) ); % shuffle in visual space [AE]
 print( 'AE_shuffle', '-dpng' );
+densityNeuronXY( neuronData, 1:n ); % non-shuffle in cortical space [XY]
+print( 'XY', '-dpng' );
+
+%% uncomment to change density plots to blue colormap
+camp = BlueWhiteRed_burnLFR( 1001, 1 );
+cmapBlue = cmap( 1:502, : );
+cmap = cmapBlue;
+colormap ( cmap );
+colormap ( flipud(cmap) );
 
 %% step 2: histogram for non-shuffle in visual space [AE]
 [histCnts, avgAng, cVar]     = densityHist( neuronData, 1:n );
@@ -24,10 +33,10 @@ for i = 1 : n_shuffles
     [histCnts_s{i,1}, avgAng_s{i,1}, cVar_s{i,1}] = densityHist( neuronData, randperm(n) );
 end
 
-shuffleData.histCnts_s = histCnts_s; shuffleData.avgAng_s = avgAng_s; shuffleData.cVar_s = cVar_s;
+shuffleData_Ret.histCnts_s = histCnts_s; shuffleData_Ret.avgAng_s = avgAng_s; shuffleData_Ret.cVar_s = cVar_s;
 save('shuffleData','shuffleData');
 
-%% step 4: plot of unshuffled v. shuffled circular variance in visual space [AE]
+%% step 4: plot of unshuffled v. shuffled circular variance in visual space [AE] [prefOri shuffle]
 figure; 
 hist( cell2mat(cVar_s), 20);
 hold on;
@@ -36,7 +45,7 @@ xlim([0.3 0.5]);
 set(gca, 'fontname', 'Te X Gyre Heros');
 xlabel('Circular Variance');
 ylabel('Counts');
-legend('unshuffled', 'shuffled');
+legend('shuffled', 'unshuffled');
 
 %% step 5: histogram for 100 shuffles in visual space [AE] 
 histCnts_r = cat( 3, histCnts_s{:} );
@@ -73,8 +82,33 @@ obj1.drawArrow(- (180 - obj1.avgAng) , [] , 'HeadWidth', 10, 'LineWidth', 2, 'Co
 print( 'AE_shuffle_hist', '-dpng' );
 close;
 
+%% step 10: shuffle for retinotopic space [AE]
+n_shuffles = 100;
+histCnts_ret        = cell(n_shuffles, 1);
+avgAng_ret          = cell(n_shuffles, 1);
+cVar_ret            = cell(n_shuffles, 1);
+treeShuffleRetino   = cell(n_shuffles, 1);
+for i = 1 : n_shuffles
+    [histCnts_ret{i,1}, avgAng_ret{i,1}, cVar_ret{i,1}, treeShuffleRetino{i,1}] = ShuffleRetinotopy( neuronData );
+end
 
+shuffleData_Ret.histCnts_ret = histCnts_ret; 
+shuffleData_Ret.avgAng_ret = avgAng_ret; 
+shuffleData_Ret.cVar_ret = cVar_ret;
+shuffleData_Ret.treeShuffleRetino = treeShuffleRetino;
+save('shuffleData_Ret','shuffleData_Ret');
 
+%% plot of unshuffled v. shuffled circular variance in visual space [AE] [retinotopy shuffle]
+figure; 
+cVar_ret = shuffleData_Ret.cVar_ret;
+hist( cell2mat(cVar_ret), 20);
+hold on;
+xline( cVar, '--r', 'LineWidth', 2);
+xlim([0.3 0.5]);
+set(gca, 'fontname', 'Te X Gyre Heros');
+xlabel('Circular Variance');
+ylabel('Counts');
+legend('shuffled', 'unshuffled');
 
-
+%% 
 

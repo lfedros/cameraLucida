@@ -1,5 +1,3 @@
-%% Theta Polar Plot
-% by Philip Berens Lab [2009-2019]
 
 function [] = PolarPlot( thetaMap, fname, db , analysis_type, colorID)
 
@@ -81,7 +79,7 @@ obj1.drawArrow(- (180 - obj1.avgAng) , [] , 'HeadWidth', 10, 'LineWidth', 2, 'Co
 %% Step 9: save polar plot
 set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with Helvetica font
 print(img, '-dtiff');
-close all;
+% close all;
 
 end
 

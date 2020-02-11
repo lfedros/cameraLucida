@@ -1,4 +1,4 @@
-function [] = histFinal( thetaMap_V, db, colorID, tunePars, folder_name )
+function [VM_std, OT_std] = histFinal( thetaMap_V, db, colorID, tunePars, folder_name )
 
 % HISTFINAL 	plots visual space data in cortical space view
 %  
@@ -45,6 +45,8 @@ close all;
 figure;
 y1_norm = y1/max(y1);
 h = plot(x1/2, y1_norm);
+VM_std = std(y1_norm);
+save( strcat(folder_name,'_VM_std'), 'VM_std');
 
 %% Step 3: find min and max of von Mises fits
 xval = x1/2;
@@ -88,6 +90,8 @@ oriFit = oritune(pars, -90:90);
 y1 = oriFit/max(oriFit);
 hold on;
 h = plot( -90:90 , y1);
+OT_std = std(y1);
+save( strcat(folder_name,'_OT_std'), 'OT_std');
 set(h,'LineWidth',2)
 set(h,'Color', colorID.colorID );
 set(h,'LineStyle','--');

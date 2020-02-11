@@ -68,7 +68,7 @@ img_2 = strcat(img_1, '_c');
 axis_cleaner;
 title('');
 print(img_2, '-dtiff');
-close all;
+% close all;
 
 % remove NaNs
 [ind] = isnan(theta_deg);

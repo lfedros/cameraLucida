@@ -1,9 +1,10 @@
-function [tree, tree1, retX, retY] = RetinoMap( folder_name )
+function [tree, tree1, retX, retY] = RetinoMap( folder_name, dbVis )
 
 % RETINOMAP 	warps neuron reconstruction from cortical space to visual space
 %  
 %		INPUTS:
 %       [1] folder_name = neuron reconstruction [string]
+%       [2] dbVis       = retinotopy            [struct]
 %
 %       OUTPUTS:
 %       [1] tree  = cortical space neuron [microns] [struct]
@@ -19,15 +20,12 @@ function [tree, tree1, retX, retY] = RetinoMap( folder_name )
 file_path = strcat( folder_name, '_tracing.swc' );
 [tree,~,~] = load_tree(file_path,'r'); % [pixels]
 
-% to compute in cortical space
-tree = resample_tree( tree, 1); 
-
 % to compute in visual space
 tree1 = tree;
 
 %% Step 2: center all coordinates to the soma
 
-load( strcat( folder_name, '_neuRF_column_svd.mat' ) );
+% load( strcat( folder_name, '_neuRF_column_svd.mat' ) );
 
 % find soma coordinates
 Y_pos = dbVis.starterYX(1,1); % [px]
@@ -45,9 +43,6 @@ tree.X = tree.X -tree.X(1); % [px]
 tree.Y = tree.Y -tree.Y(1); % [px]
 tree.Y = tree.Y* ( dbVis.fovy/512 ); % [um]
 tree.X = tree.X* ( dbVis.fovx/512 ); % [um]
-
-% tree.Y = tree.Y*dbVis.fovy;
-% tree.X = tree.Z*dbVis.fovx;
 
 %% Step 3: create cortical space plot
 

@@ -75,11 +75,13 @@ obj1.drawArrow( (db.prefOri) , [], 'HeadWidth', 10, 'LineWidth', 2, 'Color', col
 %% Step 8: plot avgAng arrow
 obj1.drawArrow(obj1.avgAng, [] , 'HeadWidth', 10, 'LineWidth', 2, 'Color', 'k')
 obj1.drawArrow(- (180 - obj1.avgAng) , [] , 'HeadWidth', 10, 'LineWidth', 2, 'Color', 'k')
+avgAng = [obj1.avgAng -(180 - obj1.avgAng)];
+save(strcat(fname, '_avgAng'),'avgAng');
 
 %% Step 9: save polar plot
 set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with Helvetica font
 print(img, '-dtiff');
-close all;
+% close all;
 
 end
 
