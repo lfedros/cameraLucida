@@ -211,8 +211,52 @@ set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with
 set(gca, 'linewidth', 1.5);
 xlabel('Mean Angle Difference [distance]');
 ylabel('Counts');
-p_val = length(find(mean_shuffled<mean_unshuffled))/n_shuffles;
 title(sprintf('p-value = %f', p_val));
+
+%% shuffle dendritic morphology, rotate the dendritic tree by a random amount in cortical space (soma position unchanged)
+
+avgAng_overall    = cell( 100,1 );
+dendOri_s_overall = cell( 100,1 );
+for n = 1 : 100 % 100 shuffles
+    [avgAng_overall{n,1}, dendOri_s_overall{n,1}] = CorticoMorphoShuffle( neuronData );
+end
+
+save('avgAng_overall', 'avgAng_overall');
+save('dendOri_s_overall', 'dendOri_s_overall');
+
+% using avgAng_overall
+
+for i = 1 : 100
+    dendOri_s = cell2mat(avgAng_overall{i,1});
+    % wrap these values around [-90 90]
+    ii = dendOri_s > 90;
+    dendOri_s(ii,1) = dendOri_s(ii,1) - 180;
+    ii = dendOri_s < -90;
+    dendOri_s(ii,1) = dendOri_s(ii,1) + 180;
+    dendOri_s_overall{i,1} = dendOri_s;
+end
+
+% using alphas(:,1) = pref_ori, we will perform circular correlation
+% between pref_ori and dendOri_s (shuffled dendrite orientation in cortical space)
+
+n_shuffles = 100 ; % do 100x shuffle for p-value
+x = alphas(:,1); % same value as in previous lines of code
+corr_shuffle = zeros(n_shuffles,1);
+for i = 1:n_shuffles
+    y =  circ_ang2rad( dendOri_s_overall{i,1} *2 );
+    corr_shuffle(i,1) = bsxfun( @(x,y) circ_corrcc(x, y(randperm(length(y)))) , x, y );
+end
+
+figure;
+hist(corr_shuffle, 20);
+hold on;
+xline(c, 'r--','LineWidth', 2);
+set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with Helvetica
+p_val = length(find(corr_shuffle>c))/n_shuffles;
+title(sprintf('p-value = %f', p_val));
+xlabel('Circular Correlation');
+ylabel('Counts');
+set(gca, 'linewidth', 1.5);
 
 
 
