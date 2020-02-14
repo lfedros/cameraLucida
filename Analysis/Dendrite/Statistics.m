@@ -224,17 +224,18 @@ end
 save('avgAng_overall', 'avgAng_overall');
 save('dendOri_s_overall', 'dendOri_s_overall');
 
-% using avgAng_overall
-
-for i = 1 : 100
-    dendOri_s = cell2mat(avgAng_overall{i,1});
-    % wrap these values around [-90 90]
-    ii = dendOri_s > 90;
-    dendOri_s(ii,1) = dendOri_s(ii,1) - 180;
-    ii = dendOri_s < -90;
-    dendOri_s(ii,1) = dendOri_s(ii,1) + 180;
-    dendOri_s_overall{i,1} = dendOri_s;
-end
+%% 
+% % using avgAng_overall
+% 
+% for i = 1 : 100
+%     dendOri_s = cell2mat(avgAng_overall{i,1});
+%     % wrap these values around [-90 90]
+%     ii = dendOri_s > 90;
+%     dendOri_s(ii,1) = dendOri_s(ii,1) - 180;
+%     ii = dendOri_s < -90;
+%     dendOri_s(ii,1) = dendOri_s(ii,1) + 180;
+%     dendOri_s_overall{i,1} = dendOri_s;
+% end
 
 % using alphas(:,1) = pref_ori, we will perform circular correlation
 % between pref_ori and dendOri_s (shuffled dendrite orientation in cortical space)
@@ -258,5 +259,37 @@ xlabel('Circular Correlation');
 ylabel('Counts');
 set(gca, 'linewidth', 1.5);
 
+%% using shuffled cortical morphology result to then compute prefOri - dendOri + compare against unshuffled
 
+% shuffled prefOri - dendOri
 
+mean_shuffled = cell(1000,1);
+for i = 1 : 100 % 100 shuffles       
+    diff_ori = pref_ori - dendOri_s_overall{i,1}; % range [-180 180]
+      
+%     % rescale to correct range [0 90]
+%     ii = diff_ori > 90;
+%     diff_ori(ii,1) = diff_ori(ii,1) - 180;
+%     ii = diff_ori < -90;
+%     diff_ori(ii,1) = diff_ori(ii,1) + 180;
+    
+    diff_ori = abs( diff_ori );
+    
+    mean_shuffled{i,1} = mean(diff_ori);
+  
+end
+
+mean_shuffled = cell2mat(mean_shuffled);
+
+%% make histogram for prefOri - dendOri shuffle
+figure; 
+hist( mean_shuffled, 20 );
+hold on;
+xline( mean_unshuffled, 'r--', 'linewidth', 2);
+p_val = length(find(mean_unshuffled>mean_shuffled))/n_shuffles;
+
+set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with Helvetica
+set(gca, 'linewidth', 1.5);
+xlabel('Mean Angle Difference [distance]');
+ylabel('Counts');
+title(sprintf('p-value = %f', p_val));
