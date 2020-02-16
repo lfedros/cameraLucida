@@ -19,7 +19,7 @@ addpath(genpath('/home/naureeng/cameraLucida'));
 addpath(genpath('/home/naureeng/cameraLucida/Dependencies'));
 
 % specify folder name:
-folder_name = 'FR068_1';
+folder_name = 'FR150_1';
 starterID = folder_name(end);
 
 %% Step 2: plot orientation tuning curve
@@ -39,7 +39,8 @@ fname_V = strcat(file_name_vis, '_soma');
 
 %% Step 5: plot dendritic histogram in visual space
 load( strcat( folder_name, '_neuRF_column_svd.mat' ) ); % get db (prefDir)
-PolarPlot( thetaBox.theta_deg  , fname_V, db, 'box', colorID ); % [-180 180]
+[db] = PolarPlot( thetaBox.theta_deg  , fname_V, db, 'box', colorID ); % [-180 180]
+save( strcat(folder_name, '_neuRF_column_svd.mat'), 'db', 'dbMorph', 'dbVis' );
 ThetaPlot( thetaBox.theta_axial, fname_V, db, 'box', colorID ); % [-90 90]
 
 %% Step 6: plot dendritic histogram in visual space ON cortical space neuron

@@ -83,6 +83,9 @@ set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with
 print(img, '-dtiff');
 % close all;
 
+%% Step 10: correct range of db.prefOri
+db.prefOri( db.prefOri > 90 ) = db.prefOri ( db.prefOri  > 90 ) - 180;
+db.prefOri( db.prefOri < -90) = db.prefOri ( db.prefOri  < -90) + 180;
 end
 
 

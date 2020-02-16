@@ -1,5 +1,5 @@
 
-function [] = PolarPlot( thetaMap, fname, db , analysis_type, colorID)
+function [db] = PolarPlot( thetaMap, fname, db , analysis_type, colorID)
 
 % POLARPLOT 	plots dendritic histogram [-180 180]
 %  
@@ -55,7 +55,7 @@ obj1.colorAvgAng = [.5 .5 .5]; % change average-angle line color
 title(''); % remove title
 obj1.scaleBarSide = 'left'; % draw rho-axis on the left side of the plot
 % draw resultant vector r as arrow
-delete(obj1.rH)
+% delete(obj1.rH)
 obj1.polarAxs.ThetaAxis.MinorTickValues = []; % remove dotted tick-lines
 thetaticks(0:90:360); % change major ticks
 rticks(0:1); % change rho-axis tick-steps to remove all concentric circles 
@@ -80,6 +80,10 @@ obj1.drawArrow(- (180 - obj1.avgAng) , [] , 'HeadWidth', 10, 'LineWidth', 2, 'Co
 set(gca, 'fontname', 'Te X Gyre Heros'); % due to Linux compatability issue with Helvetica font
 print(img, '-dtiff');
 % close all;
+
+%% Step 10: correct range of db.prefOri
+db.prefOri( db.prefOri > 90 ) = db.prefOri ( db.prefOri  > 90 ) - 180;
+db.prefOri( db.prefOri < -90) = db.prefOri ( db.prefOri  < -90) + 180;
 
 end
 
