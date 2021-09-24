@@ -1,17 +1,30 @@
-function shadePlot(x, y, ysd, color, plotOpt)
+function shadePlot(x, y, ysd, color, plotOpt, shadeOnly)
 %color is either a string(eg: 'r' for red, as in plot) or an
 %RGB vector [ R G B]
+
+if nargin <6
+    shadeOnly = 0;
+end
+
 if nargin <5 || isempty(plotOpt)
     logy = false;
     polar = false;
+    inter = false;
 else
     switch plotOpt
         case 'logy'
             logy = true;
             polar = false;
+            inter = false;
         case 'polar'
             logy = false;
             polar = true;
+                        inter = false;
+
+        case 'interval'
+             logy = false;
+            polar = false;
+            inter = true;
     end
 end
 
@@ -48,14 +61,20 @@ elseif polar
     ylim([-max(abs([x;y])), max(abs([x;y]))])
     axis image;
     set (gca, 'Box', 'off', 'TickDir', 'out', 'TickLength', [0.015 0.015])
-    
+
     
     
 else
     
-    % plotting
-    fill([x; flipud(x)], [(y-ysd); flipud((y+ysd))], color,'linestyle','none','FaceAlpha', 0.2);
+    if inter
+          fill([x; flipud(x)], [ysd(:,1); flipud(ysd(:,2))], color,'linestyle','none','FaceAlpha', 0.2);
+    else
+      fill([x; flipud(x)], [(y-ysd); flipud((y+ysd))], color,'linestyle','none','FaceAlpha', 0.2);
+
+    end
+    if ~shadeOnly
     line(x,y,'Color', color, 'LineWidth', 1.5);
+    end
     xlim([min(x), max(x)])
     set (gca, 'Box', 'off', 'TickDir', 'out', 'TickLength', [0.015 0.015])
 end

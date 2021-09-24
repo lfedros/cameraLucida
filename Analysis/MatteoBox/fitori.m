@@ -173,7 +173,9 @@ end
 if isnan(fixedpars(5))
    minsigma 	= 0.7*median(diff(unique(oo)));	% MC changed 2015-04-16
    % minsigma 	= median(diff(unique(oo)))/2;	% 1/2 spacing bet samples
-   maxsigma 	= 80;
+%    maxsigma 	= 80;
+    maxsigma 	= 70;
+
    sigmas = minsigma:3:maxsigma;
    errs = zeros(size(sigmas));
    for isigma = 1:length(sigmas)

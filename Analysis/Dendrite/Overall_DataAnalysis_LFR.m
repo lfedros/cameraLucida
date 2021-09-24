@@ -20,7 +20,7 @@ addpath(genpath('C:\Users\Federico\Documents\GitHub\treestoolbox'));
 addpath(genpath('\\zserver.cortexlab.net\Lab\Share\Naureen'));
 
 % specify folder name:
-folder_name = 'FR140_1';
+folder_name = 'FR130_1';
 starterID = folder_name(end);
 
 %% Step 2: plot orientation tuning curve
@@ -46,7 +46,7 @@ ThetaPlot( thetaBox.theta_axial, fname_V, db, 'box', colorID ); % [-90 90]
 PlotCorticalView( tree, thetaBox.theta_deg , fname_V, 'box' ); % box-by-box 
 
 %% Step 7: plot dendritic histogram in visual space with von Mises fit 
-histFinal( thetaBox.theta_deg, db, colorID, tunePars, folder_name );
+[VM_std, OT_std] =histFinal( thetaBox.theta_deg, db, colorID, tunePars, folder_name );
 % close;
 
 %% Step 8: analysis complete

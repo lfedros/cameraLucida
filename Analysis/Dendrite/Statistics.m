@@ -10,7 +10,7 @@
 %% Step 1: enter path of single neuron
 addpath(genpath('/home/naureeng/cameraLucida')); 
 addpath(genpath('/home/naureeng/cameraLucida/Dependencies'));
-
+addpath(genpath('\\zserver.cortexlab.net\Lab\Share\Naureen'));
 %% Step 2: build data struct
 load('neuronData.mat');
 n = length( neuronData ); % num of files
