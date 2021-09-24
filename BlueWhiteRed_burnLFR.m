@@ -4,7 +4,7 @@ if nargin < 1
     n = 101;
 end
 
-if nargin < 1
+if nargin < 2
     gamma = 1;
 end
 

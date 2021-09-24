@@ -1,14 +1,10 @@
 % PLOT_TREE   Plots a tree.
 % (trees package)
 %
-% HP = plot_tree (intree, color, DD, ipart, res, options)
+% HP = plot_tree_lines (intree, color, DD, ipart, options)
 % -------------------------------------------------------
 %
-% Plots a directed graph contained in intree. Many settings allow to play
-% with the output results. Colour handling is different on line plots than
-% on patchy '-b' or '-p'. Even if metrics are nonexistent plot_tree will
-% plot its best guess for a reasonable tree (see "xdend_tree"). Line plots
-% are always slower than any patch display.
+% Plots a directed graph contained in intree with lines. 
 %
 % Input
 % -----
@@ -23,30 +19,19 @@
 %     {DEFAULT no offset [0,0,0]}
 % - ipart    ::index:        index to the subpart to be plotted
 %     {DEFAULT: all nodes}
-% - res      ::integer>1:    resolution for cylinders. Does not affect line
-%     and quiver or blatt.
-%     {DEFAULT: 8}
 % - options  ::string: has to be one of the following:
-%     '-b'   : 2D pieces are displayed on a 3D grid (-b stands for -blatt)
-%     showing the diameter but not as real cylinders. Output is a
-%     series of patches. Fastest representation.
-%       '-b1': patches are mapped on x y 
-%       '-b2': patches are mapped on x z
-%       '-b3': patches are mapped on y z
-%     '-p'   : correct cylinder representation but not yet flawless and a
-%             bit slower than "blatt" representation.
+%    
 %     '-2l'  : 2D (using only X and Y). forces line output (2D), no diameter
 %             (slower), color is mapped independently of matlab, always
 %             min to max.
 %     '-3l'  : 3D. forces line output (2D), no diameter (slower, as '-2l')
-%     '-2q'  : 2D (using only X and Y). edges are represented as arrows
-%             (using quiver) . Color vectors do not work.
-%     '-3q'  : 3D. edges are represented as arrows (using quiver, as '-q')
-%   additional options:
-%     '-thin'  : all diameters   1um, for line and quiver linewidth 0.25
-%     '-thick' : all diameters + 3um, for line and quiver linewidth 3
-%     {DEFAULT '-p'}
+% 
+%     {DEFAULT '-2l'}
 %
+% - crange    ::1x2 vector:        limits of colormap range
+%
+% - cmap    ::string:       name of colormap to use
+%    
 % Output
 % ------
 % - HP       ::handles:      links to the graphical objects.
@@ -55,16 +40,13 @@
 % -------
 % plot_tree    (sample_tree)
 %
-% See also   vtext_tree xplore_tree
-% Uses       cyl_tree ver_tree
 %
-% directly adapted for TREES toolbox, code for correct cylinders from:
-% Friedrich Forstner
-%
-% the TREES toolbox: edit, generate, visualise and analyse neuronal trees
+% directly adapted for TREES toolbox: edit, generate, visualise and analyse neuronal trees
 % Copyright (C) 2009 - 2017  Hermann Cuntz
 
-function HP  = plot_tree (intree, color, DD, ipart, res, options, crange, cmap)
+%LF Rossi 2020
+
+function HP  = plot_tree_lines(intree, color, DD, ipart, options, crange, cmap, lw)
 
 % trees : contains the tree structures in the trees package
 global       trees
@@ -114,18 +96,17 @@ if length (DD) < 3
     DD       = [DD (zeros (1, 3 - length (DD)))];
 end
 
-if (nargin < 5) || isempty (res)
-    % {DEFAULT: 8 points around cylinder}
-    res      = 8;
-end
-
-if (nargin < 6) || isempty (options)
+if (nargin < 5) || isempty (options)
     % {DEFAULT: full cylinder representation}
-    options  = '-p';
+    options  = '-2l';
 end
 
-if (nargin < 8) || isempty (options)
-    cmap = 'hsv';
+if (nargin < 7) || isempty (options)
+    cmap = 'hsv_downtoned';
+end
+
+if nargin<8
+    lw = 1;
 end
 
 if ~isempty      ([ ...
@@ -137,7 +118,7 @@ if ~isempty      ([ ...
             if islogical (color)
                 color  = double (color);
             end
-            if nargin < 7 || isempty(crange)
+            if nargin < 6 || isempty(crange)
             crange     = [(min (color)) (max (color))];
             end
             % scaling of the vector
@@ -176,11 +157,11 @@ if ~isempty      ([ ...
         if size (color, 1) > 1
             for counter   = 1 : length (ipart)
                 set    (HP (counter), ...
-                    'color',   color (counter, :), 'LineWidth', 3);
+                    'color',   color (counter, :), 'LineWidth', lw);
             end
         else
             set        (HP, ...
-                'color',       color, 'LineWidth', 3);
+                'color',       color, 'LineWidth', lw);
         end
     end
   
@@ -188,7 +169,7 @@ end
 
 
 if ~(sum (get (gca, 'DataAspectRatio') == [1 1 1]) == 3)
-    axis         equal
+    axis         equal;
 end
 
 

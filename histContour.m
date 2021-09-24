@@ -4,6 +4,11 @@ function histContour(xcol, val, color, pad0)
 if nargin <4
 pad0 = 0;
 end
+
+if nargin <3
+    color = [0 0 0]
+end
+
 colwidth = mean(diff(xcol));
 x = numel(xcol)*2; 
 y = numel(xcol)*2; 
