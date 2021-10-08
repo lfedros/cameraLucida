@@ -34,49 +34,57 @@ resps.sePeak(1:12) = resps.sePeak(sort_dirs);
 resps.aveOriPeak(1:6) = resps.aveOriPeak(sort_oris);
 resps.seOriPeak(1:6) = resps.seOriPeak(sort_oris);
 
-%% zscore according to recording blanks
-
-if isfield(resps, 'recDate')
-
-sessions = unique(resps.recDate, 'rows');
-
-nSes = size(sessions,1); 
-
-for iS = 1:nSes
-    
-    s_trials = ismember(resps.recDate, sessions(iS,:), 'rows');
-    z_std = std(makeVec(resps.allResp(:, s_trials, :)));
-    resps.allResp(:, s_trials, :) = resps.allResp(:, s_trials, :)./z_std;
-    resps.allPeaks(:, s_trials) = resps.allPeaks(:, s_trials)./z_std;
-
-end
-
-nRep = size(resps.allResp,2);
-resps.aveResp = squeeze(mean(resps.allResp, 2));
-resps.seResp = squeeze(std(resps.allResp, [], 2))/sqrt(nRep);
-resps.avePeak = squeeze(mean(resps.allPeaks,2));
-resps.sePeak = squeeze(std(resps.allPeaks,[], 2))/sqrt(nRep);
-
-resps.aveOriPeak = mean(cat(2, resps.allPeaks(1:6, :), resps.allPeaks(7:12, :)),2);
-resps.seOriPeak = std(cat(2, resps.allPeaks(1:6, :), resps.allPeaks(7:12, :)),[], 2)/sqrt(nRep*2);
-end
+% %% zscore according to recording blanks
+% 
+% if isfield(resps, 'recDate')
+% 
+% sessions = unique(resps.recDate, 'rows');
+% 
+% nSes = size(sessions,1); 
+% 
+% for iS = 1:nSes
+%     
+%     s_trials = ismember(resps.recDate, sessions(iS,:), 'rows');
+%     z_std = std(makeVec(resps.allResp(13, s_trials, :)));
+%     resps.allResp(:, s_trials, :) = resps.allResp(:, s_trials, :)./z_std;
+%     resps.allPeaks(:, s_trials) = resps.allPeaks(:, s_trials)./z_std;
+% 
+% end
+% 
+% nRep = size(resps.allResp,2);
+% resps.aveResp = squeeze(mean(resps.allResp, 2));
+% resps.seResp = squeeze(std(resps.allResp, [], 2))/sqrt(nRep);
+% resps.avePeak = squeeze(mean(resps.allPeaks,2));
+% resps.sePeak = squeeze(std(resps.allPeaks,[], 2))/sqrt(nRep);
+% 
+% resps.aveOriPeak = mean(cat(2, resps.allPeaks(1:6, :), resps.allPeaks(7:12, :)),2);
+% resps.seOriPeak = std(cat(2, resps.allPeaks(1:6, :), resps.allPeaks(7:12, :)),[], 2)/sqrt(nRep*2);
+% end
 %%
 
-tuning = retune(resps);
+tuning = retune(resps, [], 'global');
+% tuning = retune(resps, [], 'date');
 
 if strcmp(type, 'vis_cut')
 
+    tuning = retune(resps, [], neuron.tuning.z_std);
+%     tuning = retune(resps, [], 'date');
+
+    
 fixPars.ori = neuron.tuning.ori_pars_vm;
 fixPars.dir = neuron.tuning.dir_pars_vm;
 
 fixPars.ori(2:end) = NaN;
 fixPars.dir(2:end) = NaN;
 
-relative= retune(resps, fixPars);
+relative= retune(resps, fixPars, neuron.tuning.z_std);
+% relative= retune(resps, fixPars, 'date');
 
 tuning.relative = relative;
-% else
-% tuning = retune(resps);
+else
+% tuning = retune(resps, [], 'global');
+% tuning = retune(resps, [], 'date');
+
 end
 
 if doPlot

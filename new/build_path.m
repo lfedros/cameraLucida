@@ -1,4 +1,4 @@
-function path = build_path(db, type)
+function [file, folder] = build_path(db, type)
 
 % 2020 N Ghani and LF Rossi
 
@@ -11,25 +11,65 @@ end
 
 %%
 db_tag = [db.animal, '_', num2str(db.neuron_id)];
+folder = fullfile(data_repo, db_tag);
 
-switch type
-    case 'morph'
-        path = fullfile(data_repo, db_tag, [db_tag, '_tracing.swc']);
-    case 'morph_cut'
-        path = fullfile(data_repo, db_tag, [db_tag, '_tracing_cut.swc']);
-    case 'morph_seq'
-        path{1} = fullfile(data_repo, db_tag, [db_tag, '_tracing.swc']);
-        files = dir(fullfile(data_repo, db_tag, [db_tag, '_tracing_cut_*.swc']));
-        path = cat(2, path, cellfun(@fullfile, {files.folder}, {files.name}, 'UniformOutput', false));    
-    case 'ret'
-        path = fullfile(data_repo, db_tag, [db_tag, '_retinotopy.mat']);
-    case 'vis'
-        path = fullfile(data_repo, db_tag, [db_tag, '_gratings.mat']);
-    case 'vis_cut'
-        path = fullfile(data_repo, db_tag, [db_tag, '_gratings_dendrotomy.mat']);
-%     case 'vis_seq'
-%         files = dir(fullfile(data_repo, db_tag, [db_tag, '_gratings_dendrotomy_*.mat']));
-%         path = {files.name}; 
+if nargin>1
+    switch type
+        case 'morph'
+            file = [db_tag, '_tracing.swc'];
+            %             path = fullfile(folder, file);
+            
+        case 'morph_cut'
+            file = [db_tag, '_tracing_cut.swc'];
+            %             path = fullfile(folder, file);
+            
+        case 'morph_seq'
+            file = dir(fullfile(folder, [db_tag, '*tracing.swc']));
+            file = cat(1, file, dir(fullfile(folder, [db_tag, '*tracing_cut.swc'])));
+            file = {file.name};
+            for iF = 1:numel(file)
+                file{iF} = [file{iF}(1:end-4),'_microns.swc'];
+            end
+        case 'ret'
+            file = [db_tag, '_retinotopy.mat'];
+            %             path = fullfile(folder, file);
+        case 'vis'
+            file = [db_tag, '_gratings.mat'];
+            %             path = fullfile(folder, file);
+        case 'vis_cut'
+            file = [db_tag, '_gratings_dendrotomy.mat'];
+            %             path = fullfile(folder, file);
+        case 'vis_seq'
+            file = dir(fullfile(folder, [db_tag, '*tracing.swc']));
+            file = cat(1, file, dir(fullfile(folder, [db_tag, '*tracing_cut.swc'])));
+            file = {file.name};
+            for iF = 1:numel(file)
+                idx = strfind(file{iF}, 'tracing.');
+                if ~isempty(idx)
+                    file{iF} = [file{iF}(1:idx-1),'tuning.mat'];
+                else
+                    idx = strfind(file{iF}, 'tracing_cut');
+                    file{iF} = [file{iF}(1:idx-1),'tuning_cut.mat'];
+            
+                end
+            end
+            case 'ret_seq'
+            file = dir(fullfile(folder, [db_tag, '*tracing.swc']));
+            file = cat(1, file, dir(fullfile(folder, [db_tag, '*tracing_cut.swc'])));
+            file = {file.name};
+            for iF = 1:numel(file)
+                idx = strfind(file{iF}, 'tracing.');
+                if ~isempty(idx)
+                    file{iF} = [file{iF}(1:idx-1),'tracing_deg.mat'];
+                else
+                    idx = strfind(file{iF}, 'tracing_cut');
+                    file{iF} = [file{iF}(1:idx-1),'tuning_cut_deg.mat'];
+            
+                end
+            end
+    end
+else
+    file = [];
+    path = [];
 end
-
 end

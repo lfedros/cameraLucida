@@ -1,4 +1,4 @@
-function tree = tree_angular_stats(tree)
+function stats = tree_angular_stats(tree)
 
 if isempty(tree)
     return;
@@ -12,43 +12,49 @@ Y = tree.Y;
 X = X -X(1);
 Y = Y -Y(1);
 
+% measure xy map
+
+bins = -350:5:350;
+stats.xy_density = hist3([Y, X], 'Edges', {bins', bins});
+stats.xy_density = stats.xy_density/sum(stats.xy_density(:));
+
 % measure length
 
 L  = len_tree(tree);
-tree.L = sum(L); 
+stats.L = sum(L); 
 
 % convert to radial coordinates
-[tree.theta, tree.rho] = cart2pol(X, Y); %[-pi pi]
+[stats.theta, stats.rho] = cart2pol(X, Y); %[-pi pi]
 
-tree.theta_axial = tree.theta;
-tree.theta_axial(tree.theta_axial<0) = tree.theta_axial(tree.theta_axial<0)+pi; %[0 pi]
+stats.theta_axial = stats.theta;
+stats.theta_axial(stats.theta_axial<0) = stats.theta_axial(stats.theta_axial<0)+pi; %[0 pi]
 % calculate angular statistics
-tree.circ_var = circ_var(tree.theta);
-tree.circ_axial_var = circ_var(tree.theta_axial*2);
-tree.circ_mean = circ_mean(tree.theta);
-tree.circ_axial_mean = circ_mean(tree.theta_axial*2)/2;
-if tree.circ_axial_mean<0
-    tree.circ_axial_mean = tree.circ_axial_mean +pi; %[0 pi]
+stats.circ_var = circ_var(stats.theta);
+stats.circ_axial_var = circ_var(stats.theta_axial*2);
+stats.circ_mean = circ_mean(stats.theta);
+stats.circ_axial_mean = circ_mean(stats.theta_axial*2)/2;
+if stats.circ_axial_mean<0
+    stats.circ_axial_mean = stats.circ_axial_mean +pi; %[0 pi]
 end
 
-[tree.vm_thetaHat, tree.vm_kappa] = circ_vmpar(tree.theta_axial*2); % [von Mises parameters]
-[tree.vm_fit, tree.vm_angles] = circ_vmpdf( -pi:pi/180:pi, tree.vm_thetaHat, tree.vm_kappa);
-tree.vm_angles = tree.vm_angles/2;
-tree.vm_thetaHat = tree.vm_thetaHat/2;
+[stats.vm_thetaHat, stats.vm_kappa] = circ_vmpar(stats.theta_axial*2); % [von Mises parameters]
+[stats.vm_fit, stats.vm_angles] = circ_vmpdf( -pi:pi/180:pi, stats.vm_thetaHat, stats.vm_kappa);
+stats.vm_angles = stats.vm_angles/2;
+stats.vm_thetaHat = stats.vm_thetaHat/2;
 
-tree.theta_axial(tree.theta_axial > pi/2) = tree.theta_axial(tree.theta_axial > pi/2) -pi; 
-tree.circ_axial_mean(tree.circ_axial_mean > pi/2) = tree.circ_axial_mean(tree.circ_axial_mean > pi/2) -pi; 
-tree.vm_thetaHat(tree.vm_thetaHat > pi/2) = tree.vm_thetaHat(tree.vm_thetaHat > pi/2) -pi; 
+stats.theta_axial(stats.theta_axial > pi/2) = stats.theta_axial(stats.theta_axial > pi/2) -pi; 
+stats.circ_axial_mean(stats.circ_axial_mean > pi/2) = stats.circ_axial_mean(stats.circ_axial_mean > pi/2) -pi; 
+stats.vm_thetaHat(stats.vm_thetaHat > pi/2) = stats.vm_thetaHat(stats.vm_thetaHat > pi/2) -pi; 
 
 % densities
-tree.ang_bins = -pi:pi/36:pi;
-tree.ax_bins = -pi/2:pi/36:pi/2;
-tree.ang_density = histcounts(tree.theta, tree.ang_bins);
-tree.ang_density = tree.ang_density/sum(tree.ang_density);
-tree.axial_density = histcounts(tree.theta_axial, tree.ax_bins);
-tree.axial_density = tree.axial_density/sum(tree.axial_density);
-[tree.ang_map, tree.ang_map_bins]= plot_Density2D(X, Y, 1, 0.1, [20 20], false, 0);
-tree.ang_map = tree.ang_map/sum(tree.ang_map(:));
+stats.ang_bins = -pi:pi/36:pi;
+stats.ax_bins = -pi/2:pi/36:pi/2;
+stats.ang_density = histcounts(stats.theta, stats.ang_bins);
+stats.ang_density = stats.ang_density/sum(stats.ang_density);
+stats.axial_density = histcounts(stats.theta_axial, stats.ax_bins);
+stats.axial_density = stats.axial_density/sum(stats.axial_density);
+[stats.ang_map, stats.ang_map_bins]= plot_Density2D(X, Y, 1, 0.1, [20 20], false, 0);
+stats.ang_map = stats.ang_map/sum(stats.ang_map(:));
 % 
 % figure;
 % obj = CircHist(rad2deg(tree.ang_density));

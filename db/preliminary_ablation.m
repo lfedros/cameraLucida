@@ -5,7 +5,8 @@ make_db_dendrite_ablation;
 nDb = numel(db);
 %%
 
-for iDb = 11
+for iDb = 1:nDb
+    
     ops.saveDir = 'D:\OneDrive - University College London\Data\Dendrites';
     ops.doLoad = 0;
     ops.expType = '';
@@ -14,7 +15,12 @@ for iDb = 11
     if ~isempty(db_abl(iDb).animal)
     resp_abl(iDb) = poolOri(db_abl(iDb), ops);
     end
-    
+%     figure;
+%     subplot(2,1,1)
+%     F0_neu = [resp(iDb).F0_neu, resp_abl(iDb).F0_neu]; plot(F0_neu)
+%         subplot(2,1,2)
+%     F0 = [resp(iDb).F0, resp_abl(iDb).F0]; plot(F0)
+
 end
 % plotSweepResp_LFR(resp_abl(iDb).allResp(:, :,:), resp_abl(iDb).time, 2);
 % plotSweepResp_LFR(resp(iDb).allResp(:, :,:), resp(iDb).time, 2);

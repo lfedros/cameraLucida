@@ -1,14 +1,18 @@
-function tree_seq = load_morph_longitudinal(db, doPlot)
+function tree_seq = load_morph_longitudinal(db, doPlot, doSave)
 
-% 2020 N Ghani and LF Rossi
 
 if nargin < 2
     doPlot = 0;
+end
+
+if nargin < 3
+    doSave = 0;
 end
 %% Step 1: load swc reconstruction
 
 morph_path = build_path(db, 'morph_seq');
 
+if numel(morph_path)>1
 for iM = 1: numel(morph_path)
     
     [tree_seq{iM},~,~] = load_tree(morph_path{iM},'r'); % [pixels]
@@ -20,10 +24,22 @@ for iM = 1: numel(morph_path)
             tree_seq{iM}.date = [];
 
     end
+    
+        tree_seq{iM} = tree_angular_stats(tree_seq{iM});
+
+end
+else
+    tree_seq = [];
+    return;
 end
 
 
-%% Step 3: plot, if requested
+%% Step 3: save, if requested
+
+if doSave
+end
+
+%% Step 4: plot, if requested
 
 if doPlot
     

@@ -33,7 +33,8 @@ resps.sePeak(1:12) = resps.sePeak(sort_dirs);
 resps.aveOriPeak(1:6) = resps.aveOriPeak(sort_oris);
 resps.seOriPeak(1:6) = resps.seOriPeak(sort_oris);
 
-tuning{1} = retune(resps);
+tuning{1} = retune(resps, [], 'global');
+% tuning{1} = retune(resps, [], 'date');
 
 
 %% Step 2 load longitudinal responses
@@ -74,7 +75,8 @@ for iSeq = 2:numel(neuron.morph_seq)
     seq_resps.allResp = resps.allResp(:, date_trials,:);
 seq_resps.allPeaks = resps.allPeaks(:, date_trials);
 
-tuning{iSeq} = retune(seq_resps);
+tuning{iSeq} = retune(seq_resps, [], tuning{1}.z_std);
+% tuning{iSeq} = retune(seq_resps, [], 'date');
 
 fixPars.ori = tuning{1}.ori_pars_vm;
 fixPars.dir = tuning{1}.dir_pars_vm;
@@ -82,7 +84,8 @@ fixPars.dir = tuning{1}.dir_pars_vm;
 fixPars.ori(2:end) = NaN;
 fixPars.dir(2:end) = NaN;
 
-relative= retune(resps, fixPars);
+relative= retune(seq_resps, fixPars, tuning{1}.z_std);
+% relative= retune(seq_resps, fixPars, 'date');
 
 tuning{iSeq}.relative = relative;
     else
@@ -121,7 +124,7 @@ plot([0 390], [0 0], '--', 'Color', [0.3 0.3 0.3]); hold on
             plot(tuning{iSeq}.fit_pt, tuning{iSeq}.fit_vm, 'Color', line_c, 'LineWidth', 2)
 
     else
-    plot(tuning{iSeq}.fit_pt, tuning{iSeq}.fit_vm, 'Color', line_c, 'LineWidth', 2)
+    plot(tuning{iSeq}.fit_pt, tuning{iSeq}.relative.fit_vm, 'Color', line_c, 'LineWidth', 2)
     end
 
     

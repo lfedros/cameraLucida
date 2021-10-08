@@ -27,7 +27,7 @@ ret_path = build_path(db, 'ret');
 try
 load(ret_path);
 catch
-     warning('Retibotopy not found...');
+     warning('Retinotopy not found...');
 tree_deg = [];
     return;
 end
