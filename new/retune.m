@@ -95,9 +95,9 @@ tune.dirs = 0:30:330;
 toFit= makeVec(tune.allPeaks(1:end-1, :))';
 [tune.dir_pars_g, ~] = fitori(repmat(tune.dirs, 1,nRep), toFit);
 tune.fit_g = oritune(tune.dir_pars_g, 0:1:359);
-tune.dir_pars_vm = fitTuning(repmat(tune.dirs, 1,nRep), toFit, 'vm2', fixPars.dir);
-tune.fit_vm = vonMises2(tune.dir_pars_vm, 0:1:359);
-tune.fit_vm_12 = vonMises2(tune.dir_pars_vm, 0:30:330);
+tune.dir_pars_vm = mfun.fitTuning(repmat(tune.dirs, 1,nRep), toFit, 'vm2', fixPars.dir);
+tune.fit_vm = mfun.vonMises2(tune.dir_pars_vm, 0:1:359);
+tune.fit_vm_12 = mfun.vonMises2(tune.dir_pars_vm, 0:30:330);
 tune.fit_pt = 0:1:359;
 tune.prefDir = tune.dir_pars_vm(1);
 
@@ -120,8 +120,8 @@ tune.oris(tune.oris>=180) = tune.oris(tune.oris>=180)-180; %[0 180]
 tune.oris = tune.oris - 90; %[-90 90]
 % tune.oris(tune.oris<0) = tune.oris(tune.oris<0) + 180; %[0 180]
 
-tune.ori_pars_vm = fitTuning(repmat(tune.oris, 1,nRep), toFit, 'vm1', fixPars.ori);
-tune.ori_fit_vm = vonMises(tune.ori_pars_vm, -180:1:179);
+tune.ori_pars_vm = mfun.fitTuning(repmat(tune.oris, 1,nRep), toFit, 'vm1', fixPars.ori);
+tune.ori_fit_vm = mfun.vonMises(tune.ori_pars_vm, -180:1:179);
 tune.ori_fit_pt = (-180:1:179)/2;
 tune.prefOri = tune.ori_pars_vm(1)/2;
 tune.prefOri = unwrap_angle(tune.prefOri, 1,1);

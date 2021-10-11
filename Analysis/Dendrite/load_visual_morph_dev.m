@@ -72,8 +72,8 @@ if ~isempty(prefOri)
 prefOri(prefOri<0) = prefOri(prefOri<0)+180;
 % [tree_deg.isoOriX, tree_deg.isoOriY] = cameraLucida.map_oriLine(micronsSomaX, micronsSomaY, retX, retY, prefOri,1);
 
-walk =cameraLucida.walkThetaCortex(retX, retY, prefOri, [Y_pos, X_pos]);
-walkOp =cameraLucida.walkThetaCortex(retX, retY, prefOri+180, [Y_pos, X_pos]);
+walk =walkThetaCortex(retX, retY, prefOri, [Y_pos, X_pos]);
+walkOp =walkThetaCortex(retX, retY, prefOri+180, [Y_pos, X_pos]);
 
 if size(walk, 1)>1
 walk = extrapolate_walk(walk);
@@ -107,8 +107,8 @@ end
 %% map vertical isoline in cortex
 
 
-walk =cameraLucida.walkThetaCortex(retX, retY, -90, [Y_pos, X_pos]);
-walkOp =cameraLucida.walkThetaCortex(retX, retY, 90, [Y_pos, X_pos]);
+walk =walkThetaCortex(retX, retY, -90, [Y_pos, X_pos]);
+walkOp =walkThetaCortex(retX, retY, 90, [Y_pos, X_pos]);
 
 if size(walk, 1)>1
 walk = extrapolate_walk(walk);
@@ -140,8 +140,8 @@ verticalOpWedge = thetaWedge(verticalOp_IJ, 5, db.retino.somaYX, size(retX));
 %% map horizontal isoline in cortex
 
 
-walk =cameraLucida.walkThetaCortex(retX, retY, -180, [Y_pos, X_pos]);
-walkOp =cameraLucida.walkThetaCortex(retX, retY, 0, [Y_pos, X_pos]);
+walk =walkThetaCortex(retX, retY, -180, [Y_pos, X_pos]);
+walkOp =walkThetaCortex(retX, retY, 0, [Y_pos, X_pos]);
 
 if size(walk, 1)>1
 walk = extrapolate_walk(walk);
@@ -202,6 +202,7 @@ end
 tree_deg(iSeq).dA = morph(iSeq).dA;
 tree_deg(iSeq).X = A; %- A(1);
 tree_deg(iSeq).Y = E; % - E(1);
+tree_deg(iSeq).Z = morph(iSeq).Z; 
 tree_deg(iSeq).D = ones(length(A),1)*0.1;
 tree_deg(iSeq).R = ones(length(A),1)*0.1;
 tree_deg(iSeq).rnames = morph(iSeq).rnames;

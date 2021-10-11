@@ -16,6 +16,49 @@ ori_deg =tuning.prefOri;
 ori_deg = unwrap_angle(ori_deg, 0,1);
 rot_tree = retino;
 
+
+%%
+
+b = robustfit(retino.isoOri(:,1), retino.isoOri(:,2), [], [], 'off');
+isoOri_ang = rad2deg(atan(b));
+
+coords = [morph.X, morph.Y];
+coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
+
+R = [cosd(isoOri_ang) sind(isoOri_ang); -sind(isoOri_ang) cosd(isoOri_ang)];
+rot_coords = R*coords';
+
+rotX = rot_coords(1,:)';
+rotY = rot_coords(2,:)';
+    
+
+rot_tree.X = rotX;
+rot_tree.Y = rotY;
+
+bins = -350:5:350;
+rot_tree.xy_density = hist3([rotY, rotX], 'Edges', {bins', bins});
+rot_tree.xy_density = rot_tree.xy_density/sum(rot_tree.xy_density(:));
+
+%%
+b = robustfit(retino.isoHoriz(:,1), retino.isoHoriz(:,2), [], [], 'off');
+isoHoriz_ang = rad2deg(atan(b));
+
+coords = [morph.X, morph.Y];
+coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
+
+R = [cosd(isoHoriz_ang) sind(isoHoriz_ang); -sind(isoHoriz_ang) cosd(isoHoriz_ang)];
+rot_coords = R*coords';
+
+rotX = rot_coords(1,:)';
+rotY = rot_coords(2,:)';
+    
+
+% rot_tree.X = rotX;
+% rot_tree.Y = rotY;
+
+bins = -350:5:350;
+rot_tree.xy_density_horz = hist3([rotY, rotX], 'Edges', {bins', bins});
+rot_tree.xy_density_horz = rot_tree.xy_density/sum(rot_tree.xy_density(:));
 %% compute logical map of theta in cortex
 
 theta_ax = -90:5:85;
@@ -47,7 +90,7 @@ coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
 % figure;
 for it = 1:numel(theta)
     %% rotate tree by deg bin clockwise
-    R = [cosd(theta(it)) -sind(theta(it)); sind(theta(it)) cosd(theta(it))];
+    R = [cosd(theta(it)) sind(theta(it)); -sind(theta(it)) cosd(theta(it))];
     rot_coords = R*coords';
     rotX = rot_coords(1,:)';
     rotY = rot_coords(2,:)';

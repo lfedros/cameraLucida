@@ -14,10 +14,16 @@ Y = Y -Y(1);
 
 % measure xy map
 
+if max(X)>100
 bins = -350:5:350;
 stats.xy_density = hist3([Y, X], 'Edges', {bins', bins});
 stats.xy_density = stats.xy_density/sum(stats.xy_density(:));
-
+else
+  bins = -20:1:20;
+stats.xy_density = hist3([Y, X], 'Edges', {bins', bins});
+stats.xy_density = stats.xy_density/sum(stats.xy_density(:));  
+    
+end
 % measure length
 
 L  = len_tree(tree);

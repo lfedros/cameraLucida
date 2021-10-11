@@ -37,10 +37,10 @@ for iDb = 1:nDb
         
         if strcmp(cut_type{iDb},'para')
             color(nthP, :) = [1 0 0 ];
-            type(nthP) = 1;
+            type(nthP) = true;
         else
             color(nthP, :) = [0 0.5 1];
-            type(nthP) = 0;
+            type(nthP) = false;
             
         end
         
@@ -69,7 +69,11 @@ for iDb = 1:nDb
             RoR(nthP) = Rp_cut(nthP)./Rp(nthP);%
             
         elseif Rp_cut(nthP)<0 && Rp(nthP) >0
-            RoR(nthP) = Rp_cut(nthP)./Rp(nthP);%
+            RoR(nthP) = 10^-6; %
+            
+            %Rp_cut(nthP)./Rp(nthP);% 
+            
+            
             %             RoR(iDb) = abs((Rp_abl(iDb)-Ro_abl(iDb)))./(Rp(iDb)-Ro(iDb));
         end
         
@@ -100,36 +104,36 @@ for iDb = 1:nDb
         % tuning curve 1deg res
         pars = neuron(iDb).tuning(1).dir_pars_vm;
         pars(1) = 180;
-        vm(:, nthP) = vonMises2(pars, 0:1:359);
+        vm(:, nthP) = mfun.vonMises2(pars, 0:1:359);
         top = max(vm(:, nthP));
         vm(:, nthP)= vm(:, nthP)/top;
         
         pars = neuron(iDb).tuning(iSeq).relative.dir_pars_vm;
         pars(1) = 180;
-        abl_rel_vm(:, nthP) = vonMises2(pars, 0:1:359);
+        abl_rel_vm(:, nthP) = mfun.vonMises2(pars, 0:1:359);
         abl_rel_vm(:, nthP)= abl_rel_vm(:, nthP)/top;
         
         pars = neuron(iDb).tuning(iSeq).dir_pars_vm;
         pars(1) = 180+dDir(nthP);
-        abl_vm(:, nthP) = vonMises2(pars, 0:1:359);
+        abl_vm(:, nthP) = mfun.vonMises2(pars, 0:1:359);
         abl_vm(:, nthP)= abl_vm(:, nthP)/top;
         
         % tuning curve 30 deg res
         
         pars = neuron(iDb).tuning(1).dir_pars_vm;
         pars(1) = 180;
-        [vm_30(:, nthP), sort_idx] = sort(vonMises2(pars, fit_pt_30), 'ascend');
+        [vm_30(:, nthP), sort_idx] = sort(mfun.vonMises2(pars, fit_pt_30), 'ascend');
         top = max(vm_30(:, nthP));
         vm_30(:, nthP)= vm_30(:, nthP)/top;
         
         pars = neuron(iDb).tuning(iSeq).relative.dir_pars_vm;
         pars(1) = 180;
-        abl_rel_vm_30(:, nthP) = vonMises2(pars, fit_pt_30 );
+        abl_rel_vm_30(:, nthP) = mfun.vonMises2(pars, fit_pt_30 );
         abl_rel_vm_30(:, nthP)= abl_rel_vm_30(sort_idx, nthP)/top;
         
         pars = neuron(iDb).tuning(iSeq).dir_pars_vm;
         pars(1) = 180+dDir(nthP);
-        abl_vm_30(:, nthP) = vonMises2(pars, fit_pt_30 );
+        abl_vm_30(:, nthP) = mfun.vonMises2(pars, fit_pt_30 );
         abl_vm_30(:, nthP)= abl_vm_30(sort_idx, nthP)/top;
         
         lm = fitlm(vm_30(:, nthP), abl_rel_vm_30(:, nthP));
@@ -150,10 +154,24 @@ for iDb = 1:nDb
         
         centeredDist_cut(:, nthP)= (centeredDist_cut(:, nthP)*L_cut(nthP))/L(nthP);
 
+        
+       xy(:,:,nthP) = neuron(iDb).rot_cortex(1).xy_density;
+       xy_cut(:,:,nthP) = neuron(iDb).rot_cortex(iSeq).xy_density*L_cut(nthP)/L(nthP);
+
+       xy_horz(:,:,nthP) = neuron(iDb).rot_cortex(1).xy_density_horz;
+       xy_horz_cut(:,:,nthP) = neuron(iDb).rot_cortex(iSeq).xy_density*L_cut(nthP)/L(nthP);
+       
+       
+%        xy_ret(:,:,nthP) = neuron(iDb).retino_aligned(1).stats.xy_density;
+%        xy_ret_cut(:,:,nthP) = neuron(iDb).retino_aligned(iSeq).stats.xy_density*L_cut(nthP)/L(nthP);
+
     end
     
     
-end
+end 
+
+%%
+
 
 L_rel = 1 - L_cut./L;
 type = logical(type);
@@ -225,6 +243,73 @@ se_orth_dist = std(centeredDist(:, ~type),[],2)/sqrt(sum(~type));
 se_orth_trim = std(trims_dist(:, ~type),[],2);
 se_orth_dist_cut = std(centeredDist_cut(:, ~type),[],2)/sqrt(sum(~type));
 
+ave_par_xy = mean(xy(:,:, type),3);
+par_top = max(ave_par_xy(:));
+ave_par_xy = ave_par_xy/par_top;
+ave_par_abl_xy = mean(xy_cut(:,:, type),3)/par_top;
+
+ave_orth_xy = mean(xy_horz(:,:, ~type),3);
+orth_top = max(ave_orth_xy(:));
+ave_orth_xy = ave_orth_xy/orth_top;
+ave_orth_abl_xy = mean(xy_horz_cut(:,:, ~type),3)/orth_top;
+
+
+% ave_par_ret_xy = mean(xy_ret(:,:, type),3);
+% ave_par_ret_abl_xy = mean(xy_ret_cut(:,:, type),3);
+% ave_orth_ret_xy = mean(xy_ret(:,:, ~type),3);
+% ave_orth_ret_abl_xy = mean(xy_ret_cut(:,:, ~type),3);
+
+%%
+% figure; 
+% 
+% orth_d = ave_orth_ret_xy-ave_orth_ret_abl_xy;
+% par_d = ave_par_ret_xy-ave_par_ret_abl_xy;
+% orth_d(orth_d<0) =0; 
+% par_d(par_d<0) =0; 
+% 
+% subplot(2,3, 1)
+% imagesc(log10(ave_orth_ret_xy) )
+% 
+% subplot(2,3, 2)
+% imagesc(log10(ave_orth_ret_abl_xy))
+% 
+% subplot(2,3, 3)
+% imagesc(orth_d)
+% 
+% subplot(2,3, 4)
+% imagesc(log10(ave_par_ret_xy) )
+% 
+% subplot(2,3, 5)
+% imagesc(log10(ave_par_ret_abl_xy))
+% 
+% subplot(2,3, 6)
+% imagesc(par_d)
+
+figure; 
+
+orth_d = ave_orth_xy - ave_orth_abl_xy;
+par_d = ave_par_xy - ave_par_abl_xy;
+orth_d(orth_d<0) =0; 
+par_d(par_d<0) =0; 
+
+
+subplot(2,3, 1)
+imagesc(ave_orth_xy)
+
+subplot(2,3, 2)
+imagesc(ave_orth_abl_xy)
+
+subplot(2,3, 3)
+imagesc(orth_d)
+
+subplot(2,3, 4)
+imagesc(ave_par_xy)
+
+subplot(2,3, 5)
+imagesc(ave_par_abl_xy)
+
+subplot(2,3, 6)
+imagesc(par_d)
 %%
 
 figure('Color', 'w');

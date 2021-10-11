@@ -1,11 +1,10 @@
 clear;
 
 %% Set path to relevant code
-addpath('C:\Users\Federico\Documents\GitHub\Dbs\V1_dendrites');
-code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida\new';
+
+code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida/new';
 addpath(genpath(code_repo));
-addpath(genpath('C:\Users\Federico\Documents\GitHub\treestoolbox'));
-cd(code_repo);
+set_dendrite_paths();
 
 %% Populate database
 db_V1_dendrites;
@@ -33,7 +32,7 @@ end
 
 for iDb = 1:nDb
     
-    neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 1,1);
+    neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 0,0);
 
 end
 
@@ -45,7 +44,7 @@ for iDb = 1:nDb
         
         neuron(iDb).tuning(1).prefOri = unwrap_angle(neuron(iDb).tuning(1).prefDir + 90,1,1);
     end
-    neuron(iDb).retino = load_visual_morph_dev( neuron(iDb), neuron(iDb).tuning(1).prefOri,0, 0);
+    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb), neuron(iDb).tuning(1).prefOri,0, 0);
 
 end
 
@@ -57,13 +56,22 @@ for iDb = 1:nDb
 
     neuron(iDb).morph(iSeq).stats = tree_angular_stats(neuron(iDb).morph(iSeq));
 
+
     neuron(iDb).retino_aligned(iSeq) = rotate_tree(neuron(iDb).retino(iSeq), neuron(iDb).tuning(1).prefDir);
            
+
     neuron(iDb).rot_cortex(iSeq) = rot_ret_stats(neuron(iDb).morph(iSeq), neuron(iDb).retino(iSeq), neuron(iDb).tuning);
     end
     
 end
 
+
+% for iDb = 1:nDb
+%     
+%     for iSeq = 1:numel(neuron(iDb).morph)
+%     neuron(iDb).retino_aligned(iSeq).stats = tree_angular_stats(neuron(iDb).retino_aligned(iSeq) );
+%     end
+% end
 
 %%
 for iDb = 1:nDb
