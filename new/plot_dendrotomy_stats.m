@@ -22,18 +22,22 @@ Dp=[]; Do =[]; Rp=[]; Ro= []; sel = []; sel_abl= [];
 %counter of datapoints including longitudinal points
 parent_db = [];
 nthP = 0;
+child_seq = [];
 
-fit_pt = 0:1:359;
+fit_pt = 0:1:360;
 fit_pt_30 = 0:30:345;
+fit_pt_ori = -90:1:90;
 
 hbins = neuron(1).rot_cortex(1).ang_bins_aligned;
+xybins = neuron(1).rot_cortex(1).xy_bins;
 
 for iDb = 1:nDb
     
-    for iSeq = 2:numel(neuron(iDb).morph)
+    for iSeq = 1:numel(neuron(iDb).morph)
         
         nthP = nthP+1;
         parent_db(nthP) = iDb;
+        child_seq(nthP) = iSeq;
         
         if strcmp(cut_type{iDb},'para')
             color(nthP, :) = [1 0 0 ];
@@ -58,9 +62,16 @@ for iDb = 1:nDb
         Ro(nthP) = neuron(iDb).tuning(1).Ro;
         Rn(nthP) = neuron(iDb).tuning(1).Rn;
         
-        Rp_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
-        Ro_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Ro;
-        Rn_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rn;
+        if iSeq >1
+            
+            Rp_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
+            Ro_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Ro;
+            Rn_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rn;
+        else
+            Rp_cut(nthP) = Rp(nthP);
+            Ro_cut(nthP) = Ro(nthP);
+            Rn_cut(nthP) = Rn(nthP);
+        end
         
         sel(nthP) = (Rp(nthP) - Ro(nthP))/(Rp(nthP) + Ro(nthP));
         sel_abl(nthP) = (Rp_cut(nthP) - Ro_cut(nthP))/(Rp_cut(nthP) + Ro_cut(nthP));
@@ -71,7 +82,7 @@ for iDb = 1:nDb
         elseif Rp_cut(nthP)<0 && Rp(nthP) >0
             RoR(nthP) = 10^-6; %
             
-            %Rp_cut(nthP)./Rp(nthP);% 
+            %Rp_cut(nthP)./Rp(nthP);%
             
             
             %             RoR(iDb) = abs((Rp_abl(iDb)-Ro_abl(iDb)))./(Rp(iDb)-Ro(iDb));
@@ -81,8 +92,12 @@ for iDb = 1:nDb
         
         % Orientation selectivity
         OS(nthP) = 1- neuron(iDb).tuning(1).OS_circ;
+                if iSeq >1
+
         OS_cut(nthP) =1 -neuron(iDb).tuning(iSeq).relative.OS_circ;
-        
+                else
+                  OS_cut(nthP)   =OS(nthP);
+                end
         % OS(iDb) = neuron(iDb).tuning.OS_circ;
         DS(nthP) = neuron(iDb).tuning(1).DS;
         Rp_ori(nthP) = neuron(iDb).tuning(1).Rp_ori;
@@ -93,29 +108,68 @@ for iDb = 1:nDb
         
         % OS_cut(iDb) = neuron(iDb).tuning_cut.OS_circ;
         DS_cut(nthP) = neuron(iDb).tuning(iSeq).DS;
-        Rp_ori_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
-        Ro_ori_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Ro;
-        Rb_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rb;
+        if iSeq >1
+            Rp_ori_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
+            Ro_ori_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Ro;
+            Rb_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rb;
+        else
+            Rp_ori_cut(nthP) = neuron(iDb).tuning(iSeq).Rp;
+            Ro_ori_cut(nthP) = neuron(iDb).tuning(iSeq).Ro;
+            Rb_cut(nthP) = neuron(iDb).tuning(iSeq).Rb;
+        end
         prefOri_cut(nthP) = neuron(iDb).tuning(iSeq).prefOri;
         prefDir_cut(nthP) = neuron(iDb).tuning(iSeq).prefDir;
-        dOri(nthP) = abs(unwrap_angle(prefOri(nthP) - prefOri_cut(nthP),1,1)); %[-pi/2, pi/2] -->[0, pi/2]
-        dDir(nthP) = abs(unwrap_angle(prefDir(nthP) -prefDir_cut(nthP),0,1)); %[-pi, pi] -->[0, pi]
+        dOri(nthP) = unwrap_angle(prefOri(nthP) - prefOri_cut(nthP),1,1); %[-pi/2, pi/2] -->[0, pi/2]
+        dDir(nthP) = unwrap_angle(prefDir(nthP) -prefDir_cut(nthP),0,1); %[-pi, pi] -->[0, pi]
+        
+        
+        % response to blank
+        
+        blank(nthP) = neuron(iDb).tuning(1).avePeak(13);
+        abl_blank(nthP) = neuron(iDb).tuning(iSeq).avePeak(13);
+        
+        % ori tuning curve 1deg res
+        pars = neuron(iDb).tuning(1).ori_pars_vm;
+        pars(1) = 0;
+        ori_vm(:, nthP) = mfun.vonMises(pars, fit_pt_ori*2);
+        top = max(ori_vm(:, nthP));
+        ori_vm(:, nthP)= ori_vm(:, nthP)/top;
+        
+        if iSeq >1
+            pars = neuron(iDb).tuning(iSeq).relative.ori_pars_vm;
+        else
+            pars = neuron(iDb).tuning(iSeq).ori_pars_vm;
+            
+        end
+        pars(1) = 0;
+        abl_rel_ori_vm(:, nthP) = mfun.vonMises(pars, fit_pt_ori*2);
+        abl_rel_ori_vm(:, nthP)= abl_rel_ori_vm(:, nthP)/top;
+        
+        pars = neuron(iDb).tuning(iSeq).ori_pars_vm;
+        pars(1) = dOri(nthP);
+        abl_ori_vm(:, nthP) = mfun.vonMises(pars, fit_pt_ori*2);
+        abl_ori_vm(:, nthP)= abl_ori_vm(:, nthP)/top;
         
         % tuning curve 1deg res
         pars = neuron(iDb).tuning(1).dir_pars_vm;
         pars(1) = 180;
-        vm(:, nthP) = mfun.vonMises2(pars, 0:1:359);
+        vm(:, nthP) = mfun.vonMises2(pars, fit_pt);
         top = max(vm(:, nthP));
         vm(:, nthP)= vm(:, nthP)/top;
         
-        pars = neuron(iDb).tuning(iSeq).relative.dir_pars_vm;
+        if iSeq >1
+            pars = neuron(iDb).tuning(iSeq).relative.dir_pars_vm;
+        else
+            pars = neuron(iDb).tuning(iSeq).dir_pars_vm;
+            
+        end
         pars(1) = 180;
-        abl_rel_vm(:, nthP) = mfun.vonMises2(pars, 0:1:359);
+        abl_rel_vm(:, nthP) = mfun.vonMises2(pars, fit_pt);
         abl_rel_vm(:, nthP)= abl_rel_vm(:, nthP)/top;
         
         pars = neuron(iDb).tuning(iSeq).dir_pars_vm;
         pars(1) = 180+dDir(nthP);
-        abl_vm(:, nthP) = mfun.vonMises2(pars, 0:1:359);
+        abl_vm(:, nthP) = mfun.vonMises2(pars, fit_pt);
         abl_vm(:, nthP)= abl_vm(:, nthP)/top;
         
         % tuning curve 30 deg res
@@ -126,7 +180,12 @@ for iDb = 1:nDb
         top = max(vm_30(:, nthP));
         vm_30(:, nthP)= vm_30(:, nthP)/top;
         
-        pars = neuron(iDb).tuning(iSeq).relative.dir_pars_vm;
+        if iSeq >1
+            pars = neuron(iDb).tuning(iSeq).relative.dir_pars_vm;
+        else
+            pars = neuron(iDb).tuning(iSeq).dir_pars_vm;
+            
+        end
         pars(1) = 180;
         abl_rel_vm_30(:, nthP) = mfun.vonMises2(pars, fit_pt_30 );
         abl_rel_vm_30(:, nthP)= abl_rel_vm_30(sort_idx, nthP)/top;
@@ -153,28 +212,32 @@ for iDb = 1:nDb
             centeredDist_cut(:, nthP)*L_cut(nthP))/L(nthP);
         
         centeredDist_cut(:, nthP)= (centeredDist_cut(:, nthP)*L_cut(nthP))/L(nthP);
-
         
-       xy(:,:,nthP) = neuron(iDb).rot_cortex(1).xy_density;
-       xy_cut(:,:,nthP) = neuron(iDb).rot_cortex(iSeq).xy_density*L_cut(nthP)/L(nthP);
-
-       xy_horz(:,:,nthP) = neuron(iDb).rot_cortex(1).xy_density_horz;
-       xy_horz_cut(:,:,nthP) = neuron(iDb).rot_cortex(iSeq).xy_density*L_cut(nthP)/L(nthP);
-       
-       
-%        xy_ret(:,:,nthP) = neuron(iDb).retino_aligned(1).stats.xy_density;
-%        xy_ret_cut(:,:,nthP) = neuron(iDb).retino_aligned(iSeq).stats.xy_density*L_cut(nthP)/L(nthP);
-
+        
+        xy(:,:,nthP) = neuron(iDb).rot_cortex(1).xy_density;
+        xy_cut(:,:,nthP) = neuron(iDb).rot_cortex(iSeq).xy_density*L_cut(nthP)/L(nthP);
+        
+        xy_horz(:,:,nthP) = neuron(iDb).rot_cortex(1).xy_density_horz;
+        xy_horz_cut(:,:,nthP) = neuron(iDb).rot_cortex(iSeq).xy_density*L_cut(nthP)/L(nthP);
+        
+        
+        %        xy_ret(:,:,nthP) = neuron(iDb).retino_aligned(1).stats.xy_density;
+        %        xy_ret_cut(:,:,nthP) = neuron(iDb).retino_aligned(iSeq).stats.xy_density*L_cut(nthP)/L(nthP);
+        
     end
     
     
-end 
+end
+
+dOri = abs(dOri);
+dDir = abs(dDir);
 
 %%
 
 
 L_rel = 1 - L_cut./L;
 type = logical(type);
+is_cut = child_seq>1;
 
 par_lm = fitlm(L_rel(type), RoR(type), 'Intercept', false);
 orth_lm = fitlm(L_rel(~type), RoR(~type),'Intercept', false);
@@ -194,123 +257,175 @@ orth_lm_lg = fitlm(L_rel(~type), log10(RoR(~type)),'Intercept', false);
 
 dOS = OS_cut./OS;
 
-ave_par = mean(vm(:, type),2);
-se_par = std(vm(:, type),[], 2)/sqrt(sum(type));
-ave_orth = mean(vm(:, ~type),2);
-se_orth = std(vm(:, ~type),[], 2)/sqrt(sum(~type));
 
-ave_par_abl = mean(abl_vm(:, type),2);
-se_par_abl = std(abl_vm(:, type),[], 2)/sqrt(sum(type));
-ave_orth_abl = mean(abl_vm(:, ~type),2);
-se_orth_abl = std(abl_vm(:, ~type),[], 2)/sqrt(sum(~type));
+ave_blank_par = mean(blank(type & is_cut));
+se_blank_par = std(blank(type & is_cut))/sqrt(numel(blank(type & is_cut)));
+ave_abl_blank_par = mean(abl_blank(type & is_cut));
+se_abl_blank_par = std(abl_blank(type & is_cut))/sqrt(numel(abl_blank(type & is_cut)));
 
-ave_par_abl_rel = mean(abl_rel_vm(:, type),2);
-se_par_abl_rel = std(abl_rel_vm(:, type),[], 2)/sqrt(sum(type));
-ave_orth_abl_rel = mean(abl_rel_vm(:, ~type),2);
-se_orth_abl_rel = std(abl_rel_vm(:, ~type),[], 2)/sqrt(sum(~type));
+ave_blank_orth = mean(blank(~type & is_cut));
+se_blank_orth = std(blank(~type & is_cut))/sqrt(numel(blank(~type & is_cut)));
+ave_abl_blank_orth = mean(abl_blank(~type & is_cut));
+se_abl_blank_orth= std(abl_blank(~type & is_cut))/sqrt(numel(abl_blank(~type & is_cut)));
 
-ave_par_30 = mean(vm_30(:, type),2);
-se_par_30 = std(vm_30(:, type),[], 2)/sqrt(sum(type));
-ave_orth_30 = mean(vm_30(:, ~type),2);
-se_orth_30 = std(vm_30(:, ~type),[], 2)/sqrt(sum(~type));
+ave_ori_par = mean(ori_vm(:, type & is_cut),2);
+se_ori_par = std(ori_vm(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_ori_orth = mean(ori_vm(:, ~type & is_cut),2);
+se_ori_orth = std(ori_vm(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
 
-ave_par_abl_30 = mean(abl_vm_30(:, type),2);
-se_par_abl_30 = std(abl_vm_30(:, type),[], 2)/sqrt(sum(type));
-ave_orth_abl_30 = mean(abl_vm_30(:, ~type),2);
-se_orth_abl_30 = std(abl_vm_30(:, ~type),[], 2)/sqrt(sum(~type));
+ave_ori_par_abl = mean(abl_ori_vm(:, type & is_cut),2);
+se_ori_par_abl = std(abl_ori_vm(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_ori_orth_abl = mean(abl_ori_vm(:, ~type & is_cut),2);
+se_ori_orth_abl = std(abl_ori_vm(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
 
-ave_par_abl_rel_30 = mean(abl_rel_vm_30(:, type),2);
-se_par_abl_rel_30 = std(abl_rel_vm_30(:, type),[], 2)/sqrt(sum(type));
+ave_ori_par_abl_rel = mean(abl_rel_ori_vm(:, type & is_cut),2);
+se_ori_par_abl_rel = std(abl_rel_ori_vm(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_ori_orth_abl_rel = mean(abl_rel_ori_vm(:, ~type & is_cut),2);
+se_ori_orth_abl_rel = std(abl_rel_ori_vm(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
+
+
+ave_par = mean(vm(:, type & is_cut),2);
+se_par = std(vm(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_orth = mean(vm(:, ~type & is_cut),2);
+se_orth = std(vm(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
+
+ave_par_abl = mean(abl_vm(:, type & is_cut),2);
+se_par_abl = std(abl_vm(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_orth_abl = mean(abl_vm(:, ~type & is_cut),2);
+se_orth_abl = std(abl_vm(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
+
+ave_par_abl_rel = mean(abl_rel_vm(:, type & is_cut),2);
+se_par_abl_rel = std(abl_rel_vm(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_orth_abl_rel = mean(abl_rel_vm(:, ~type & is_cut),2);
+se_orth_abl_rel = std(abl_rel_vm(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
+
+ave_par_30 = mean(vm_30(:, type & is_cut),2);
+se_par_30 = std(vm_30(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_orth_30 = mean(vm_30(:, ~type & is_cut),2);
+se_orth_30 = std(vm_30(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
+
+ave_par_abl_30 = mean(abl_vm_30(:, type & is_cut),2);
+se_par_abl_30 = std(abl_vm_30(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
+ave_orth_abl_30 = mean(abl_vm_30(:, ~type & is_cut),2);
+se_orth_abl_30 = std(abl_vm_30(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
+
+ave_par_abl_rel_30 = mean(abl_rel_vm_30(:, type & is_cut),2);
+se_par_abl_rel_30 = std(abl_rel_vm_30(:, type & is_cut),[], 2)/sqrt(sum(type & is_cut));
 ave_orth_abl_rel_30 = mean(abl_rel_vm_30(:, ~type),2);
-se_orth_abl_rel_30 = std(abl_rel_vm_30(:, ~type),[], 2)/sqrt(sum(~type));
+se_orth_abl_rel_30 = std(abl_rel_vm_30(:, ~type & is_cut),[], 2)/sqrt(sum(~type & is_cut));
 
 
 
 trims_dist(trims_dist<0) = 0;
 
-ave_par_dist = mean(centeredDist(:, type),2);
-ave_par_trim = mean(trims_dist(:, type),2);
-ave_par_dist_cut = mean(centeredDist_cut(:, type),2);
+ave_par_dist = mean(centeredDist(:, type & is_cut),2);
+ave_par_trim = mean(trims_dist(:, type & is_cut),2);
+ave_par_dist_cut = mean(centeredDist_cut(:, type & is_cut),2);
 
-se_par_dist = std(centeredDist(:, type),[],2)/sqrt(sum(type));
-se_par_trim = std(trims_dist(:, type),[],2);
-se_par_dist_cut = std(centeredDist_cut(:, type),[],2)/sqrt(sum(type));
+se_par_dist = std(centeredDist(:, type & is_cut),[],2)/sqrt(sum(type & is_cut));
+se_par_trim = std(trims_dist(:, type & is_cut),[],2);
+se_par_dist_cut = std(centeredDist_cut(:, type & is_cut),[],2)/sqrt(sum(type & is_cut));
 
-ave_orth_dist = mean(centeredDist(:, ~type),2);
-ave_orth_trim = mean(trims_dist(:, ~type),2);
-ave_orth_dist_cut = mean(centeredDist_cut(:, ~type),2);
-se_orth_dist = std(centeredDist(:, ~type),[],2)/sqrt(sum(~type));
-se_orth_trim = std(trims_dist(:, ~type),[],2);
-se_orth_dist_cut = std(centeredDist_cut(:, ~type),[],2)/sqrt(sum(~type));
+ave_orth_dist = mean(centeredDist(:, ~type & is_cut),2);
+ave_orth_trim = mean(trims_dist(:, ~type & is_cut),2);
+ave_orth_dist_cut = mean(centeredDist_cut(:, ~type & is_cut),2);
+se_orth_dist = std(centeredDist(:, ~type & is_cut),[],2)/sqrt(sum(~type & is_cut));
+se_orth_trim = std(trims_dist(:, ~type & is_cut),[],2);
+se_orth_dist_cut = std(centeredDist_cut(:, ~type & is_cut),[],2)/sqrt(sum(~type & is_cut));
 
-ave_par_xy = mean(xy(:,:, type),3);
+ave_par_xy = mean(xy(:,:, type & is_cut),3);
 par_top = max(ave_par_xy(:));
 ave_par_xy = ave_par_xy/par_top;
-ave_par_abl_xy = mean(xy_cut(:,:, type),3)/par_top;
+ave_par_abl_xy = mean(xy_cut(:,:, type & is_cut),3)/par_top;
 
-ave_orth_xy = mean(xy_horz(:,:, ~type),3);
+ave_orth_xy = mean(xy_horz(:,:, ~type & is_cut),3);
 orth_top = max(ave_orth_xy(:));
 ave_orth_xy = ave_orth_xy/orth_top;
-ave_orth_abl_xy = mean(xy_horz_cut(:,:, ~type),3)/orth_top;
+ave_orth_abl_xy = mean(xy_horz_cut(:,:, ~type & is_cut),3)/orth_top;
+
+%% plot the pooled dendriti trees
+
+figure('Color', 'w');
 
 
-% ave_par_ret_xy = mean(xy_ret(:,:, type),3);
-% ave_par_ret_abl_xy = mean(xy_ret_cut(:,:, type),3);
-% ave_orth_ret_xy = mean(xy_ret(:,:, ~type),3);
-% ave_orth_ret_abl_xy = mean(xy_ret_cut(:,:, ~type),3);
-
-%%
-% figure; 
-% 
-% orth_d = ave_orth_ret_xy-ave_orth_ret_abl_xy;
-% par_d = ave_par_ret_xy-ave_par_ret_abl_xy;
-% orth_d(orth_d<0) =0; 
-% par_d(par_d<0) =0; 
-% 
-% subplot(2,3, 1)
-% imagesc(log10(ave_orth_ret_xy) )
-% 
-% subplot(2,3, 2)
-% imagesc(log10(ave_orth_ret_abl_xy))
-% 
-% subplot(2,3, 3)
-% imagesc(orth_d)
-% 
-% subplot(2,3, 4)
-% imagesc(log10(ave_par_ret_xy) )
-% 
-% subplot(2,3, 5)
-% imagesc(log10(ave_par_ret_abl_xy))
-% 
-% subplot(2,3, 6)
-% imagesc(par_d)
-
-figure; 
+gamma = 0.3;
 
 orth_d = ave_orth_xy - ave_orth_abl_xy;
 par_d = ave_par_xy - ave_par_abl_xy;
-orth_d(orth_d<0) =0; 
-par_d(par_d<0) =0; 
+orth_d(orth_d<0) =0;
+par_d(par_d<0) =0;
+
+orth_rgb = repmat(ave_orth_abl_xy.^gamma, 1,1,3);
+zero_idx = find(orth_rgb ==0);
+orth_rgb(:,:,1) = ave_orth_abl_xy.^gamma+ orth_d.^gamma;
+orth_rgb(:,:,2) = ave_orth_abl_xy.^gamma + 0.5*orth_d.^gamma;
+orth_rgb(:,:,3) = ave_orth_abl_xy.^gamma;
+orth_top = max(orth_rgb(:));
+orth_rgb = 1 - orth_rgb/orth_top;
+% orth_rgb(zero_idx) = 1;
 
 
-subplot(2,3, 1)
-imagesc(ave_orth_xy)
+par_rgb = repmat(ave_par_abl_xy.^gamma, 1,1,3);
+zero_idx = find(orth_rgb ==0);
+par_rgb(:,:,1) = ave_par_abl_xy.^gamma;
+par_rgb(:,:,2) = ave_par_abl_xy.^gamma + par_d.^gamma;
+par_rgb(:,:,3) = ave_par_abl_xy.^gamma + par_d.^gamma;
+par_top = max(par_rgb(:));
+par_rgb = 1- par_rgb/par_top;
+% par_rgb(zero_idx) = 1;
 
-subplot(2,3, 2)
-imagesc(ave_orth_abl_xy)
+subplot(2,4,4)
+image(xybins, xybins,orth_rgb); axis image
+formatAxes
+xlabel('\mum')
 
-subplot(2,3, 3)
-imagesc(orth_d)
+subplot(2, 4,8)
+image(xybins, xybins,par_rgb); axis image
+formatAxes
+xlabel('\mum')
 
-subplot(2,3, 4)
-imagesc(ave_par_xy)
+o = subplot(2,4, 1);
+imagesc(xybins, xybins,(ave_orth_xy.^gamma)/orth_top); axis image
+colormap(o, 1-gray); caxis([0, 1])
+formatAxes
+xlabel('\mum')
+ylabel('\mum')
 
-subplot(2,3, 5)
-imagesc(ave_par_abl_xy)
+oc = subplot(2,4, 2);
+imagesc(xybins, xybins,(ave_orth_abl_xy.^gamma)/orth_top); axis image
+colormap(oc, 1-gray); caxis([0, 1])
+formatAxes
+xlabel('\mum')
 
-subplot(2,3, 6)
-imagesc(par_d)
-%%
+od = subplot(2,4, 3);
+imagesc(xybins, xybins,1-(orth_d.^gamma)/orth_top); axis image
+colormap(od, gBlues); caxis([0, 1])
+formatAxes
+xlabel('\mum')
+
+p = subplot(2,4, 5);
+imagesc(xybins, xybins,(ave_par_xy.^gamma)/par_top); axis image
+colormap(p, 1-gray); caxis([0, 1])
+formatAxes
+xlabel('\mu')
+ylabel('\mum')
+
+pc = subplot(2,4, 6);
+imagesc(xybins, xybins,(ave_par_abl_xy.^gamma)/par_top); axis image
+colormap(pc, 1-gray); caxis([0, 1])
+formatAxes
+xlabel('\mum')
+
+pd = subplot(2,4, 7);
+imagesc(xybins, xybins,(par_d.^gamma)/par_top); axis image
+colormap(pd, WhiteRed); caxis([0, 1])
+formatAxes
+xlabel('\mum')
+
+saveTo = fullfile(neuron(1).db.data_repo, 'Results');
+    print(fullfile(saveTo,'Pool_neurons_pruning') , '-dpdf', '-painters');
+
+%% plot Rpp vs Lcut
 
 figure('Color', 'w');
 
@@ -377,6 +492,8 @@ set(gca,'YTick', [-3 -2 -1 0 1],  'YTickLabel', [10^-3 10^-2 10^-1 10^0 10]);
 % set(gca, 'Yscale', 'log');
 saveTo = fullfile(neuron(1).db.data_repo, 'Results');
 print(fullfile(saveTo,'RP_vs_dendrotomy') ,  '-dpng');
+    print(fullfile(saveTo,'RP_vs_dendrotomy') , '-dpdf', '-painters');
+
 %%
 %
 % chosen_par = oricut==1 & ncut>=2;
@@ -392,111 +509,130 @@ print(fullfile(saveTo,'RP_vs_dendrotomy') ,  '-dpng');
 
 
 
-%%
+%% plot the tuning curve stats
+
 figure('Position', [470 558 1221 420], 'Color', 'w');
 
 subplot(1, 7, 1)
-p_dOri = ranksum(dOri(type), dOri(~type));
-plot(1, dOri(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(2, dOri(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_dOri] = ttest2(dOri(type & is_cut), dOri(~type & is_cut));
+scatter(ones(1, sum(type & is_cut)), dOri(type & is_cut),40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(2*ones(1, sum(~type & is_cut)), dOri(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 xlim([0 3])
 formatAxes
 axis square
-title(sprintf('dOri, p = %03f', p_dOri));
+title(sprintf('dOri, p = %03f', p_dOri), 'Fontsize', 10);
 xlabel('Pre')
 ylabel('Post')
 
 subplot(1, 7, 2)
-p_dDir = ranksum(dDir(type), dDir(~type));
-plot(1, dDir(type),'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(2, dDir(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_dDir] = ttest2(dDir(type & is_cut), dDir(~type & is_cut));
+scatter(ones(1, sum(type & is_cut)), dDir(type & is_cut),40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(2*ones(1, sum(~type & is_cut)), dDir(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 xlim([0 3])
 formatAxes
 axis square
-title(sprintf('dDir, p = %03f', p_dDir));
+title(sprintf('dDir, p = %03f', p_dDir), 'Fontsize', 10);
 xlabel('Pre')
 
 subplot(1, 7, 3)
-p_pRp = signrank(Rp(type), Rp_cut(type));
-p_oRp = signrank(Rp(~type), Rp_cut(~type));
-plot(Rp(type), Rp_cut(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(Rp(~type), Rp_cut(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_pRp] = ttest(Rp(type & is_cut), Rp_cut(type & is_cut));
+[~,p_oRp] = ttest(Rp(~type & is_cut), Rp_cut(~type & is_cut));
+scatter(Rp(type & is_cut), Rp_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(Rp(~type & is_cut), Rp_cut(~type & is_cut),  40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 plot([-1 5], [-1 5], '--k')
 formatAxes
 xlim([-1 4]);
 ylim([-1 4]);
 axis square
-title(sprintf('p_pRp = %03f\np_oRp = %03f', p_pRp, p_oRp));
+title(sprintf('p_pRp = %03f\np_oRp = %03f', p_pRp, p_oRp), 'Fontsize', 10);
 xlabel('Pre')
 
 subplot(1, 7, 4)
-p_pRo = signrank(Ro(type), Ro_cut(type));
-p_oRo = signrank(Ro(~type), Ro_cut(~type));
-plot(Ro(type), Ro_cut(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(Ro(~type), Ro_cut(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_pRo] = ttest(Ro(type & is_cut), Ro_cut(type & is_cut));
+[~,p_oRo] = ttest(Ro(~type & is_cut), Ro_cut(~type & is_cut));
+scatter(Ro(type & is_cut), Ro_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(Ro(~type & is_cut), Ro_cut(~type & is_cut),  40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 plot([-1 1], [-1 1], '--k')
 formatAxes
 xlim([-0.5 0.5]);
 ylim([-0.5 0.5]);
 axis square
-title(sprintf('p_pRo = %03f\np_oRo = %03f', p_pRo, p_oRo));
+title(sprintf('p_pRo = %03f\np_oRo = %03f', p_pRo, p_oRo), 'Fontsize', 10);
 xlabel('Pre')
 
 subplot(1, 7, 5)
-p_pRb = signrank(Rb(type), Rb_cut(type));
-p_oRb = signrank(Rb(~type), Rb_cut(~type));
-plot(Rb(type), Rb_cut(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(Rb(~type), Rb_cut(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_pRb] = ttest(Rb(type & is_cut), Rb_cut(type & is_cut));
+[~,p_oRb] = ttest(Rb(~type & is_cut), Rb_cut(~type & is_cut));
+scatter(Rb(type & is_cut), Rb_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(Rb(~type & is_cut), Rb_cut(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 plot([-1 1], [-1 1], '--k')
 formatAxes
 xlim([-1 1]);
 ylim([-1 1]);
 axis square
-title(sprintf('p_pRb = %03f\np_oRb = %03f', p_pRb, p_oRb));
+title(sprintf('p_pRb = %03f\np_oRb = %03f', p_pRb, p_oRb), 'Fontsize', 10);
 xlabel('Pre')
 
 subplot(1, 7, 6)
-p_pDS = signrank(DS(type), DS_cut(type));
-p_oDS = signrank(DS(~type), DS_cut(~type));
-plot(DS(type), DS_cut(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7);hold on;
-plot(DS(~type), DS_cut(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_pDS] = ttest(DS(type & is_cut), DS_cut(type & is_cut));
+[~,p_oDS] = ttest(DS(~type & is_cut), DS_cut(~type & is_cut));
+scatter(DS(type & is_cut), DS_cut(type & is_cut),40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(DS(~type & is_cut), DS_cut(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 plot([0 2], [0 2], '--k')
 xlim([-0.1 1.1]);
 ylim([-0.1 1.1]);
 formatAxes
 axis square
-title(sprintf('p_pDS = %03f\np_oDS = %03f', p_pDS, p_oDS));xlabel('Pre')
+title(sprintf('p_pDS = %03f\np_oDS = %03f', p_pDS, p_oDS), 'Fontsize', 10);
+xlabel('Pre')
 
 
 subplot(1, 7, 7)
-p_pOS = signrank(OS(type), OS_cut(type));
-p_oOS = signrank(OS(~type), OS_cut(~type));
-plot(OS(type), OS_cut(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(OS(~type), OS_cut(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[~,p_pOS] = ttest(OS(type & is_cut), OS_cut(type & is_cut));
+[~, p_oOS] = ttest(OS(~type & is_cut), OS_cut(~type & is_cut));
+scatter(OS(type & is_cut), OS_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(OS(~type & is_cut), OS_cut(~type & is_cut),  40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 plot([0 2], [0 2], '--k')
 xlim([-0.1 1.1]);
 ylim([-0.1 1.1]);
 formatAxes
 axis square
-title(sprintf('p_pOS = %03f\np_oOS = %03f', p_pOS, p_oOS));xlabel('Pre')
+title(sprintf('p_pOS = %03f\np_oOS = %03f', p_pOS, p_oOS), 'Fontsize', 10);
 xlabel('Pre')
 
 
 print(fullfile(saveTo,'dendrotomy_average_tuning') ,  '-dpng');
+    print(fullfile(saveTo,'dendrotomy_average_tuning') , '-dpdf', '-painters');
 
 
 
-%%
-figure('Position',  [680 193 742 785], 'Color', 'w');
-subplot(3,2,1)
+%% Plot average trees, angular hist, tuning across neurons
+
+figure('Position',  [483 93 877 889], 'Color', 'w');
+
+subplot(4,4,5)
+image(xybins, xybins,orth_rgb); axis image
+xlim([-250 250])
+ylim([-250 250])
+formatAxes
+xlabel('\mum')
+
+subplot(4, 4, 1)
+image(xybins, xybins,par_rgb); axis image
+xlim([-250 250])
+ylim([-250 250])
+formatAxes
+xlabel('\mum')
+
+subplot(4,4,2)
 polarhistogram('BinEdges', cat(2, hbins', hbins(1)+2*pi), ...
-    'BinCounts', ave_par_dist,  'DisplayStyle', 'stairs', 'EdgeColor', [0 0 0]);
+    'BinCounts', ave_par_dist,  'EdgeColor','none','FaceColor', [1 0 0], 'FaceAlpha', 1);
 hold on;
 % polarhistogram('BinEdges', cat(2, hbins', hbins(1)+2*pi), ...
 %     'BinCounts', ave_par_trim,  'DisplayStyle', 'stairs', 'EdgeColor', [1 0 0]);
 
 polarhistogram('BinEdges', cat(2, hbins', hbins(1)+2*pi), ...
-    'BinCounts', ave_par_dist_cut,  'DisplayStyle', 'stairs', 'EdgeColor', [1 0 0]);
+    'BinCounts', ave_par_dist_cut,  'EdgeColor', 'none', 'FaceColor', [0 0 0], 'FaceAlpha', 1);
 
 
 formatAxes
@@ -505,21 +641,21 @@ set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 
 set(gca,  'ThetaZeroLocation', 'top');
 
-subplot(3,2,2)
+subplot(4,4,6)
 polarhistogram('BinEdges', cat(2, hbins', hbins(1)+2*pi), ...
-    'BinCounts', ave_orth_dist,  'DisplayStyle', 'stairs', 'EdgeColor', [0 0 0]);
+    'BinCounts', ave_orth_dist,  'EdgeColor', 'none', 'FaceColor', [0 0.5 1], 'FaceAlpha', 1);
 hold on;
 % polarhistogram('BinEdges', cat(2, hbins', hbins(1)+2*pi), ...
 %     'BinCounts', ave_orth_trim,  'DisplayStyle', 'stairs', 'EdgeColor', [0. 0.5 1]);
 
 polarhistogram('BinEdges', cat(2, hbins', hbins(1)+2*pi), ...
-    'BinCounts', ave_orth_dist_cut,  'DisplayStyle', 'stairs', 'EdgeColor', [1 0 0]);
+    'BinCounts', ave_orth_dist_cut,  'EdgeColor', 'none', 'FaceColor', [0 0 0], 'FaceAlpha', 1);
 
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 formatAxes
 set(gca,  'ThetaZeroLocation', 'top');
 
-subplot(3,2,5)
+subplot(4,4,3)
 shadePlot(fit_pt, ave_par,se_par, [0 0 0]); hold on;
 shadePlot(fit_pt, ave_par_abl, se_par_abl, [1 0 0 ]); hold on;
 formatAxes
@@ -529,16 +665,18 @@ ylim([-0.2 1.2])
 xlabel('\Delta pref direction')
 ylabel('Normalised Tuning ')
 
-subplot(3,2,6)
+subplot(4,4,7)
 shadePlot(fit_pt, ave_orth,se_orth, [0 0 0]); hold on;
 shadePlot(fit_pt, ave_orth_abl,se_orth_abl, [0 0.5 1]); hold on;
 formatAxes
-set(gca, 'YColor', 'none','YTick', [], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
+% set(gca, 'YColor', 'none','YTick', [], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
+set(gca, 'YTick', [0 1], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
 xlim([-10 , 370])
 ylim([-0.2 1.2])
 xlabel('\Delta pref direction')
+ylabel('Normalised Tuning ')
 
-subplot(3,2,3)
+subplot(4,4,4)
 shadePlot(fit_pt, ave_par,se_par, [0 0 0]); hold on;
 shadePlot(fit_pt, ave_par_abl_rel, se_par_abl_rel, [1 0 0 ]); hold on;
 formatAxes
@@ -546,19 +684,75 @@ set(gca, 'YTick', [0 1],'XTick', [0:90:360], 'XTickLabel', {0:90:360});
 xlim([-10 , 370])
 ylim([-0.2 1.2])
 xlabel('\Delta pref direction')
-ylabel('Normalised Tuning (locked)')
+ylabel('Tuning locked')
 
-subplot(3,2,4)
+subplot(4,4,8)
 shadePlot(fit_pt, ave_orth,se_orth, [0 0 0]); hold on;
 shadePlot(fit_pt, ave_orth_abl_rel,se_orth_abl_rel, [0 0.5 1]); hold on;
 formatAxes
-set(gca, 'YColor', 'none','YTick', [], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
+% set(gca, 'YColor', 'none','YTick', [], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
+set(gca, 'YTick', [0 1],'XTick', [0:90:360], 'XTickLabel', {0:90:360});
 xlim([-10 , 370])
 ylim([-0.2 1.2])
 xlabel('\Delta pref direction')
+ylabel(' Tuning locked')
+
+subplot(4,4,11)
+shadePlot(fit_pt_ori, ave_ori_par,se_ori_par, [0 0 0]); hold on;
+shadePlot([120 130], [ave_blank_par, ave_blank_par],[se_blank_par, se_blank_par], [0 0 0]); hold on
+
+shadePlot(fit_pt_ori, ave_ori_par_abl, se_ori_par_abl, [1 0 0 ]); hold on;
+shadePlot([120 130], [ave_abl_blank_par, ave_abl_blank_par],[se_abl_blank_par, se_abl_blank_par], [1 0 0 ]); hold on;
+
+formatAxes
+set(gca, 'YTick', [0 1],'XTick',  [-90:90:90, 125], 'XTickLabel', {-90:90:90, 'bsl'});
+xlim([-100 135])
+ylim([-0.2 1.2])
+xlabel('\Delta pref orientation')
+ylabel('Normalised Tuning ')
+
+subplot(4,4,15)
+shadePlot(fit_pt_ori, ave_ori_orth,se_ori_orth, [0 0 0]); hold on;
+shadePlot([120 130], [ave_blank_orth, ave_blank_orth],[se_blank_orth, se_blank_orth], [0 0 0]); hold on
+shadePlot(fit_pt_ori, ave_ori_orth_abl,se_ori_orth_abl, [0 0.5 1]); hold on;
+shadePlot([120 130], [ave_abl_blank_orth, ave_abl_blank_orth],[se_abl_blank_orth, se_abl_blank_orth], [0 0.5 1]); hold on;
+
+formatAxes
+% set(gca, 'YColor', 'none','YTick', [], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
+set(gca, 'YTick', [0 1],'XTick',  [-90:90:90, 125], 'XTickLabel', {-90:90:90, 'bsl'});
+xlim([-100 135])
+ylim([-0.2 1.2])
+xlabel('\Delta pref orientation')
+ylabel('Normalised Tuning ')
+
+subplot(4,4,12)
+shadePlot(fit_pt_ori, ave_ori_par,se_ori_par, [0 0 0]); hold on;
+shadePlot([120 130], [ave_blank_par, ave_blank_par],[se_blank_par, se_blank_par], [0 0 0]); hold on
+shadePlot(fit_pt_ori, ave_ori_par_abl_rel, se_ori_par_abl_rel, [1 0 0 ]); hold on;
+shadePlot([120 130], [ave_abl_blank_par, ave_abl_blank_par],[se_abl_blank_par, se_abl_blank_par], [1 0 0 ]); hold on;
+formatAxes
+set(gca, 'YTick', [0 1],'XTick',  [-90:90:90, 125], 'XTickLabel', {-90:90:90, 'bsl'});
+xlim([-100 135])
+ylim([-0.2 1.2])
+xlabel('\Delta pref orientation')
+ylabel('Tuning locked')
+
+subplot(4,4,16)
+shadePlot(fit_pt_ori, ave_ori_orth,se_ori_orth, [0 0 0]); hold on;
+shadePlot([120 130], [ave_blank_orth, ave_blank_orth],[se_blank_orth, se_blank_orth], [0 0 0]); hold on
+shadePlot(fit_pt_ori, ave_ori_orth_abl_rel,se_ori_orth_abl_rel, [0 0.5 1]); hold on;
+shadePlot([120 130], [ave_abl_blank_orth, ave_abl_blank_orth],[se_abl_blank_orth, se_abl_blank_orth], [0 0.5 1]); hold on;
+formatAxes
+% set(gca, 'YColor', 'none','YTick', [], 'XTick', [0:90:360], 'XTickLabel', {0:90:360});
+set(gca, 'YTick', [0 1],'XTick',  [-90:90:90, 125], 'XTickLabel', {-90:90:90, 'bsl'});
+xlim([-100 135])
+ylim([-0.2 1.2])
+xlabel('\Delta pref orientation')
+ylabel(' Tuning locked')
 
 
 print(fullfile(saveTo,'dendrotomy_stats') ,  '-dpng');
+    print(fullfile(saveTo,'dendrotomy_stats') , '-dpdf', '-painters');
 
 % figure;
 % subplot(1,2,1)
@@ -574,18 +768,22 @@ print(fullfile(saveTo,'dendrotomy_stats') ,  '-dpng');
 
 
 %%
-figure;
+figure('Color', 'w', 'Position', [423 515 1002 320]);
 
 subplot(1,3,1)
+hold on;
 par_lm = fitlm(ave_par_30, ave_par_abl_rel_30);
 orth_lm = fitlm(ave_orth_30, ave_orth_abl_rel_30);
 
 pred_p = -.1:0.01:1;
 [par_pred,par_ci] = predict(par_lm, makeVec(pred_p));
 [orth_pred,orth_ci] = predict(orth_lm, makeVec(pred_p));
+% 
+plot(vm_30(:, type & is_cut), abl_rel_vm_30(:, type & is_cut), '-', 'Color', [1 0 0 0.2], 'Linewidth', 0.5); hold on;
+plot(vm_30(:, ~type & is_cut), abl_rel_vm_30(:, ~type & is_cut), '-', 'Color', [0 0.5 1 0.2], 'Linewidth', 0.5); hold on;
+% scatter(makeVec(vm_30(:, type & is_cut)), makeVec(abl_rel_vm_30(:, type & is_cut)),  30,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
+% scatter(makeVec(vm_30(:, ~type & is_cut)), makeVec(abl_rel_vm_30(:, ~type & is_cut)), 30,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
 
-plot(vm_30(:, type), abl_rel_vm_30(:, type), '-', 'Color', [1 0 0 0.2], 'Linewidth', 0.1); hold on;
-plot(vm_30(:, ~type), abl_rel_vm_30(:, ~type), '-', 'Color', [0 0.5 1 0.2], 'Linewidth', 0.1); hold on;
 
 plot(pred_p, par_pred, '-', 'Color', [1 0 0 ]); hold on;
 plot(pred_p, orth_pred, '-', 'Color', [0 0.5 1]); hold on;
@@ -604,27 +802,49 @@ axis square;
 formatAxes
 
 subplot(1, 3, 2)
-[x, y, y_se, lm] = intervalReg(L_rel(type), slope(type), 0:0.1:1);
-shadePlot(x, y, y_se,[1 0 0]);  hold on
-[x, y, y_se, lm] = intervalReg(L_rel(~type), slope(~type), 0:0.1:1);
-shadePlot(x, y, y_se,[0 0.5 1]);  
-plot(L_rel(type), slope(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(L_rel(~type),slope(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+% [x, y, y_se, lm] = intervalReg(L_rel(type), slope(type), 0:0.1:1);
+% shadePlot(x, y, y_se,[1 0 0]);  hold on
+% [x, y, y_se, lm] = intervalReg(L_rel(~type), slope(~type), 0:0.1:1);
+% shadePlot(x, y, y_se,[0 0.5 1]);
+
+sigm = @(pars, x) pars(4)./(1+ pars(3).*exp(pars(1).*(x - pars(2))));
+pars0 = [1 0 1 2];
+parsup = [Inf 0 1 2];
+parslow = [0 0 1 2];
+
+par_lm = lsqcurvefit(sigm, pars0, L_rel(type), slope(type), parslow, parsup);
+orth_lm = lsqcurvefit(sigm, pars0,L_rel(~type), slope(~type), parslow, parsup);
+
+x_pred = 0:0.1:0.6;
+plot(x_pred, sigm(par_lm, x_pred), 'r', 'LineWidth', 2); hold on
+plot(x_pred, sigm(orth_lm, x_pred), 'Color', [0 0.5 1], 'LineWidth', 2); hold on
+
+scatter(L_rel(type ), slope(type ), 40,[1 0, 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2); hold on;
+scatter(L_rel(~type ),slope(~type ), 40, [0 0.5 1], 'MarkerFaceColor', [0 0.5 1], 'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
+
+
+for iDb = 1:nDb
+    if sum(parent_db==iDb)>1
+        plot(L_rel(parent_db==iDb), slope(parent_db==iDb), '-', 'Color', [mean(color((parent_db==iDb),:)), 0.2], ...
+            'LineWidth', 0.5); hold on
+    end
+end
+
 % plot([0 2], [0 2], '--k')
-xlim([-0.1 0.6]);
-ylim([-0.5 2.4]);
+xlim([-0.05 0.65]);
+ylim([-0.4 1.2]);
 xlabel('Fraction dendrites cut')
 ylabel('Multiplicative scaling')
 formatAxes
 axis square
 
 subplot(1, 3, 3)
-[x, y, y_se, lm] = intervalReg(L_rel(type), add(type), 0:0.1:1);
+[x, y, y_se, lm] = intervalReg(L_rel(type & is_cut), add(type & is_cut), 0:0.1:1);
 shadePlot(x, y, y_se,[1 0 0]);  hold on
-[x, y, y_se, lm] = intervalReg(L_rel(~type), add(~type), 0:0.1:1);
-shadePlot(x, y, y_se,[0 0.5 1]);  
-plot(L_rel(type), add(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(L_rel(~type),add(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[x, y, y_se, lm] = intervalReg(L_rel(~type & is_cut), add(~type & is_cut), 0:0.1:1);
+shadePlot(x, y, y_se,[0 0.5 1]);
+plot(L_rel(type & is_cut), add(type & is_cut), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
+plot(L_rel(~type & is_cut),add(~type & is_cut), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
 % plot([0 2], [0 2], '--k')
 xlim([-0.1 0.6]);
 % ylim([-0.1 0.6]);
@@ -637,6 +857,7 @@ axis square
 
 
 print(fullfile(saveTo,'Mult_or_Add') ,  '-dpng');
+    print(fullfile(saveTo,'Mult_or_Add') , '-dpdf', '-painters');
 
 %%
 figure('Position', [418 293 983 550], 'Color', 'w');
@@ -644,12 +865,12 @@ figure('Position', [418 293 983 550], 'Color', 'w');
 
 
 subplot(1, 3, 1)
-[x, y, y_se, lm] = intervalReg(L_rel(type), log10(dOS(type)), 0:0.1:1);
+[x, y, y_se, lm] = intervalReg(L_rel(type & is_cut), log10(dOS(type & is_cut)), 0:0.1:1);
 shadePlot(x, y, y_se,[1 0 0]);  hold on
-[x, y, y_se, lm] = intervalReg(L_rel(~type), log10(dOS(~type)), 0:0.1:1);
-shadePlot(x, y, y_se,[0 0.5 1]);  
-plot(L_rel(type), log10(dOS(type)), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(L_rel(~type), log10(dOS(~type)), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[x, y, y_se, lm] = intervalReg(L_rel(~type & is_cut), log10(dOS(~type & is_cut)), 0:0.1:1);
+shadePlot(x, y, y_se,[0 0.5 1]);
+plot(L_rel(type & is_cut), log10(dOS(type & is_cut)), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
+plot(L_rel(~type & is_cut), log10(dOS(~type & is_cut)), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
 % plot([0 2], [0 2], '--k')
 xlim([-0.1 0.6]);
 % ylim([-0.1 0.6]);
@@ -659,12 +880,12 @@ formatAxes
 axis square
 
 subplot(1, 3, 2)
-[x, y, y_se, lm] = intervalReg(L_rel(type), dOri(type), 0:0.1:1);
+[x, y, y_se, lm] = intervalReg(L_rel(type & is_cut), dOri(type & is_cut), 0:0.1:1);
 shadePlot(x, y, y_se,[1 0 0]);  hold on
-[x, y, y_se, lm] = intervalReg(L_rel(~type), dOri(~type), 0:0.1:1);
-shadePlot(x, y, y_se,[0 0.5 1]); 
-plot(L_rel(type), dOri(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(L_rel(~type), dOri(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[x, y, y_se, lm] = intervalReg(L_rel(~type & is_cut), dOri(~type & is_cut), 0:0.1:1);
+shadePlot(x, y, y_se,[0 0.5 1]);
+plot(L_rel(type & is_cut), dOri(type & is_cut), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
+plot(L_rel(~type & is_cut), dOri(~type & is_cut), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
 % plot([0 2], [0 2], '--k')
 xlim([-0.1 0.6]);
 % ylim([-0.1 0.6]);
@@ -674,12 +895,12 @@ formatAxes
 axis square
 
 subplot(1, 3, 3)
-[x, y, y_se, lm] = intervalReg(L_rel(type), dDir(type), 0:0.1:1);
+[x, y, y_se, lm] = intervalReg(L_rel(type & is_cut), dDir(type & is_cut), 0:0.1:1);
 shadePlot(x, y, y_se,[1 0 0]);  hold on
-[x, y, y_se, lm] = intervalReg(L_rel(~type), dDir(~type), 0:0.1:1);
-shadePlot(x, y, y_se,[0 0.5 1]); 
-plot(L_rel(type), dDir(type), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
-plot(L_rel(~type), dDir(~type), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+[x, y, y_se, lm] = intervalReg(L_rel(~type & is_cut), dDir(~type & is_cut), 0:0.1:1);
+shadePlot(x, y, y_se,[0 0.5 1]);
+plot(L_rel(type & is_cut), dDir(type & is_cut), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
+plot(L_rel(~type & is_cut), dDir(~type & is_cut), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
 % plot([0 2], [0 2], '--k')
 xlim([-0.1 0.6]);
 % ylim([-0.1 0.6]);
@@ -689,5 +910,6 @@ formatAxes
 axis square
 
 print(fullfile(saveTo,'Mult_or_Add_stats') ,  '-dpng');
+    print(fullfile(saveTo,'Mult_or_Add_stats') , '-dpdf', '-painters');
 
 end

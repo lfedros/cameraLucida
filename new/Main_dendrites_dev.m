@@ -1,8 +1,16 @@
+%%first run Main_dendrites_preprocessing
+
 clear;
 
 %% Set path to relevant code
 
+if ispc
+   code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida\new';
+else
 code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida/new';
+
+end
+cd(code_repo);
 addpath(genpath(code_repo));
 set_dendrite_paths();
 
@@ -33,6 +41,8 @@ end
 for iDb = 1:nDb
     
     neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 0,0);
+    
+    % plot_responses(neuron(iDb)); plot responses if needed
 
 end
 
@@ -75,7 +85,7 @@ end
 
 %%
 for iDb = 1:nDb
-    if ~isempty(neuron(iDb).tuning_cut)
+    if numel(neuron(iDb).tuning)>1
         plot_dendrotomy(neuron(iDb));
     end
 end

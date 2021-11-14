@@ -1,4 +1,4 @@
-function tune = poolOri(db, ops)
+function [tune, dF, frameTimes, recDateExp] = poolOri(db, ops)
 
 if nargin <2
     
@@ -36,27 +36,27 @@ if ~doLoad
         
         [F, Fneu] = starter.loadF(this_db);
         
-        [dF, npPars] = estimateNeuropil_LFR(F,Fneu);
+        [dF{iExp}, npPars] = estimateNeuropil_LFR(F,Fneu);
         
         F0(iExp) = npPars.corrFactor(2)*npPars.lowCell(1) + npPars.corrFactor(1);
         
-                dF = -1+ dF/F0(iExp); % take dF/F
+                dF{iExp} = dF{iExp}/F0(iExp); % take dF/F
 %         dF = dF - F0(iExp); % take dF/F
         
-        dF = gaussFilt(dF', 1);
+        dF{iExp} = gaussFilt(dF{iExp}', 1);
         Fneu = gaussFilt(Fneu', 1);
         
         %     dF = zscore(dF');
         %         dF =dF';
         info = ppbox.infoPopulateTempLFR(db.mouse_name{iExp}, db.date{iExp}, db.expts{iExp}(db.expID{iExp}));
         
-        nFrames = numel(dF);
+        nFrames = numel(dF{iExp});
         planeFrames = db.plane(iExp):info.nPlanes:(nFrames*info.nPlanes);
-        frameTimes = ppbox.getFrameTimes(info, planeFrames);
-        frameRate = (1/mean(diff(frameTimes)));
+        frameTimes{iExp} = ppbox.getFrameTimes(info, planeFrames);
+        frameRate = (1/mean(diff(frameTimes{iExp})));
         stimTimes = ppbox.getStimTimes(info);
         stimSequence = ppbox.getStimSequence_LFR(info);
-        stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes);
+        stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes{iExp});
         
         if isfield(db, 'stimList')
             
@@ -75,7 +75,7 @@ if ~doLoad
 %         dF = dF/F0_neu(iExp);
         
         [responses{iExp}, aveResp{iExp}, seResp{iExp}, kernelTime{iExp}, stimDur{iExp}] = ...
-            getStimulusSweepsLFR(dF, stimTimes, stimMatrix,frameRate, stimSet); % responses is (nroi, nStim, nResp, nT)
+            getStimulusSweepsLFR(dF{iExp}, stimTimes, stimMatrix,frameRate, stimSet); % responses is (nroi, nStim, nResp, nT)
         
         [resPeak{iExp}, aveResPeak{iExp}, seResPeak{iExp}] = ...
             Ori.gratingOnResp(responses{iExp}, kernelTime{iExp}, respWin);  % resPeak is (nroi, nStim, nResp)
@@ -93,7 +93,7 @@ if ~doLoad
         recDate = cat(1, recDate,repmat(db.date{iExp},size(resPeak{iExp}, 3),1));
         F0_date = cat(1, F0_date,repmat(F0(iExp),size(resPeak{iExp}, 3),1));
         F0_neu_date = cat(1, F0_neu_date,repmat(F0_neu(iExp),size(resPeak{iExp}, 3),1));
-
+        recDateExp(iExp, :) = db.date{iExp};
     end
     
     
@@ -101,6 +101,8 @@ if ~doLoad
     %%
     [~,  nStim, nRep, ~] = size(allResp);
     
+    tune.db = db;
+%     tune.dF = {iExp};
     tune.allResp = squeeze(allResp);
     tune.allPeaks = squeeze(allResPeak);
     

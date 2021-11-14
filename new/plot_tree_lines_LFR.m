@@ -46,7 +46,7 @@
 
 %LF Rossi 2020
 
-function HP  = plot_tree_lines(intree, color, DD, ipart, options, crange, cmap, lw)
+function HP  = plot_tree_lines_LFR(intree, color, DD, ipart, options, crange, cmap, lw)
 
 % trees : contains the tree structures in the trees package
 global       trees
