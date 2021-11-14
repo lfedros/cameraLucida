@@ -3,8 +3,10 @@ function set_dendrite_paths()
 if ispc
     
     addpath('C:\Users\Federico\Documents\GitHub\Dbs\V1_dendrites');
-    code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida\Analysis\Dendrite';
-
+    addpath('C:\Users\Federico\Documents\GitHub\cameraLucida\Analysis\Dendrite')
+    addpath('C:\Users\Federico\Documents\GitHub\FedBox');
+    addpath('C:\Users\Federico\Documents\GitHub\circstat-matlab');
+    addpath('C:\Users\Federico\Documents\GitHub\FedBox\Colormaps');
     code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida\new';
     addpath(genpath(code_repo));
     addpath(genpath('C:\Users\Federico\Documents\GitHub\treestoolbox'));

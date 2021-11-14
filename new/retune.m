@@ -120,7 +120,7 @@ tune.oris(tune.oris>=180) = tune.oris(tune.oris>=180)-180; %[0 180]
 tune.oris = tune.oris - 90; %[-90 90]
 % tune.oris(tune.oris<0) = tune.oris(tune.oris<0) + 180; %[0 180]
 
-tune.ori_pars_vm = mfun.fitTuning(repmat(tune.oris, 1,nRep), toFit, 'vm1', fixPars.ori);
+tune.ori_pars_vm = mfun.fitTuning(repmat(tune.oris*2, 1,nRep), toFit, 'vm1', fixPars.ori);
 tune.ori_fit_vm = mfun.vonMises(tune.ori_pars_vm, -180:1:179);
 tune.ori_fit_pt = (-180:1:179)/2;
 tune.prefOri = tune.ori_pars_vm(1)/2;

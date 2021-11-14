@@ -63,12 +63,26 @@ end
 %% Step 4: plot, if requested
 
 if doPlot
-    figure('Color', 'w')
+    figure('Color', 'w');
+    for iTree = 1:n_trees
+    xy = subplot(2, n_trees, iTree);
     hold on;
-    plot_tree_lines(tree, [],[],[],'-3l');
+    plot_tree_lines_LFR(tree(iTree), [],[],[],'-3l');
     xlabel('ML[um] ');
     ylabel('RC[um] ');
     formatAxes
+    
+    
+     xz =        subplot(2, n_trees, n_trees+ iTree);
+    hold on;
+    plot_tree_lines_LFR(tree(iTree), [],[],[],'-3l');
+    view(0,180)
+    xlabel('ML[um] ');
+    ylabel('RC[um] ');
+    formatAxes
+    linkaxes([xy, xz], 'x');
+    
+    end
 end
 
 

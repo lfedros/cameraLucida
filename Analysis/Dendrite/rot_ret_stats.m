@@ -20,10 +20,10 @@ rot_tree = retino;
 %%
 
 b = robustfit(retino.isoOri(:,1), retino.isoOri(:,2), [], [], 'off');
-isoOri_ang = rad2deg(atan(b));
+isoOri_ang = rad2deg(atan(b))-90;
 
 coords = [morph.X, morph.Y];
-coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
+% coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
 
 R = [cosd(isoOri_ang) sind(isoOri_ang); -sind(isoOri_ang) cosd(isoOri_ang)];
 rot_coords = R*coords';
@@ -38,10 +38,10 @@ rot_tree.Y = rotY;
 bins = -350:5:350;
 rot_tree.xy_density = hist3([rotY, rotX], 'Edges', {bins', bins});
 rot_tree.xy_density = rot_tree.xy_density/sum(rot_tree.xy_density(:));
-
+rot_tree.xy_bins = bins;
 %%
 b = robustfit(retino.isoHoriz(:,1), retino.isoHoriz(:,2), [], [], 'off');
-isoHoriz_ang = rad2deg(atan(b));
+isoHoriz_ang = rad2deg(atan(b))-90;
 
 coords = [morph.X, morph.Y];
 coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
