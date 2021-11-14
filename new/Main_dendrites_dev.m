@@ -109,7 +109,7 @@ end
 
 %%
 cameraLucida.plot_allTrees(neuron);
-
-
+%%
+plot_forest(neuron, 'canvas');
 
 
