@@ -1,8 +1,13 @@
-function plot_forest(trees, plot_type)
+function plot_forest(trees, plot_type, res)
 
 if nargin <2
     plot_type= 'subP';
 end
+
+if nargin <3
+   res = 20;
+end
+
 
 nSubP = numel(trees);
 
@@ -16,7 +21,7 @@ maxR = 0;
 
 for iP = 1:nSubP
     
-    tree(iP) = resample_tree(trees(iP).morph(1), 10);
+    tree(iP) = resample_tree(trees(iP).morph(1), res);
     
     maxZ(iP) = max(tree(iP).Z);
     maxR = max(maxR, max(abs([tree(iP).X; tree(iP).Y])));
@@ -54,13 +59,16 @@ switch plot_type
         for iP = 1:nSubP
             
             col = mod(iP,10);
-            row = floor(iP/10);
+            if col ==0
+                col = 10; 
+            end
+            row = ceil(iP/10);
             
             tree(sort_idx(iP)).Z = tree(sort_idx(iP)).Z + row*maxZ;
-            tree(sort_idx(iP)).X = tree(sort_idx(iP)).X + col*maxR;
+            tree(sort_idx(iP)).X = tree(sort_idx(iP)).X + (col-1)*2*maxR;
             
             hold on;
-            plot_tree_lines(tree(sort_idx(iP)), [],[],[],'-3l');
+            plot_tree_lines_LFR(tree(sort_idx(iP)), [],[],[],'-3l');
             xlabel('ML[um] ');
             ylabel('RC[um] ');
             formatAxes
@@ -73,9 +81,9 @@ switch plot_type
         end
 end
 
-xlim([-maxR, maxR*nCols])
+xlim([-maxR, maxR*2*(nCols+1)])
 ylim([-maxR, maxR])
-zlim([0, maxZ*nRows])
+zlim([0, maxZ*(nRows+1)])
 
 
 end

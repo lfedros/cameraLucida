@@ -66,6 +66,9 @@ for iDb = 1:nDb
 
     neuron(iDb).morph(iSeq).stats = tree_angular_stats(neuron(iDb).morph(iSeq));
 
+    
+    neuron(iDb).retino(iSeq).stats = tree_angular_stats(neuron(iDb).retino(iSeq));
+
 
     neuron(iDb).retino_aligned(iSeq) = rotate_tree(neuron(iDb).retino(iSeq), neuron(iDb).tuning(1).prefDir);
            
@@ -120,6 +123,6 @@ end
 %%
 cameraLucida.plot_allTrees(neuron);
 %%
-plot_forest(neuron, 'canvas');
+plot_forest(neuron, 'canvas', 20);
 
 
