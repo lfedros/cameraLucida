@@ -5,16 +5,16 @@ clear;
 %% Set path to relevant code
 
 if ispc
-   code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida\new';
+   code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
 else
-code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida/new';
+code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
 
 end
 cd(code_repo);
-addpath(genpath(code_repo));
-set_dendrite_paths();
+addpath(code_repo);
+set_dendrite_paths(); % edit the paths pointing to the code
 
-%% Populate database
+%% Populate database - edit build_path.m with location of data
 db_V1_dendrites;
 nDb = numel(db);
 
@@ -32,8 +32,9 @@ end
 
 for iDb = 1:nDb
     
-    neuron(iDb).morph = load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
-    
+    [neuron(iDb).morph, neuron(iDb).morph_basal] = load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
+%         [~, neuron(iDb).morph] = load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
+
 end
 
 %% Load neurons tuning to drifting gratings
@@ -54,7 +55,7 @@ for iDb = 1:nDb
         
         neuron(iDb).tuning(1).prefOri = unwrap_angle(neuron(iDb).tuning(1).prefDir + 90,1,1);
     end
-    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb), neuron(iDb).tuning(1).prefOri,0, 0);
+    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb), neuron(iDb).tuning(1).prefOri,0, 0,0);
 
 end
 
@@ -120,9 +121,8 @@ end
 % cameraLucida.tree_poolHist(neuron, 'retino');
 % cameraLucida.tree_poolHist(neuron, 'rot_cortex_vert');
 
-%%
-cameraLucida.plot_allTrees(neuron);
-%%
+%% plot all neurons on a canvas
+
 plot_forest(neuron, 'canvas', 20);
 
 

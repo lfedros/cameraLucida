@@ -1,4 +1,8 @@
-function [tree_deg] = load_visual_morph_dev(neuron, prefOri, doPlot, doSave)
+function [tree_deg] = load_visual_morph_dev(neuron, prefOri, doPlot, doSave, reLoad)
+
+if nargin <5
+reLoad = 0; 
+end
 
 if nargin <4
 doSave = 0; 
@@ -27,7 +31,7 @@ for iSeq = 1:n_trees
     load_saved(iSeq) = exist(fullfile(ret_path, db.ret_seq{iSeq}), 'file');
 end
 
-if ~doSave && prod(load_saved)~=0
+if ~doSave && prod(load_saved)~=0 && ~reLoad
     for iSeq = 1:n_trees
         tree_deg(iSeq) = load(fullfile(ret_path,db.ret_seq{iSeq}));
     end

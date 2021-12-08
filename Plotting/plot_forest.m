@@ -15,17 +15,17 @@ nCols = 10;
 nRows = ceil(nSubP/nCols);
 
 
-figure('Color', 'w')
+figure('Color', 'w', 'Position', [80 131 1285 666])
 
 maxR = 0;
 
 for iP = 1:nSubP
     
     tree(iP) = resample_tree(trees(iP).morph(1), res);
+    basal_tree(iP) = resample_tree(trees(iP).morph_basal(1), res);
     
     maxZ(iP) = max(tree(iP).Z);
     maxR = max(maxR, max(abs([tree(iP).X; tree(iP).Y])));
-    
 end
 
 [~, sort_idx] =  sort(maxZ, 'ascend');
@@ -40,7 +40,9 @@ switch plot_type
             
             subplot(nRows, nCols, iP)
             hold on;
-            plot_tree_lines(tree(sort_idx(iP)), [],[],[],'-3l');
+            plot_tree_lines_LFR(tree(sort_idx(iP)), [0.5 0 0],[],[],'-3l');
+            plot_tree_lines_LFR(tree(sort_idx(iP)), [0 0 0],[],[],'-3l');
+
             xlabel('ML[um] ');
             ylabel('RC[um] ');
             formatAxes
@@ -67,8 +69,12 @@ switch plot_type
             tree(sort_idx(iP)).Z = tree(sort_idx(iP)).Z + row*maxZ;
             tree(sort_idx(iP)).X = tree(sort_idx(iP)).X + (col-1)*2*maxR;
             
+            basal_tree(sort_idx(iP)).Z = basal_tree(sort_idx(iP)).Z + row*maxZ;
+            basal_tree(sort_idx(iP)).X = basal_tree(sort_idx(iP)).X + (col-1)*2*maxR;
+            
             hold on;
-            plot_tree_lines_LFR(tree(sort_idx(iP)), [],[],[],'-3l');
+            plot_tree_lines_LFR(tree(sort_idx(iP)), [0.5 0 0],[],[],'-3l');
+            plot_tree_lines_LFR(basal_tree(sort_idx(iP)), [0 0 0],[],[],'-3l');           
             xlabel('ML[um] ');
             ylabel('RC[um] ');
             formatAxes

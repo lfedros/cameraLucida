@@ -5,9 +5,9 @@ nDb = numel(neuron);
 
 
 %% gather data
-hbins_cortex = neuron(1).rot_cortex.ang_bins_aligned';
+hbins_cortex = neuron(1).rot_cortex(1).ang_bins_aligned';
 hbins_cortex = cat(2, hbins_cortex, hbins_cortex(1)+2*pi);
-hbins_retino = neuron(1).retino.ang_bins;
+hbins_retino = neuron(1).retino(1).stats.ang_bins;
 
 hbins_cortex_axial = unwrap_angle(hbins_cortex, 1, 0);
 hbins_retino_axial = unwrap_angle(hbins_retino, 1, 0);
@@ -19,31 +19,31 @@ for iDb = 1:nDb
 
 
 % tuning
-prefOri(iDb) = neuron(iDb).tuning.prefOri;
-prefDir(iDb) = neuron(iDb).tuning.prefDir;
-OS(iDb) = neuron(iDb).tuning.OS;
-DS(iDb) = neuron(iDb).tuning.DS;
+prefOri(iDb) = neuron(iDb).tuning(1).prefOri;
+prefDir(iDb) = neuron(iDb).tuning(1).prefDir;
+OS(iDb) = neuron(iDb).tuning(1).OS;
+DS(iDb) = neuron(iDb).tuning(1).DS;
 
 % retinotopy
 
-RF(iDb, :) = [neuron(iDb).retino.soma_A, neuron(iDb).retino.soma_E];
+RF(iDb, :) = [neuron(iDb).retino(1).soma_A, neuron(iDb).retino(1).soma_E];
 
 % dendrites
-retino_aligned(:, iDb)= circGaussFilt(neuron(iDb).retino_aligned.ang_density,1);
+retino_aligned(:, iDb)= circGaussFilt(neuron(iDb).retino_aligned(1).stats.ang_density,1);
 
-retino(:, iDb)= circGaussFilt(neuron(iDb).retino.ang_density,1);
+retino(:, iDb)= circGaussFilt(neuron(iDb).retino(1).stats.ang_density,1);
 
-rot_cortex(:, iDb)= circGaussFilt(neuron(iDb).rot_cortex.ang_density_aligned,1);
+rot_cortex(:, iDb)= circGaussFilt(neuron(iDb).rot_cortex(1).ang_density_aligned,1);
 
-rot_cortex_allo(:, iDb)= circGaussFilt(neuron(iDb).rot_cortex.ang_density,1);
+rot_cortex_allo(:, iDb)= circGaussFilt(neuron(iDb).rot_cortex(1).ang_density,1);
 
-dendrOri(iDb) = neuron(iDb).rot_cortex.vm_thetaHat*180/pi;
+dendrOri(iDb) = neuron(iDb).rot_cortex(1).vm_thetaHat*180/pi;
 
-morph_circAxVar(iDb) = neuron(iDb).morph.circ_axial_var;
-morph_circVar(iDb) = neuron(iDb).morph.circ_var;
+morph_circAxVar(iDb) = neuron(iDb).morph(1).stats.circ_axial_var;
+morph_circVar(iDb) = neuron(iDb).morph(1).stats.circ_var;
 
-retino_circAxVar(iDb) = neuron(iDb).retino.circ_axial_var;
-retino_circVar(iDb) = neuron(iDb).retino.circ_var;
+retino_circAxVar(iDb) = neuron(iDb).retino(1).stats.circ_axial_var;
+retino_circVar(iDb) = neuron(iDb).retino(1).stats.circ_var;
 
 colorID = prefOri(iDb); %[-90 90]
 colorID = colorID+90;
@@ -157,13 +157,13 @@ print(fullfile(saveTo, 'ori_dir_dists') ,  '-dpng');
 
 [r_cc, r_p] = circ_corrcc(prefOri*2*pi/180, dendrOri*2*pi/180);
 
-figure( 'Color', [1 1 1]);
+figure( 'Color', [1 1 1], 'Position', [441 573 363 224]);
 plot([-90 90], [-90 90], '--k'); hold on;
-scatter (prefOri, dendrOri, 35, color, 'filled'); axis square
+scatter (prefOri, dendrOri, 45, color, 'filled'); axis square
 xlim([-100 100])
 ylim([-100 100])
 xlabel('pref ori (deg)')
-xlabel('dendrite ori(deg)')
+ylabel('dendrite ori(deg)')
 formatAxes
 
 print(fullfile(saveTo, 'dendrori_vs_ori') ,  '-dpng');
@@ -235,7 +235,7 @@ dir_horz_rot_cortex_allo = circ_mean(hbins_cortex_axial(1:end-1)*2, ave_horz_rot
 dir_horz_rot_cortex_allo= dir_horz_rot_cortex_allo/2;
 
 %%
-figure('Color', [1 1 1]);
+figure('Color', [1 1 1], 'Position', [232 258 981 539]);
 
 
 subplot(1, 4,1)
@@ -251,7 +251,7 @@ formatAxes
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca,  'ThetaZeroLocation', 'top');
-title('retino_aligned')
+title('retino_aligned', 'interpreter', 'none')
 
 subplot(1, 4,2)
 polarhistogram('BinEdges', hbins_retino, ...
@@ -263,7 +263,7 @@ formatAxes
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca,  'ThetaZeroLocation', 'top');
-title('retino')
+title('retino', 'interpreter', 'none')
 
 
 subplot(1, 4,3)
@@ -276,7 +276,7 @@ formatAxes
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca,  'ThetaZeroLocation', 'top');
-title('rot_cortex')
+title('rot_cortex', 'interpreter', 'none')
 
 subplot(1, 4,4)
 polarhistogram('BinEdges', hbins_cortex, ...
@@ -288,7 +288,10 @@ formatAxes
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca, 'RTick', [], 'ThetaTick', [0 90 180 270]);
 set(gca,  'ThetaZeroLocation', 'top');
-title('rot_cortex_allo')
+title('rot_cortex_allo', 'interpreter', 'none')
+
+print(fullfile(saveTo, 'dendrite_vis_dist') ,  '-dpng');
+
 %%
 figure('Color', [1 1 1]);
 

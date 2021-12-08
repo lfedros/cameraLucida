@@ -1,7 +1,5 @@
 function [file, folder] = build_path(db, type)
 
-% 2020 N Ghani and LF Rossi
-
 %%
 if ispc
     data_repo = 'D:\OneDrive - University College London\Data\Dendrites';
