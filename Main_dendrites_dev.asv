@@ -11,7 +11,7 @@ code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
 
 end
 cd(code_repo);
-addpath(genpath(code_repo));
+addpath(code_repo);
 set_dendrite_paths(); % edit the paths pointing to the code
 
 %% Populate database - edit build_path.m with location of data
@@ -33,7 +33,7 @@ end
 for iDb = 1:nDb
     
     [neuron(iDb).morph, neuron(iDb).morph_basal, neuron(iDb).morph_apical] = ...
-        load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
+        load_morph(db(iDb),db(iDb).morph_seq, 0, 1, 0);
 %         [~, neuron(iDb).morph] = load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
 
 end
@@ -42,7 +42,7 @@ end
 
 for iDb = 1:nDb
     
-    neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 0,1);
+    neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 0,0);
     
     % plot_responses(neuron(iDb)); plot responses if needed
 
@@ -56,9 +56,7 @@ for iDb = 1:nDb
         
         neuron(iDb).tuning(1).prefOri = unwrap_angle(neuron(iDb).tuning(1).prefDir + 90,1,1);
     end
-    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
-    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
-    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb), neuron(iDb).tuning(1).prefOri,0, 0,0);
 
 end
 
@@ -69,24 +67,15 @@ for iDb = 1:nDb
     for iSeq = 1:numel(neuron(iDb).morph)
 
     neuron(iDb).morph(iSeq).stats = tree_angular_stats(neuron(iDb).morph(iSeq));
-    neuron(iDb).morph_basal(iSeq).stats = tree_angular_stats(neuron(iDb).morph_basal(iSeq));
-    neuron(iDb).morph_apical(iSeq).stats = tree_angular_stats(neuron(iDb).morph_apical(iSeq));
 
     
     neuron(iDb).retino(iSeq).stats = tree_angular_stats(neuron(iDb).retino(iSeq));
-    neuron(iDb).retino_basal(iSeq).stats = tree_angular_stats(neuron(iDb).retino_basal(iSeq));
-    neuron(iDb).retino_apical(iSeq).stats = tree_angular_stats(neuron(iDb).retino_apical(iSeq));
 
 
     neuron(iDb).retino_aligned(iSeq) = rotate_tree(neuron(iDb).retino(iSeq), neuron(iDb).tuning(1).prefDir);
-    neuron(iDb).retino_aligned_basal(iSeq) = rotate_tree(neuron(iDb).retino_basal(iSeq), neuron(iDb).tuning(1).prefDir);
-    neuron(iDb).retino_aligned_apical(iSeq) = rotate_tree(neuron(iDb).retino_apical(iSeq), neuron(iDb).tuning(1).prefDir);
-
+           
 
     neuron(iDb).rot_cortex(iSeq) = rot_ret_stats(neuron(iDb).morph(iSeq), neuron(iDb).retino(iSeq), neuron(iDb).tuning);
-    neuron(iDb).rot_cortex_basal(iSeq) = rot_ret_stats(neuron(iDb).morph_basal(iSeq), neuron(iDb).retino_basal(iSeq), neuron(iDb).tuning);
-    neuron(iDb).rot_cortex_apical(iSeq) = rot_ret_stats(neuron(iDb).morph_apical(iSeq), neuron(iDb).retino_apical(iSeq), neuron(iDb).tuning);
-
     end
     
 end
@@ -110,28 +99,13 @@ end
 % plot_responses(neuron(41:end))
 
 % plot_responses(neuron([22 29 20 37 40 43 47  21 27]))
-close
-
-
-
-
-
-
-
-
-
-
-fas;kfjdsclose
-
-
+% plot_responses(neuron([44 41 38 35 34 31 32 33 45]))
 % plotSweepResp_LFR(neuron(24).tuning.allResp(:, :,:), neuron(24).tuning.time, 2);
 %%
 
 plot_dendrotomy_stats(neuron);
 
-plot_neurons_stats(neuron, 'all');
-plot_neurons_stats(neuron, 'basal');
-plot_neurons_stats(neuron, 'apical');
+plot_neurons_stats(neuron);
 
 
 %% Align trees according to preferred direction

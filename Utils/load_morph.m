@@ -1,4 +1,4 @@
-function [tree, basal_tree] = load_morph(db, target, doPlot, doSave, reLoad)
+function [tree, basal_tree, apical_tree] = load_morph(db, target, doPlot, doSave, reLoad)
 
 
 if nargin < 3
@@ -30,12 +30,14 @@ for iTree = 1:n_trees
     
     morph_path = fullfile(morph_folder, target{iTree}); % path to tree in microns
     morph_path_basal = [morph_path(1:end-4), '_basal.swc'];
-    
+    morph_path_apical = [morph_path(1:end-4), '_apical.swc'];
+
     pxFlag = 0;
-    if exist(morph_path, 'file') && exist(morph_path_basal, 'file') && ~reLoad
+    if exist(morph_path, 'file') && exist(morph_path_basal, 'file') && exist(morph_path_apical, 'file') &&  ~reLoad
         [tree(iTree),~,~] = load_tree(morph_path,'r');
         [basal_tree(iTree),~,~] = load_tree(morph_path_basal,'r');
-        
+        [apical_tree(iTree),~,~] = load_tree(morph_path_apical,'r');
+
     else
         try % if not, try loading the neutube tree in pixels
             morph_path_neut = [morph_path(1:end-12), '.swc'];
@@ -62,10 +64,13 @@ for iTree = 1:n_trees
                 end
                 sub = sum(sub,2)>0;
                 basal_tree(iTree) = delete_tree(tree(iTree), find(sub));
+                apical_tree(iTree) = delete_tree(tree(iTree), find(~sub));
+                                
                 clear sub;
             else
                 basal_tree(iTree) = [];
-                
+                apical_tree(iTree) = [];
+
             end
             
             pxFlag = 1;
@@ -85,6 +90,8 @@ for iTree = 1:n_trees
     if pxFlag
         tree(iTree) = tree_in_um(tree(iTree), db);
         basal_tree(iTree) = tree_in_um(basal_tree(iTree), db);
+        apical_tree(iTree) = tree_in_um(apical_tree(iTree), db);
+
         % tree.D(:) = 5; % override Neutube diameter which maybe meaningless
         % tree.D(:) = 15;
     end
@@ -95,9 +102,11 @@ for iTree = 1:n_trees
     if doSave
         morph_path = fullfile(morph_folder, target{iTree}); % path to tree in microns
         morph_path_basal = [morph_path(1:end-4), '_basal.swc'];
+        morph_path_apical = [morph_path(1:end-4), '_apical.swc'];
         swc_tree(tree(iTree), morph_path);
         swc_tree(basal_tree(iTree), morph_path_basal);
-        
+        swc_tree(apical_tree(iTree), morph_path_apical);
+
     end
 end
 %% Step 4: plot, if requested

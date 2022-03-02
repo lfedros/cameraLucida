@@ -11,7 +11,6 @@ if nargin <3
     normalisation = 'global';
 end
 
-addpath('C:\Users\Federico\Google Drive\CarandiniLab\CarandiniLab_MATLAB\FedericoBox\Tuning');
 [nStim, nRep, ~] = size(tune.allResp);
 
 %% turn angles from clockwise to counterclockwise
@@ -167,6 +166,16 @@ tune.z_std = z_std;
 if isnan(fixPars.dir)
 tune.relative = [];
 end
+
+if ~isfield(tune, 'F0')
+    tune.F0 = [];
+           tune.F0_neu = [];
+           tune.recDate = [];
+
+end
+
+
+
 % minR = min(tune.aveOriPeak);
 % topR = max(tune.aveOriPeak);
 % oriResp = (tune.aveOriPeak-minR)/(topR-minR);
