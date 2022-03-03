@@ -26,13 +26,29 @@ n_trees = numel(morph);
 
 %% if the data were already processed, load them
 
+
+
+
 for iSeq = 1:n_trees
-    load_saved(iSeq) = exist(fullfile(ret_path, db.ret_seq{iSeq}), 'file');
+                vis_ret_name{iSeq} = fullfile(ret_path, db.ret_seq{iSeq});
+
+    switch morph(iSeq).type
+      
+
+        case 'basal'
+            vis_ret_name{iSeq}  = [vis_ret_name{iSeq}(1:end-8), '_basal_deg.mat'];
+        case 'apical'
+            vis_ret_name{iSeq}  = [vis_ret_name{iSeq}(1:end-8), '_basal_deg.mat'];
+            
+    end
+    
+    
+    load_saved(iSeq) = exist(vis_ret_name{iSeq}, 'file');
 end
 
 if ~doSave && prod(load_saved)~=0 && ~reLoad
     for iSeq = 1:n_trees
-        tree_deg(iSeq) = load(fullfile(ret_path,db.ret_seq{iSeq}));
+        tree_deg(iSeq) = load(vis_ret_name{iSeq});
     end
     return;
 end
@@ -252,7 +268,7 @@ if doSave
     
     for iSeq = 1:n_trees
         this_tree = tree_deg(iSeq);
-        save(fullfile(ret_path, db.ret_seq{iSeq}), '-struct', 'this_tree');
+        save(vis_ret_name{iSeq}, '-struct', 'this_tree');
     end
     
 end

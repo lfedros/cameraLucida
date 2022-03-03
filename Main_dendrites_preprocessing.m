@@ -27,7 +27,7 @@ end
 % plotSweepResp_LFR(resp_abl(iDb).allResp(:, :,:), resp_abl(iDb).time, 2);
 % plotSweepResp_LFR(resp(iDb).allResp(:, :,:), resp(iDb).time, 2);
 
-%%
+%% plot
 
 
 maxT = max(cellfun(@max, cat(2, frameTimes_abl,frameTimes)));

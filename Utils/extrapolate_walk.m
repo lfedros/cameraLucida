@@ -12,7 +12,7 @@ last = walk(end,:);
 fit_walk = fitlm(walk(:,2)-last(2), walk(:, 1)-last(1), 'y ~ -1 + x1');
 % fit_walk = fitlm(walk(:,2), walk(:, 1), 'y ~ -1 + x1');
 
-if last(2)>start(2) % upper rigth quad & bottom rigth quad
+if last(2)>=start(2) % upper rigth quad & bottom rigth quad
 
 extrap_j = last(2):sz(2);
 extrap_j = extrap_j-last(2);

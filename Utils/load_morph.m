@@ -68,8 +68,8 @@ for iTree = 1:n_trees
                                 
                 clear sub;
             else
-                basal_tree(iTree) = [];
-                apical_tree(iTree) = [];
+                basal_tree(iTree) = struct;
+                apical_tree(iTree) = struct;
 
             end
             
@@ -78,9 +78,13 @@ for iTree = 1:n_trees
         catch
             tree = [];
             basal_tree = [];
+            apical_tree = [];
+
             return;
         end
     end
+   
+    
 end
 
 
@@ -103,6 +107,11 @@ for iTree = 1:n_trees
         morph_path = fullfile(morph_folder, target{iTree}); % path to tree in microns
         morph_path_basal = [morph_path(1:end-4), '_basal.swc'];
         morph_path_apical = [morph_path(1:end-4), '_apical.swc'];
+        
+         tree(iTree).type = 'all';
+    basal_tree(iTree).type = 'basal';
+    apical_tree(iTree).type = 'apical';
+        
         swc_tree(tree(iTree), morph_path);
         swc_tree(basal_tree(iTree), morph_path_basal);
         swc_tree(apical_tree(iTree), morph_path_apical);

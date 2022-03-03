@@ -17,7 +17,7 @@ nDb = numel(neuron);
 %% pool the interesting stats, loggin the db ID for longitudinal data
 
 % initialise interesting stats
-Dp=[]; Do =[]; Rp=[]; Ro= []; sel = []; sel_abl= [];
+Dp=[]; Do =[]; Rp=[]; Ro= []; sel = []; sel_abl= []; F0 = [];
 
 %counter of datapoints including longitudinal points
 parent_db = [];
@@ -62,15 +62,21 @@ for iDb = 1:nDb
         Ro(nthP) = neuron(iDb).tuning(1).Ro;
         Rn(nthP) = neuron(iDb).tuning(1).Rn;
         
+        F0(nthP) = mean(neuron(iDb).tuning(1).F0_neu);
+        
         if iSeq >1
             
             Rp_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
             Ro_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Ro;
             Rn_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rn;
+                    F0_cut(nthP) = mean(neuron(iDb).tuning(iSeq).F0_neu);
+
         else
             Rp_cut(nthP) = Rp(nthP);
             Ro_cut(nthP) = Ro(nthP);
             Rn_cut(nthP) = Rn(nthP);
+                                F0_cut(nthP) =F0(nthP);
+
         end
         
         sel(nthP) = (Rp(nthP) - Ro(nthP))/(Rp(nthP) + Ro(nthP));
@@ -858,6 +864,23 @@ axis square
 
 print(fullfile(saveTo,'Mult_or_Add') ,  '-dpng');
     print(fullfile(saveTo,'Mult_or_Add') , '-dpdf', '-painters');
+%%
+
+figure('Position', [418 293 983 550], 'Color', 'w');
+plot(L_rel(type & is_cut), F0_cut(type & is_cut), 'o', 'Color', [1 0 0], 'MarkerSize', 7); hold on;
+plot(L_rel(~type & is_cut), F0_cut(~type & is_cut), 'o', 'Color', [0 0.5 1],  'MarkerSize', 7);
+
+for iDb = 1:nDb
+    if sum(parent_db==iDb)>1
+        plot(L_rel(parent_db==iDb), F0_cut(parent_db==iDb), '-', 'Color', [mean(color((parent_db==iDb),:)), 0.2], ...
+            'LineWidth', 0.5); hold on
+    end
+end
+xlabel('Fraction dendrites cut')
+ylabel('F0')
+formatAxes
+axis square
+
 
 %%
 figure('Position', [418 293 983 550], 'Color', 'w');

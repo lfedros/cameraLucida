@@ -33,7 +33,7 @@ end
 for iDb = 1:nDb
     
     [neuron(iDb).morph, neuron(iDb).morph_basal, neuron(iDb).morph_apical] = ...
-        load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
+        load_morph(db(iDb),db(iDb).morph_seq, 0, 0, 0);
 %         [~, neuron(iDb).morph] = load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
 
 end
@@ -42,7 +42,7 @@ end
 
 for iDb = 1:nDb
     
-    neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 0,1);
+    neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, 0,0);
     
     % plot_responses(neuron(iDb)); plot responses if needed
 
@@ -56,9 +56,9 @@ for iDb = 1:nDb
         
         neuron(iDb).tuning(1).prefOri = unwrap_angle(neuron(iDb).tuning(1).prefDir + 90,1,1);
     end
-    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
-    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
-    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 1,1);
+    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 1,1);
+    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 1,1);
 
 end
 
@@ -110,20 +110,6 @@ end
 % plot_responses(neuron(41:end))
 
 % plot_responses(neuron([22 29 20 37 40 43 47  21 27]))
-close
-
-
-
-
-
-
-
-
-
-
-fas;kfjdsclose
-
-
 % plotSweepResp_LFR(neuron(24).tuning.allResp(:, :,:), neuron(24).tuning.time, 2);
 %%
 
