@@ -15,11 +15,9 @@ video_file = dat.expFilePath(ExpRef, 'intrinsic', 'master');
 save_to = [video_file(1:end-4), '_maps.mat'];
 save(save_to, 'maps');
 
-
 %% analyse previous maps
 clear;
-addpath(genpath('C:\Users\Federico\Documents\GitHub\fusiBox'));
-addpath('C:\Users\Federico\Documents\GitHub\EyeTracking');
+addpath(genpath('C:\Users\Federico\Documents\GitHub\cameraLucida\Pre_proc\Intrinsic imaging'));
 
 ExpRef = '2022-02-10_5_FR206'; % anaesthesia, 1.45h
 %% load intrinsic maps
@@ -27,6 +25,9 @@ video_file = dat.expFilePath(ExpRef, 'intrinsic', 'master');
 save_to = [video_file(1:end-4), '_maps.mat'];
 load(save_to, 'maps');
 
+h = plotPreferenceMaps(maps.maps, maps.pars, true, 'alpha');
+
+%% Code from here on is under development
 %% load image to align
 
 twoP_vasculature = [];
