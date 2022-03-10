@@ -113,7 +113,7 @@ end
 % plotSweepResp_LFR(neuron(24).tuning.allResp(:, :,:), neuron(24).tuning.time, 2);
 %%
 
-plot_dendrotomy_stats(neuron);
+% plot_dendrotomy_stats(neuron);
 
 plot_neurons_stats(neuron, 'all');
 plot_neurons_stats(neuron, 'basal');

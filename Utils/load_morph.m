@@ -5,12 +5,12 @@ if nargin < 3
     doPlot = 0;
 end
 
-if nargin < 4
+if nargin < 4 % if you want to save 
     doSave = 0;
 end
 
 
-if nargin < 5
+if nargin < 5 % if you want to recompute and overwrite saved one
     reLoad = 0;
 end
 %% Step 1: load swc reconstruction
@@ -84,7 +84,7 @@ for iTree = 1:n_trees
         end
     end
    
-    
+  
 end
 
 
@@ -99,6 +99,9 @@ for iTree = 1:n_trees
         % tree.D(:) = 5; % override Neutube diameter which maybe meaningless
         % tree.D(:) = 15;
     end
+    tree(iTree).type = 'all';
+    basal_tree(iTree).type = 'basal';
+    apical_tree(iTree).type = 'apical';   
 end
 
 %% Step 3: save if requested
@@ -107,11 +110,7 @@ for iTree = 1:n_trees
         morph_path = fullfile(morph_folder, target{iTree}); % path to tree in microns
         morph_path_basal = [morph_path(1:end-4), '_basal.swc'];
         morph_path_apical = [morph_path(1:end-4), '_apical.swc'];
-        
-         tree(iTree).type = 'all';
-    basal_tree(iTree).type = 'basal';
-    apical_tree(iTree).type = 'apical';
-        
+              
         swc_tree(tree(iTree), morph_path);
         swc_tree(basal_tree(iTree), morph_path_basal);
         swc_tree(apical_tree(iTree), morph_path_apical);

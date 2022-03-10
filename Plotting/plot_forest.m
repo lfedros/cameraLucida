@@ -23,7 +23,8 @@ for iP = 1:nSubP
     
     tree(iP) = resample_tree(trees(iP).morph(1), res);
     basal_tree(iP) = resample_tree(trees(iP).morph_basal(1), res);
-    
+    apical_tree(iP) = resample_tree(trees(iP).morph_apical(1), res);
+
     maxZ(iP) = max(tree(iP).Z);
     maxR = max(maxR, max(abs([tree(iP).X; tree(iP).Y])));
 end
@@ -72,9 +73,15 @@ switch plot_type
             basal_tree(sort_idx(iP)).Z = basal_tree(sort_idx(iP)).Z + row*maxZ;
             basal_tree(sort_idx(iP)).X = basal_tree(sort_idx(iP)).X + (col-1)*2*maxR;
             
+            apical_tree(sort_idx(iP)).Z = apical_tree(sort_idx(iP)).Z + row*maxZ;
+            apical_tree(sort_idx(iP)).X = apical_tree(sort_idx(iP)).X + (col-1)*2*maxR;
+    
+            
             hold on;
             plot_tree_lines_LFR(tree(sort_idx(iP)), [0.5 0 0],[],[],'-3l');
-            plot_tree_lines_LFR(basal_tree(sort_idx(iP)), [0 0 0],[],[],'-3l');           
+            plot_tree_lines_LFR(basal_tree(sort_idx(iP)), [0 0 0],[],[],'-3l');
+            plot_tree_lines_LFR(apical_tree(sort_idx(iP)), [0 0 0.5],[],[],'-3l');
+
             xlabel('ML[um] ');
             ylabel('RC[um] ');
             formatAxes

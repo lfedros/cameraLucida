@@ -93,6 +93,8 @@ if ~isempty(prefOri)
     
     walk =walkThetaCortex(retX, retY, prefOri, [Y_pos, X_pos]);
     walkOp =walkThetaCortex(retX, retY, prefOri+180, [Y_pos, X_pos]);
+        
+
     
     if size(walk, 1)>1
         walk = extrapolate_walk(walk);
@@ -102,9 +104,17 @@ if ~isempty(prefOri)
     
     if size(walkOp, 1)>1
         walkOp = extrapolate_walk(walkOp);
+        
     else
         [~,walkOp] = extrapolate_walk(flip(walk,1));
     end
+    
+    walk(isnan(walk(:,1)), :) = [];
+    walk(isnan(walk(:,2)), :) = [];
+        
+    walkOp(isnan(walkOp(:,1)), :) = [];
+    walkOp(isnan(walkOp(:,2)), :) = [];
+    
     
     isoOri_IJ(:,2) = walk(:,2);
     isoOri_IJ(:,1) = walk(:,1);
@@ -141,12 +151,21 @@ else
     [~,walkOp] = extrapolate_walk(flip(walk,1));
 end
 
+    walk(isnan(walk(:,1)), :) = [];
+    walk(isnan(walk(:,2)), :) = [];
+        
+    walkOp(isnan(walkOp(:,1)), :) = [];
+    walkOp(isnan(walkOp(:,2)), :) = [];
+
 vertical_IJ(:,2) = walk(:,2);
 vertical_IJ(:,1) = walk(:,1);
 verticalOp_IJ(:,2) = walkOp(:,2);
 verticalOp_IJ(:,1) = walkOp(:,1);
 
 walk = cat(1,  flip(walk,1), walkOp(2:end,:));
+
+        
+
 
 isoVertical(:, 1) = interp1(1:numel(micronsSomaX), micronsSomaX, walk(:,2));
 isoVertical(:, 2) = interp1(1:numel(micronsSomaY), micronsSomaY, walk(:,1));
@@ -174,6 +193,12 @@ else
     [~,walkOp] = extrapolate_walk(flip(walk,1));
 end
 
+    walk(isnan(walk(:,1)), :) = [];
+    walk(isnan(walk(:,2)), :) = [];
+        
+    walkOp(isnan(walkOp(:,1)), :) = [];
+    walkOp(isnan(walkOp(:,2)), :) = [];
+
 horiz_IJ(:,2) = walk(:,2);
 horiz_IJ(:,1) = walk(:,1);
 horizOp_IJ(:,2) = walkOp(:,2);
@@ -181,6 +206,7 @@ horizOp_IJ(:,1) = walkOp(:,1);
 
 walk = cat(1,  flip(walk,1), walkOp(2:end,:));
 
+        
 isoHoriz(:, 1) = interp1(1:numel(micronsSomaX), micronsSomaX, walk(:,2));
 isoHoriz(:, 2) = interp1(1:numel(micronsSomaY), micronsSomaY, walk(:,1));
 
