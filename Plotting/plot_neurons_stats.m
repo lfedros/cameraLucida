@@ -90,8 +90,9 @@ for iDb = 1:nDb
     
     rot_cortex_allo(:, iDb)= circGaussFilt(this_rot_cortex(iDb).ang_density,1);
     
-    dendrOri(iDb) = this_rot_cortex(iDb).vm_thetaHat*180/pi;
-    
+    dendrOri_ctx(iDb) = this_rot_cortex(iDb).vm_thetaHat*180/pi;
+    dendrOri_ret(iDb) = this_retino(iDb).stats.vm_thetaHat*180/pi;
+
     morph_circAxVar(iDb) = this_morph(iDb).stats.circ_axial_var;
     morph_circVar(iDb) = this_morph(iDb).stats.circ_var;
     
@@ -208,18 +209,49 @@ print(fullfile(saveTo, 'ori_dir_dists') ,  '-dpng');
 
 %% does ori correlate with dendrOri
 
-[r_cc, r_p] = circ_corrcc(prefOri*2*pi/180, dendrOri*2*pi/180);
+[r_cc, r_p] = circ_corrcc(prefOri*2*pi/180, dendrOri_ctx*2*pi/180);
+
+delta = dendrOri_ctx - prefOri; 
+up = delta>90;
+down = delta <-90;
+
+dendrOri_ctx(up) = dendrOri_ctx(up) - 180;
+dendrOri_ctx(down) = dendrOri_ctx(down) + 180;
 
 figure( 'Color', [1 1 1], 'Position', [441 573 363 224]);
 plot([-90 90], [-90 90], '--k'); hold on;
-scatter (prefOri, dendrOri, 45, color, 'filled'); axis square
+scatter (prefOri, dendrOri_ctx, 45, color, 'filled'); axis square
 xlim([-100 100])
-ylim([-100 100])
+ylim([-180 180])
 xlabel('pref ori (deg)')
 ylabel('dendrite ori(deg)')
+title(sprintf('ctx cR = %02f, p = %02f', r_cc, r_p));
 formatAxes
 
-print(fullfile(saveTo, 'dendrori_vs_ori') ,  '-dpng');
+print(fullfile(saveTo, 'dendrori_ctx_vs_ori') ,  '-dpng');
+
+%% does ori correlate with dendrOri
+
+[r_cc, r_p] = circ_corrcc(prefOri*2*pi/180, dendrOri_ret*2*pi/180);
+
+delta = dendrOri_ret - prefOri; 
+up = delta>90;
+down = delta <-90;
+
+dendrOri_ret(up) = dendrOri_ret(up) - 180;
+dendrOri_ret(down) = dendrOri_ret(down) + 180;
+
+figure( 'Color', [1 1 1], 'Position', [441 573 363 224]);
+plot([-90 90], [-90 90], '--k'); hold on;
+scatter (prefOri, dendrOri_ret, 45, color, 'filled'); axis square
+xlim([-100 100])
+ylim([-180 180])
+xlabel('pref ori (deg)')
+ylabel('dendrite ori(deg)')
+title(sprintf('ret cR = %02f, p = %02f', r_cc, r_p));
+formatAxes
+
+print(fullfile(saveTo, 'dendrori_ret_vs_ori') ,  '-dpng');
 
 
 %% split neurons in vertical and horz preferring

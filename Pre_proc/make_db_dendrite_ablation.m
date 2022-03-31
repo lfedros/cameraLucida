@@ -1,5 +1,122 @@
 i =0;
 
+%% %% FR171 nenuron 9
+
+i = i+1;
+
+db(i).animal           = 'FR171';
+db(i).mouse_name    = {'FR171', 'FR171', 'FR171'};
+db(i).mouse_name_s2p     = {'FR171', 'FR171', 'FR171'};
+db(i).date          = {'2020-09-22', '2020-10-06', '2020-10-06'};
+db(i).date_s2p      = {'2020-09-22', '2020-10-06', '2020-10-06'}; % the second recordin looks bad
+db(i).expts         = {[4 5], [4 5], [4 5]};
+db(i).expID         = {[1], [1], [2]};
+db(i).plane         = [2, 2, 2];
+db(i).starterID     = 9;
+db(i).stimList      = {[1:13], [1:7:84, 85], [1:13]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
+
+%% %% FR175 nenuron 6
+% 
+% i = i+1;
+% 
+% db(i).animal           = 'FR175';
+% db(i).mouse_name    = {'FR175', 'FR175', 'FR175', 'FR175', 'FR175'};
+% db(i).mouse_name_s2p     = {'FR175', 'FR175', 'FR175', 'FR175', 'FR175'};
+% db(i).date          = { '2020-12-08', '2020-12-09', '2020-12-09', '2020-12-09'}; % run s2P on teh second
+% db(i).date_s2p      = { '2020-12-08', '2020-12-09', '2020-12-09', '2020-12-09'};
+% db(i).expts         = { [6], [10 11 12],[10 11 12],[10 11 12]};
+% db(i).expID         = { [1], [1], [2], [3]};
+% % db(i).plane         = [4, 10];
+% db(i).starterID     = 6;
+% db(i).stimList      = {[1:13], [5:7:84, 85], [1:13],[1:13],[1:13] };
+% db(i).respWin       = [0 2];
+% 
+% db_abl(i).animal           = [];
+% db_abl(i).mouse_name    = [];
+% db_abl(i).mouse_name_s2p    = [];
+% db_abl(i).date              = [];
+% db_abl(i).date_s2p      = [];
+% db_abl(i).expts         = [];
+% db_abl(i).expID         = [];
+% db_abl(i).plane         = [];
+% db_abl(i).starterID     = [];
+% db_abl(i).stimList      = [];
+% db_abl(i).ncut_dendrites     = [];
+% db_abl(i).respWin       = [];
+
+%% %% FR187 nenuron 1
+
+i = i+1;
+
+db(i).animal           = 'FR187';
+db(i).mouse_name    = {'FR187'};
+db(i).mouse_name_s2p     = {'FR187'};
+db(i).date          = {'2021-03-22', '2021-03-22','2021-03-22','2021-03-22','2021-03-23'};
+db(i).date_s2p      = {'2021-03-22', '2021-03-22','2021-03-22','2021-03-22','2021-03-23'};
+db(i).expts         = {[3], [3],[3],[3], [1 2]};
+db(i).expID         = {[1], [1],[1],[1], [2]};
+db(i).plane         = [2, 2,2,2,2];
+db(i).starterID     = 1;
+db(i).stimList      = {[2:7:84, 85], [3:7:84, 85],[5:7:84, 85],[6:7:84, 85], [1:13], [1:13]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p    = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
+
+%% %% FR184 nenuron 25
+
+i = i+1;
+
+db(i).animal           = 'FR171';
+db(i).mouse_name    = {'FR171', 'FR171'};
+db(i).mouse_name_s2p     = {'FR171', 'FR171'};
+db(i).date          = {'2020-09-18', '2020-10-10'};
+db(i).date_s2p      = {'2020-09-18', '2020-10-10'};
+db(i).expts         = {[4 5], [1 2 5]};
+db(i).expID         = {[2], [1]};
+db(i).plane         = [4, 10];
+db(i).starterID     = 5;
+db(i).stimList      = {[1:13], [5:7:84, 85]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p    = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
+
+
 %% FR184 neuron 1 (FOV2)
 
 i = i+1;
@@ -58,6 +175,121 @@ db_abl(i).starterID     = 2;
 db_abl(i).stimList      = {[1:13],[1:13],[1:13]};
 db_abl(i).ncut_dendrites     = [3  2];
 db_abl(i).respWin       = [0 3];
+
+%% FR184 neuron 3 (fov2)
+
+i = i+1;
+
+db(i).animal           = 'FR184';
+db(i).mouse_name    = {'FR184', 'FR184', 'FR184', 'FR184', 'FR184', 'FR184'};
+db(i).mouse_name_s2p    = {'FR184', 'FR184', 'FR184', 'FR184', 'FR184', 'FR184'};
+db(i).date          = {'2021-03-22','2021-03-22','2021-03-22','2021-03-22', '2021-03-24','2021-03-24'};
+db(i).date_s2p      = {'2021-03-22', '2021-03-22','2021-03-22','2021-03-22','2021-03-24','2021-03-24'};
+db(i).expts         = {[3], [3],[3],[3],[5 6 7], [5 6 7]};
+db(i).expID         = {[1], [1],[1],[1],[2],[3]};
+db(i).plane         = [7, 7, 7, 7, 6, 6];
+db(i).starterID     = 3;
+db(i).stimList      = {[2:7:84, 85], [5:7:84, 85],[6:7:84, 85],[7:7:84, 85],[1:13],[1:13]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
+
+%% FR184 neuron 4 (fov2)
+
+i = i+1;
+
+db(i).animal           = 'FR184';
+db(i).mouse_name    = {'FR184'};
+db(i).mouse_name_s2p    = {'FR184'};
+db(i).date          = {'2021-03-24'};
+db(i).date_s2p      = {'2021-03-24'};
+db(i).expts         = {[5 6 7],};
+db(i).expID         = {[3]};
+db(i).plane         = [6];
+db(i).starterID     = 4;
+db(i).stimList      = {[1:13]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
+%% FR184 neuron 5 (fov2)
+
+i = i+1;
+
+db(i).animal           = 'FR184';
+db(i).mouse_name    = {'FR184', 'FR184'};
+db(i).mouse_name_s2p    = {'FR184', 'FR184'};
+db(i).date          = {'2021-03-22', '2021-03-24'};
+db(i).date_s2p      = {'2021-03-22', '2021-03-24'};
+db(i).expts         = {[3], [5 6 7],};
+db(i).expID         = {[1], [3]};
+db(i).plane         = [8, 7];
+db(i).starterID     = 5;
+db(i).stimList      = {[7:7:84, 85], [1:13]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
+
+%% FR184 neuron 6 (fov2)
+
+i = i+1;
+
+db(i).animal           = 'FR184';
+db(i).mouse_name    = {'FR184', 'FR184'};
+db(i).mouse_name_s2p    = {'FR184', 'FR184'};
+db(i).date          = {'2021-03-22', '2021-03-24'};
+db(i).date_s2p      = {'2021-03-22', '2021-03-24'};
+db(i).expts         = {[3], [5 6 7],};
+db(i).expID         = {[1], [1]};
+db(i).plane         = [9, 7];
+db(i).starterID     = 6;
+db(i).stimList      = {[6:7:84, 85], [1:13]};
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
 %% FR184 neuron 7
 
 i = i+1;
@@ -86,10 +318,91 @@ db_abl(i).starterID     = 7;
 db_abl(i).stimList      = {[1:13],[1:13],[1:13]};
 db_abl(i).ncut_dendrites     = [3  1];
 db_abl(i).respWin       = [0 3];
-%% FR184 neuron 8 (FOV1)
+%% FR184 neuron 8-9 (FOV1)
 
-%% FR184 neuron 9
+% i = i+1;
+% 
+% db(i).animal           = 'FR184';
+% db(i).mouse_name    = {'FR184'};
+% db(i).mouse_name_s2p    = {'FR184'};
+% db(i).date          = {'2021-03-22'};
+% db(i).date_s2p      = {'2021-03-22'};
+% db(i).expts         = {[1]};
+% db(i).expID         = {[1]};
+% db(i).plane         = [2];
+% db(i).starterID     = 8; %9
+% db(i).stimList      = {[4:7:84, 85]}; %= {[5:7:84, 85]}; 
+% db(i).respWin       = [0 2];
+% 
+% db_abl(i).animal           = [];
+% db_abl(i).mouse_name    = [];
+% db_abl(i).mouse_name_s2p  = [];
+% db_abl(i).date              = [];
+% db_abl(i).date_s2p      = [];
+% db_abl(i).expts         = [];
+% db_abl(i).expID         = [];
+% db_abl(i).plane         = [];
+% db_abl(i).starterID     = [];
+% db_abl(i).stimList      = [];
+% db_abl(i).ncut_dendrites     = [];
+% db_abl(i).respWin       = [];
+%% FR184 neuron 9 (FOV1, not resp?)
 
+% i = i+1;
+% 
+% db(i).animal           = 'FR184';
+% db(i).mouse_name    = {'FR184'};
+% db(i).mouse_name_s2p    = {'FR184'};
+% db(i).date          = {'2021-03-22'};
+% db(i).date_s2p      = {'2021-03-22'};
+% db(i).expts         = {[1]};
+% db(i).expID         = {[1]};
+% db(i).plane         = [2];
+% db(i).starterID     = 9
+% db(i).stimList      = {[5:7:84, 85]}; 
+% db(i).respWin       = [0 2];
+% 
+% db_abl(i).animal           = [];
+% db_abl(i).mouse_name    = [];
+% db_abl(i).mouse_name_s2p  = [];
+% db_abl(i).date              = [];
+% db_abl(i).date_s2p      = [];
+% db_abl(i).expts         = [];
+% db_abl(i).expID         = [];
+% db_abl(i).plane         = [];
+% db_abl(i).starterID     = [];
+% db_abl(i).stimList      = [];
+% db_abl(i).ncut_dendrites     = [];
+% db_abl(i).respWin       = [];
+%% FR184 neuron 21
+
+i = i+1;
+
+db(i).animal           = 'FR184';
+db(i).mouse_name    = {'FR184','FR184'};
+db(i).mouse_name_s2p    = {'FR184','FR184'};
+db(i).date          = {'2021-03-23','2021-03-23'};
+db(i).date_s2p      = {'2021-03-23','2021-03-23'};
+db(i).expts         = {[2],[2], [2 3 4], [2 3 4], [2 3 4]};
+db(i).expID         = {[1],[1],[1],[2],[3]};
+db(i).plane         = [9, 9, 5, 5, 5];
+db(i).starterID     = 21;
+db(i).stimList      = {[3:7:84, 85], [4:7:84, 85],[1:13],[1:13],[1:13]}; 
+db(i).respWin       = [0 3];
+
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
 %% FR184 neuron 12
 
 i = i+1;
@@ -568,6 +881,33 @@ db_abl(i).stimList      = {[1:13], [1:13], [1:13]};
 db_abl(i).ncut_dendrites     = [3  1];
 db_abl(i).respWin       = [0 3];
 
+%% FR187 neuron 9
+i = i+1;
+
+db(i).animal           = 'FR187';
+db(i).mouse_name    = {'FR187','FR187','FR187','FR187','FR187','FR187'};
+db(i).mouse_name_s2p    = {'FR187', 'FR187','FR187','FR187','FR187','FR187'};
+db(i).date          = {'2021-03-24','2021-03-24', '2021-03-25', '2021-03-25','2021-03-25','2021-03-25'};
+db(i).date_s2p      = {'2021-03-24', '2021-03-24','2021-03-25', '2021-03-25','2021-03-25','2021-03-25'};
+db(i).expts         = {[3 4], [3 4],[4 5 6 7 8], [4 5 6 7 8],[4 5 6 7 8], [4 5 6 7 8]};
+db(i).expID         = {[2],[2], [1], [1], [2], [5]};
+db(i).plane         = [7, 7, 5, 5 5, 5];
+db(i).starterID     = 9;
+db(i).stimList      = {[1:7:84, 85], [7:7:84, 85], [1:7:84, 85], [7:7:84, 85],[1:13], [1:13]}; 
+db(i).respWin       = [0 2];
+
+db_abl(i).animal           = [];
+db_abl(i).mouse_name    = [];
+db_abl(i).mouse_name_s2p  = [];
+db_abl(i).date              = [];
+db_abl(i).date_s2p      = [];
+db_abl(i).expts         = [];
+db_abl(i).expID         = [];
+db_abl(i).plane         = [];
+db_abl(i).starterID     = [];
+db_abl(i).stimList      = [];
+db_abl(i).ncut_dendrites     = [];
+db_abl(i).respWin       = [];
 %% FR187 neuron 10
 i = i+1;
 

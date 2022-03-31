@@ -12,6 +12,11 @@ Timeline = getTimeline(ExpRef);
 
 mov = getIntrinsic(ExpRef);
 
+% mov = getRegIntrinsic(ExpRef); % if you want to include image
+% registration, but it does not seem to help
+
+%%
+
 % these are the frame onsets
 fprintf('Extracting frame times...\n');
 bscopeCamFrameTimes = getFrameTimes(ExpRef,'intrinsic');

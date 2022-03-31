@@ -33,7 +33,7 @@ end
 for iDb = 1:nDb
     
     [neuron(iDb).morph, neuron(iDb).morph_basal, neuron(iDb).morph_apical] = ...
-        load_morph(db(iDb),db(iDb).morph_seq, 0, 0, 0);
+        load_morph(db(iDb),db(iDb).morph_seq, 0, 1, 1);
 %         [~, neuron(iDb).morph] = load_morph(db(iDb),db(iDb).morph_seq, 0, 0);
 
 end
@@ -56,10 +56,11 @@ for iDb = 1:nDb
         
         neuron(iDb).tuning(1).prefOri = unwrap_angle(neuron(iDb).tuning(1).prefDir + 90,1,1);
     end
-    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 1,1);
-    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 1,1);
-    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 1,1);
-
+    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    
+    fprintf('%s neuron %d completed. %d of %d \n', db(iDb).animal, db(iDb).neuron_id, iDb, nDb);
 end
 
 %% Measure some stats
@@ -88,7 +89,8 @@ for iDb = 1:nDb
     neuron(iDb).rot_cortex_apical(iSeq) = rot_ret_stats(neuron(iDb).morph_apical(iSeq), neuron(iDb).retino_apical(iSeq), neuron(iDb).tuning);
 
     end
-    
+        fprintf('%s neuron %d completed. %d of %d \n', db(iDb).animal, db(iDb).neuron_id, iDb, nDb);
+
 end
 
 

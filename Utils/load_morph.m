@@ -62,9 +62,12 @@ for iTree = 1:n_trees
                 [sub(:,iA), ~] = sub_tree(tree(iTree), node_idx);
                     
                 end
-                sub = sum(sub,2)>0;
-                basal_tree(iTree) = delete_tree(tree(iTree), find(sub));
-                apical_tree(iTree) = delete_tree(tree(iTree), find(~sub));
+                basal_sub = sum(sub,2)>0;
+                apical_sub = ~basal_sub;
+                apical_sub(1) = 0;
+                basal_tree(iTree) = delete_tree(tree(iTree), find(basal_sub));
+                
+                apical_tree(iTree) = delete_tree(tree(iTree), find(apical_sub)); % add the sub of the soma;
                                 
                 clear sub;
             else

@@ -78,7 +78,7 @@ switch plot_type
     
             
             hold on;
-            plot_tree_lines_LFR(tree(sort_idx(iP)), [0.5 0 0],[],[],'-3l');
+%             plot_tree_lines_LFR(tree(sort_idx(iP)), [0.5 0 0],[],[],'-3l');
             plot_tree_lines_LFR(basal_tree(sort_idx(iP)), [0 0 0],[],[],'-3l');
             plot_tree_lines_LFR(apical_tree(sort_idx(iP)), [0 0 0.5],[],[],'-3l');
 

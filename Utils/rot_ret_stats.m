@@ -44,7 +44,7 @@ b = robustfit(retino.isoHoriz(:,1), retino.isoHoriz(:,2), [], [], 'off');
 isoHoriz_ang = rad2deg(atan(b))-90;
 
 coords = [morph.X, morph.Y];
-coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
+coords(coords(1,:)<50 | coords(2,:)<50, :) = [];
 
 R = [cosd(isoHoriz_ang) sind(isoHoriz_ang); -sind(isoHoriz_ang) cosd(isoHoriz_ang)];
 rot_coords = R*coords';
@@ -67,30 +67,16 @@ theta = -180:5:175;
 
 [nx, ny] = size(retX);
 
-tol = pi/18;
-[angleRet, ~] = cart2pol(retX, retY); %[-pi, pi]
-aMap = reshape(angleRet,nx,ny);
 
-ori = ori_deg*pi/180;
-opOri = ori + pi; %[0 2*pi];
-opOri(opOri>pi) = opOri(opOri> pi) - 2*pi;%[-pi pi]
-
-oriMap = (aMap-ori)>= -tol & (aMap-ori)<= tol;
-oriOpMap =  (aMap-opOri)>= -tol & (aMap-opOri)<= tol;
-
-ax_map = oriMap | oriOpMap;
-theta_map = oriMap;
-
-ang_density_alignedOp = nan(numel(theta), 1);
 ang_density_aligned = nan(numel(theta), 1);
 
 coords = [morph.X, morph.Y];
-coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
+coords(coords(1,:)<10 | coords(2,:)<10, :) = [];
 
 % figure;
 for it = 1:numel(theta)
-    %% rotate tree by deg bin clockwise
-    R = [cosd(theta(it)) sind(theta(it)); -sind(theta(it)) cosd(theta(it))];
+    %% rotate tree by deg bin counterclockwise
+    R = [cosd(theta(it)) -sind(theta(it)); sind(theta(it)) cosd(theta(it))];
     rot_coords = R*coords';
     rotX = rot_coords(1,:)';
     rotY = rot_coords(2,:)';
@@ -127,7 +113,7 @@ coords = [morph.X, morph.Y];
 coords(coords(1,:)<20 | coords(2,:)<20, :) = [];
 
 for it = 1:numel(theta_ax)
-    %% rotate tree by deg bin clockwise
+    %% rotate tree by deg bin counterclockwise
     
     R = [cosd(theta_ax(it)) -sind(theta_ax(it)); sind(theta_ax(it)) cosd(theta_ax(it))];
     rot_coords = R*coords';
@@ -136,7 +122,7 @@ for it = 1:numel(theta_ax)
     
     %% 2D histogram of tree
     
-    xy = hist3([rotY, rotX], 'Edges', {flip(micronsSomaY,2), micronsSomaX});
+    xy = hist3([rotY, rotX], 'Edges', {sort(micronsSomaY,'ascend'), micronsSomaX});
     
     %% measure dot product between mask and three
     
