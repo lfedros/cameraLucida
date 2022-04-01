@@ -105,7 +105,7 @@ tune.fit_vm_12 = mfun.vonMises2(tune.dir_pars_vm, 0:30:330);
 tune.fit_pt = 0:1:359;
 tune.prefDir = tune.dir_pars_vm(1);
 
-% von Mises orientation tuining
+% von Mises orientation tuning
 tune.ori_pars_vm = mfun.fitTuning(repmat(tune.oris*2, 1,nRep), toFit, 'vm1', fixPars.ori);
 tune.ori_fit_vm = mfun.vonMises(tune.ori_pars_vm, -180:1:179);
 tune.ori_fit_pt = (-180:1:179)/2;

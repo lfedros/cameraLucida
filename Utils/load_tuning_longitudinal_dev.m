@@ -16,13 +16,17 @@ end
 if iscell(target)
     n_trees = numel(target); % data with pruning have longitudinal imaging 
                              % saved in different files
-    prune_flag = 1;
 
 else
     n_trees = 1; % data without pruning have 1 file
     target = {target};
-    prune_flag = 0;
 
+end
+
+if n_trees>1
+        prune_flag = 1;
+else
+    prune_flag =0;
 end
 
 for iS = 1:numel(target)

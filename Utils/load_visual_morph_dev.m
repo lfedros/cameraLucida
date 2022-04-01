@@ -26,9 +26,6 @@ n_trees = numel(morph);
 
 %% if the data were already processed, load them
 
-
-
-
 for iSeq = 1:n_trees
                 vis_ret_name{iSeq} = fullfile(ret_path, db.ret_seq{iSeq});
 

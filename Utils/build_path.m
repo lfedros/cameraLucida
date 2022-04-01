@@ -61,7 +61,7 @@ if nargin>1
                     file{iF} = [file{iF}(1:idx-1),'tracing_deg.mat'];
                 else
                     idx = strfind(file{iF}, 'tracing_cut');
-                    file{iF} = [file{iF}(1:idx-1),'tuning_cut_deg.mat'];
+                    file{iF} = [file{iF}(1:idx-1),'tracing_cut_deg.mat'];
             
                 end
             end

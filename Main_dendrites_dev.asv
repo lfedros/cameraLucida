@@ -69,9 +69,9 @@ for iDb = 1:nDb
         
         neuron(iDb).tuning(1).prefOri = unwrap_angle(neuron(iDb).tuning(1).prefDir + 90,1,1);
     end
-    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,doPlot, doSave,reLoad);
-    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,doPlot, doSave,reLoad);
-    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,doPlot, doSave,reLoad);
+    neuron(iDb).retino =load_visual_morph_dev( neuron(iDb).morph, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    neuron(iDb).retino_basal =load_visual_morph_dev( neuron(iDb).morph_basal, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
+    neuron(iDb).retino_apical =load_visual_morph_dev( neuron(iDb).morph_apical, neuron(iDb).db, neuron(iDb).tuning(1).prefOri,0, 0,0);
     
     fprintf('%s neuron %d completed. %d of %d \n', db(iDb).animal, db(iDb).neuron_id, iDb, nDb);
 end
@@ -128,7 +128,7 @@ end
 % plotSweepResp_LFR(neuron(24).tuning.allResp(:, :,:), neuron(24).tuning.time, 2);
 %%
 
- plot_dendrotomy_stats(neuron);
+% plot_dendrotomy_stats(neuron);
 
 plot_neurons_stats(neuron, 'all');
 plot_neurons_stats(neuron, 'basal');
