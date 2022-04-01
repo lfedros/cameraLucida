@@ -38,7 +38,7 @@ for iSeq = 1:n_trees
         case 'basal'
             vis_ret_name{iSeq}  = [vis_ret_name{iSeq}(1:end-8), '_basal_deg.mat'];
         case 'apical'
-            vis_ret_name{iSeq}  = [vis_ret_name{iSeq}(1:end-8), '_basal_deg.mat'];
+            vis_ret_name{iSeq}  = [vis_ret_name{iSeq}(1:end-8), '_apical_deg.mat'];
             
     end
     

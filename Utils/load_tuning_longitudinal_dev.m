@@ -14,18 +14,15 @@ end
 [vis_file, vis_path] = build_path(db, 'vis');
 
 if iscell(target)
-    n_trees = numel(target); % data with longitudinal imaging and pruning
-else
-    n_trees = 1; % data without longitudinal imaging and pruning
-    target = {target};
-    
-end
-
-if n_trees >1
+    n_trees = numel(target); % data with pruning have longitudinal imaging 
+                             % saved in different files
     prune_flag = 1;
-    
+
 else
+    n_trees = 1; % data without pruning have 1 file
+    target = {target};
     prune_flag = 0;
+
 end
 
 for iS = 1:numel(target)
@@ -34,9 +31,10 @@ for iS = 1:numel(target)
     morph_Date(iS) = datetime(str2double(expDate(1:4)), str2double(expDate(6:7)), str2double(expDate(9:10)));
     load_saved(iS) = exist(fullfile(vis_path,target{iS}), 'file');
 end
+
 morph_Date(iS+1) = datetime(2088, 09, 20); %LFR 100th birthday
 
-%% if the data were already processed, load them
+%% If the data were already processed, and requested, load them
 
 if ~doSave && prod(load_saved)~=0
     for iSeq = 1:n_trees
@@ -45,7 +43,7 @@ if ~doSave && prod(load_saved)~=0
     return;
 end
 
-%% Step1: Load the original tuning curve
+%%  Load the original tuning curve
 
 % if data for baseline recs don't exist, return
 if exist(fullfile(vis_path, vis_file), 'file')
@@ -58,7 +56,7 @@ end
 % tuning{1} = retune(resps, [], 'global');
 tuning(1) = retune(resps, [], 'date');
 
-%% Step 2 load pruned responses
+%% Load longitudinalresponses after pruning
 
 if prune_flag
     
@@ -66,18 +64,7 @@ if prune_flag
     
     resps = load(fullfile(vis_path, vis_file));
     
-    recDate = datetime(resps.recDate);
-    
-    % cutDate(1) = datetime(1988, 09, 20); %LFR 0th birthday
-    %
-    % for iSeq = 2:numel(neuron.morph_seq)
-    %
-    %     expDate = neuron.morph_seq{iSeq}.date;
-    %     cutDate(iSeq) = datetime(str2double(expDate(1:4)), str2double(expDate(6:7)), str2double(expDate(9:10)));
-    % end
-    
-    % cutDate(numel(neuron.morph_seq)+1) = datetime(2088, 09, 20); %LFR 100th birthday
-    
+    recDate = datetime(resps.recDate);   
     
     for iSeq = 2:n_trees
         
@@ -90,7 +77,9 @@ if prune_flag
             seq_resps.allResp = seq_resps.allResp(:, date_trials,:);
             seq_resps.allPeaks = seq_resps.allPeaks(:, date_trials);
             
-            tuning(iSeq) = retune(seq_resps, [], tuning(1).z_std);
+            % zscore with std computed from data before pruning
+            tuning(iSeq) = retune(seq_resps, [], tuning(1).z_std); 
+%             % zscore each 'pruned state' independently
 %             tuning(iSeq) = retune(seq_resps, [], 'date');
             
             fixPars.ori = tuning(1).ori_pars_vm;
@@ -99,6 +88,7 @@ if prune_flag
             fixPars.ori(2:end) = NaN;
             fixPars.dir(2:end) = NaN;
             
+            % fit tunign with parse fixed from baseline
             relative= retune(seq_resps, fixPars, tuning(1).z_std);
 %             relative= retune(seq_resps, fixPars, 'date');
             
