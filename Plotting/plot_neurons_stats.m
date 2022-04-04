@@ -207,7 +207,7 @@ print(fullfile(saveTo, 'ori_dir_dists') ,  '-dpng');
 %
 %     print(fullfile(saveTo, 'all_neurons_morph_in_ret') ,  '-dpng');
 
-%% does ori correlate with dendrOri
+%% does ori correlate with dendrOri in cortex
 
 [r_cc, r_p] = circ_corrcc(prefOri*2*pi/180, dendrOri_ctx*2*pi/180);
 
@@ -230,7 +230,7 @@ formatAxes
 
 print(fullfile(saveTo, 'dendrori_ctx_vs_ori') ,  '-dpng');
 
-%% does ori correlate with dendrOri
+%% does ori correlate with dendrOri in retinotopy
 
 [r_cc, r_p] = circ_corrcc(prefOri*2*pi/180, dendrOri_ret*2*pi/180);
 

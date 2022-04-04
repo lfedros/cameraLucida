@@ -38,8 +38,7 @@ for iSeq = 1:n_trees
             vis_ret_name{iSeq}  = [vis_ret_name{iSeq}(1:end-8), '_apical_deg.mat'];
             
     end
-    
-    
+       
     load_saved(iSeq) = exist(vis_ret_name{iSeq}, 'file');
 end
 

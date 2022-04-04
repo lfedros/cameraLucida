@@ -34,9 +34,9 @@ for iDb = 1:nDb
 
     doPlot = 0;
     % if you want to save
-    doSave = 1;
+    doSave = 0;
     % if you want to recompute and overwrite saved one
-    reLoad = 1;
+    reLoad = 0;
 
     [neuron(iDb).morph, neuron(iDb).morph_basal, neuron(iDb).morph_apical] = ...
         load_morph(db(iDb),db(iDb).morph_seq, doPlot, doSave, reLoad);
