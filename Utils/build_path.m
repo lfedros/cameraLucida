@@ -16,11 +16,11 @@ if nargin>1
         case 'morph'
             file = [db_tag, '_tracing.swc'];
             %             path = fullfile(folder, file);
-            
+
         case 'morph_cut'
             file = [db_tag, '_tracing_cut.swc'];
             %             path = fullfile(folder, file);
-            
+
         case 'morph_seq'
             file = dir(fullfile(folder, [db_tag, '*tracing.swc']));
             file = cat(1, file, dir(fullfile(folder, [db_tag, '*tracing_cut.swc'])));
@@ -48,10 +48,10 @@ if nargin>1
                 else
                     idx = strfind(file{iF}, 'tracing_cut');
                     file{iF} = [file{iF}(1:idx-1),'tuning_cut.mat'];
-            
+
                 end
             end
-            case 'ret_seq'
+        case 'ret_seq'
             file = dir(fullfile(folder, [db_tag, '*tracing.swc']));
             file = cat(1, file, dir(fullfile(folder, [db_tag, '*tracing_cut.swc'])));
             file = {file.name};
@@ -62,12 +62,14 @@ if nargin>1
                 else
                     idx = strfind(file{iF}, 'tracing_cut');
                     file{iF} = [file{iF}(1:idx-1),'tracing_cut_deg.mat'];
-            
+
                 end
             end
+        case 'spine_seq'
+            file = cat(1, dir(fullfile(folder, [db_tag, '*dendrite.mat'])));
+            file = {file.name};
     end
 else
     file = [];
-    path = [];
 end
 end

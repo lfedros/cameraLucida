@@ -15,10 +15,14 @@ end
 
 %% turn angles from clockwise (mpep!!) to counterclockwise
 
-dirs = -tune.dirs;
-dirs = dirs+360;
+dirs = -tune.dirs +360;
 dirs(dirs>=360) = dirs(dirs>=360) -360;
 [~, sort_dirs] = sort(dirs, 'ascend');
+
+% oris = unique(tune.oris, 'stable');
+% oris = -oris +180;
+% oris(oris>=180) =oris (oris>=180) -180;
+
 
 tune.allReps(1:12, :, :) = tune.allResp(sort_dirs, :, :);
 tune.allPeaks(1:12, :) = tune.allPeaks(sort_dirs, :);

@@ -1,0 +1,97 @@
+
+clear; 
+
+%% Set path to relevant code
+
+if ispc
+   code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
+else
+code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
+
+end
+cd(code_repo);
+addpath(genpath(code_repo));
+set_dendrite_paths(); % edit the paths pointing to the code
+
+%% Populate database - edit build_path.m with location of data
+db_V1_spines;
+nDb = numel(db);
+
+% count how many dendrites per neuron
+for iDb = 1:nDb
+
+%     [db(iDb).morph_seq] = build_path(db(iDb), 'morph_seq');
+%     [db(iDb).vis_seq] = build_path(db(iDb), 'vis_seq');
+    [db(iDb).ret_seq] = build_path(db(iDb), 'ret_seq');
+        [db(iDb).spine_seq] = build_path(db(iDb), 'spine_seq');
+
+    neuron(iDb).db = db(iDb);
+
+end
+
+%% load all spines and register their position to the soma in microns
+
+for iDb = 1:nDb
+
+    [~, spine_folder] = build_path(db);
+
+
+for iD = 1: numel(neuron(iDb).db.spine_seq)
+
+
+    neuron(iDb).spines(iD) = load(fullfile(spine_folder, neuron(iDb).db.spine_seq{iD}));
+
+    [umperpx_X,  umperpx_Y] = ppbox.zoom2fov(neuron(iDb).spines(iD).zoomFactor);
+    umperpx_X = umperpx_X/512;
+    umperpx_Y = umperpx_Y/512;
+
+     [umperpx_X_soma,  umperpx_Y_soma] = ppbox.zoom2fov(neuron(iDb).spines(iD).soma.zoomFactor);
+    umperpx_X_soma = umperpx_X_soma/512;
+    umperpx_Y_soma = umperpx_Y_soma/512;
+
+    neuron(iDb).spines(iD).X = neuron(iDb).spines(iD).centreMass(:,1)*umperpx_X...
+        + (neuron(iDb).spines(iD).soma.xpose - neuron(iDb).spines(iD).xpose)*umperpx_X_soma;
+
+    neuron(iDb).spines(iD).Y = neuron(iDb).spines(iD).centreMass(:,2)*umperpx_Y...
+        + (neuron(iDb).spines(iD).soma.ypose - neuron(iDb).spines(iD).ypose)*umperpx_Y_soma;
+
+end
+
+
+
+end
+
+
+%% laod retinotopic map
+
+
+%% calculate spine retinotopy
+
+
+%% compare distribution of preferred orientation to retinotopic position
+
+
+
+
+
+
+
+
+
+
+load('D:\OneDrive - University College London\Data\Dendrites\FR212_2\FR212_2022-04-01_6_dendrite.mat');
+
+figure; imagesc(meanImg); hold on; plot(centreMass(:,2), centreMass(:,1), 'or');
+
+nSpines = numel(xpixs);
+
+mapImg = zeros(size(meanImg));
+
+for iSp = 1:nSpines
+
+    spineIdx{iSp} = sub2ind(size(meanImg), ypixs{iSp}, xpixs{iSp});
+    mapImg(spineIdx{iSp}) = iSp;
+
+end
+
+figure; imagesc(mapImg); colormap jet

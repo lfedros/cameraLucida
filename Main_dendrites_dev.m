@@ -48,7 +48,7 @@ end
 for iDb = 1:nDb
     doPlot = 0;
     % if you want to save
-    doSave = 1;
+    doSave = 0;
     neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, doPlot,doSave);
     
     % plot_responses(neuron(iDb)); plot responses if needed
@@ -61,9 +61,9 @@ for iDb = 1:nDb
 
     doPlot = 0;
     % if you want to save
-    doSave = 1;
+    doSave = 0;
     % if you want to recompute and overwrite saved one
-    reLoad = 1;
+    reLoad = 0;
     
     if strcmp(db(iDb).animal, 'FR175') && db(iDb).neuron_id == 7
         
