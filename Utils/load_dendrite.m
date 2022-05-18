@@ -37,31 +37,14 @@ for iD = 1: numel(neuron.db.spine_seq)
     dendrite(iD).X = dendrite(iD).fov_x_um(dendrite(iD).centreMass(:,2));
     dendrite(iD).Y = dendrite(iD).fov_y_um(dendrite(iD).centreMass(:,1));
     
-    dendrite(iD).Fitpars(:,1) = -dendrite(iD).Fitpars(:,1) +360;
-    
-    figure; imagesc(dendrite(iD).fov_x_um,dendrite(iD).fov_y_um, dendrite(iD).meanImg); pause;
+%     dendrite(iD).Fitpars(:,1) = -dendrite(iD).Fitpars_Dir(:,1) +360;
+        dendrite(iD).Fitpars(:,1) = -dendrite(iD).Fitpars(:,1) +360;
+
+%     figure; imagesc(dendrite(iD).fov_x_um,dendrite(iD).fov_y_um, dendrite(iD).meanImg); pause;
 end
 
 
 %% create fov image in common reference
 
-Ly = max(abs(cat(2, dendrite(:).fov_y_um)));
-Lx = max(abs(cat(2, dendrite(:).fov_x_um)));
-
-x_um = -Lx:0.2:Lx;
-y_um = -Ly:0.2:Ly;
-
-for iD = 1: numel(neuron.db.spine_seq)
-
-    dendrite(iD).img_ref = interp2(dendrite(iD).fov_x_um', dendrite(iD).fov_y_um, dendrite(iD).meanImg, x_um', y_um, 'linear',NaN);
-
-end
-
-all_den_img = nanmax(cat(3, dendrite(:).img_ref),[],3);
-
-figure; imagesc(x_um, y_um, all_den_img);axis image; hold on
-
-spines_x_um = double(cat(2, dendrite(3).X));
-spines_y_um = double(cat(2, dendrite(3).Y));
-plot(spines_x_um, spines_y_um, 'or');
+stitch_den = stitch_dendrite(dendrite);
 end

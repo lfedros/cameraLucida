@@ -3,6 +3,7 @@ function [file, folder] = build_path(db, type)
 %%
 if ispc
     data_repo = 'D:\OneDrive - University College London\Data\Dendrites';
+%     data_repo = 'C:\Users\Federico\Desktop\Old_Anyi';
 else
     data_repo = '/Users/lfedros/OneDrive - University College London/Data/Dendrites';
 end

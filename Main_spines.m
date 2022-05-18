@@ -37,32 +37,40 @@ for iDb = 1:nDb
  
 end
 
-
 %% pool position and visual properties across dendrites
 
 for iDb = 1:nDb
 
-   neuron(iDb).spines = pool_spines(neuron(iDb));
-
+   [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
 end
 
 %% compute visual position of spines
 
 for iDb = 1:nDb
 
-   neuron(iDb).spines = map_spine_retino(neuron(iDb).spines);
-
+   neuron(iDb).ret = load_retino(neuron(iDb),1);
+   
 end
 %% compare distribution of preferred orientation to retinotopic position
 
+for iDb = 1:nDb
+
+   neuron(iDb).visual_spines = map_spine_retino(neuron(iDb).visual_spines, neuron(iDb).ret);
+   
+end
+
+
+%% plot d_ori vs ret_angle joint dist
+
+for iDb = 1:nDb
+
+  neuron(iDb).visual_spines = plot_joint_ori_ret(neuron(iDb).visual_spines);
+   
+end
 
 
 
-
-
-
-
-
+%%
 
 load('D:\OneDrive - University College London\Data\Dendrites\FR212_2\FR212_2022-04-01_6_dendrite.mat');
 

@@ -1,4 +1,4 @@
-function walk = walkThetaCortex(retX, retY, theta, start)
+function [walk, origin] = walkThetaCortex(retX, retY, theta, start)
 % theta is counterclockwise anlge in visual space
 
 if theta < 0
@@ -9,10 +9,17 @@ end
 
 if nargin < 4
     
+    try
     start  = find(retX.^2+retY.^2 == 0);
     [start(1), start(2)] = ind2sub([size(retX,1),size(retX,2)], start);
+    catch
+    [~, start ] = min(makeVec(retX.^2+retY.^2));
+    [start(1), start(2)] = ind2sub([size(retX,1),size(retX,2)], start);
+    end
     
 end
+
+origin = start;
 
 retX = retX-retX(start(1), start(2));
 retY = retY-retY(start(1), start(2));
