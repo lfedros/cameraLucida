@@ -5,6 +5,15 @@ spines.azi = interp2(ret.map_x_um', ret.map_y_um, ret.map_azi, spines.x_um, spin
 spines.angle = interp2(ret.map_x_um', ret.map_y_um, ret.map_angle, spines.x_um, spines.y_um);
 spines.angle_axial = interp2(ret.map_x_um', ret.map_y_um, ret.map_angle_axial, spines.x_um, spines.y_um);
 
+theta = spines.soma_ori;
+
+R = [cosd(theta) sind(theta); -sind(theta) cosd(theta)];
+coords = [spines.azi', spines.ele'];
+rot_coords = R*coords';
+
+spines.azi_rot= rot_coords(1,:);
+spines.ele_rot = rot_coords(2,:);
+
 %%
 if ~isempty(spines.soma_ori)
     

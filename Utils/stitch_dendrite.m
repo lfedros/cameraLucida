@@ -20,7 +20,14 @@ for iD = 1: numel(dendrite)
 
 end
 
-stitch_den.img = imadjust(nanmax(cat(3, dendrite(:).img_ref),[],3));
+stitch_den.img = nanmax(cat(3, dendrite(:).img_ref),[],3);
+
+nan_idx = isnan(stitch_den.img);
+
+stitch_den.img = imadjust(stitch_den.img);
+
+stitch_den.img(nan_idx) = NaN;
+
 
 stitch_den.x_um = x_um;
 stitch_den.y_um = y_um;

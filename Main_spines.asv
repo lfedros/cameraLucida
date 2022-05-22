@@ -29,69 +29,101 @@ for iDb = 1:nDb
 
 end
 
-%% load all spines and register their position to the soma in microns
+%% load all dendrites and register their position to the soma in microns
 
 for iDb = 1:nDb
 
-    [~, spine_folder] = build_path(db);
-
-
-for iD = 1: numel(neuron(iDb).db.spine_seq)
-
-
-    neuron(iDb).spines(iD) = load(fullfile(spine_folder, neuron(iDb).db.spine_seq{iD}));
-
-    [umperpx_X,  umperpx_Y] = ppbox.zoom2fov(neuron(iDb).spines(iD).zoomFactor);
-    umperpx_X = umperpx_X/512;
-    umperpx_Y = umperpx_Y/512;
-
-     [umperpx_X_soma,  umperpx_Y_soma] = ppbox.zoom2fov(neuron(iDb).spines(iD).soma.zoomFactor);
-    umperpx_X_soma = umperpx_X_soma/512;
-    umperpx_Y_soma = umperpx_Y_soma/512;
-
-    neuron(iDb).spines(iD).X = neuron(iDb).spines(iD).centreMass(:,1)*umperpx_X...
-        + (neuron(iDb).spines(iD).soma.xpose - neuron(iDb).spines(iD).xpose)*umperpx_X_soma;
-
-    neuron(iDb).spines(iD).Y = neuron(iDb).spines(iD).centreMass(:,2)*umperpx_Y...
-        + (neuron(iDb).spines(iD).soma.ypose - neuron(iDb).spines(iD).ypose)*umperpx_Y_soma;
-
+   neuron(iDb).dendrite = load_dendrite(neuron(iDb));
+ 
 end
 
+%% pool position and visual properties across dendrites
 
+for iDb = 1:nDb
 
+   [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
 end
 
+%% compute visual position of spines
 
-%% laod retinotopic map
+for iDb = 1:nDb
 
-
-%% calculate spine retinotopy
-
+   neuron(iDb).ret = load_retino(neuron(iDb),1);
+   
+end
 
 %% compare distribution of preferred orientation to retinotopic position
 
+for iDb = 1:nDb
 
-
-
-
-
-
-
-
-
-load('D:\OneDrive - University College London\Data\Dendrites\FR212_2\FR212_2022-04-01_6_dendrite.mat');
-
-figure; imagesc(meanImg); hold on; plot(centreMass(:,2), centreMass(:,1), 'or');
-
-nSpines = numel(xpixs);
-
-mapImg = zeros(size(meanImg));
-
-for iSp = 1:nSpines
-
-    spineIdx{iSp} = sub2ind(size(meanImg), ypixs{iSp}, xpixs{iSp});
-    mapImg(spineIdx{iSp}) = iSp;
-
+   neuron(iDb).visual_spines = map_spine_retino(neuron(iDb).visual_spines, neuron(iDb).ret);
+   
 end
 
-figure; imagesc(mapImg); colormap jet
+
+%% plot d_ori vs ret_angle joint dist
+
+for iDb = 1:nDb
+
+  neuron(iDb).visual_spines = plot_joint_ori_ret(neuron(iDb).visual_spines);
+   
+end
+
+%%
+
+for iDb = 1:nDb
+parallel_dist(:, iDb) = neuron(iDb).visual_spines.parallel_dist;
+ortho_dist(:, iDb) = neuron(iDb).visual_spines.ortho_dist;
+po_ratio(:, iDb) = neuron(iDb).visual_spines.po_ratio;
+
+angs = [0 120 240];
+
+r_para(iDb) = circ_r(angs', parallel_dist(:, iDb));
+r_ortho(iDb) = circ_r(angs', ortho_dist(:, iDb));
+
+ret_ori_bins  =  neuron(iDb).visual_spines.ret_ori_bins;
+end
+
+ave_para_dist = mean(parallel_dist, 2);
+ave_ortho_dist = mean(ortho_dist, 2);
+ave_po_ratio = mean(po_ratio, 2);
+
+
+figure;
+
+subplot(1,3,1); 
+hold on; axis square; xlim([0 90]); ylim([0 0.8])
+plot(ret_ori_bins, parallel_dist, 'Color', [1 0 0],'LineWidth', 0.5);
+plot(ret_ori_bins,ave_para_dist, 'Color', [0.5 0 0], 'LineWidth', 2);
+set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
+xlabel('Delta ori (deg)')
+ylabel('% para spines')
+p = anova1(parallel_dist');
+title(sprintf('p = %.2f', p));
+formatAxes
+
+
+subplot(1,3,2); 
+
+hold on; axis square; xlim([0 90]); ylim([0 0.8])
+plot(ret_ori_bins, ortho_dist, 'Color', [0 0.5 1], 'LineWidth', 0.5);
+plot(ret_ori_bins, ave_ortho_dist, 'Color', [0 0.25 0.5], 'LineWidth', 2);
+set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
+xlabel('Delta ori (deg)')
+ylabel('% ortho spines')
+p = anova1(ortho_dist');
+title(sprintf('p = %.2f', p))
+formatAxes
+
+subplot(1,3,3); 
+
+hold on; axis square; xlim([0 90]); ylim([-0.5 0.5]);
+plot(ret_ori_bins, po_ratio, 'Color', [0.5 0.5 0.5], 'LineWidth', 0.5);
+plot(ret_ori_bins, ave_po_ratio, 'Color', [0 0 0], 'LineWidth', 2);
+set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
+xlabel('Delta ori (deg)')
+ylabel('% para - ortho')
+p = anova1(po_ratio');
+title(sprintf('p = %.2f', p))
+formatAxes
+

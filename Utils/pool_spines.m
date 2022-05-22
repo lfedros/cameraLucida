@@ -27,6 +27,8 @@ for iD = 1:numel(neuron.dendrite)
 %     spines.anova_t = cat(1, spines.anova_t, ismember(iS, neuron.dendrite(iD).SigInd));
    
     end
+
+%     plot_dendrite_rois(neuron.dendrite(iD))
 end
 spines.anova_t = logical(spines.anova_t);
 
@@ -57,12 +59,20 @@ for iS = 1:nSpines
 %         this_tun= (this_tun+abs(min(this_tun)))...
 %             /max(this_tun+abs(min(this_tun))) ;
 %     end
-
+% 
     vis_spines.tuning(:, iS) = (this_tun-min(this_tun))/(max(this_tun)-min(this_tun));
+%     vis_spines.tuning(:, iS) = this_tun;
 end
 
-vis_spines.soma_tuning = nanmean(vis_spines.tuning, 2);
+%%
+vis_spines.soma_tuning = nanmedian(vis_spines.tuning, 2);
+vis_spines.soma_ave = circGaussFilt(vis_spines.soma_tuning,10);
+
+vis_spines.soma_se = std(vis_spines.tuning, [],2)/sqrt(size(vis_spines.tuning,2));
+
 vis_spines.soma_pars = mfun.fitTuning(vis_spines.tun_dirs,vis_spines.soma_tuning, 'vm2');
+vis_spines.soma_tuning_fit = mfun.vonMises2(vis_spines.soma_pars, vis_spines.tun_dirs);
+
 
 vis_spines.pref_dir = vis_spines.tune_pars(:,1); %[0 360]
 [~, vis_spines.sort_idx] = sort(vis_spines.pref_dir, 'ascend');
@@ -76,7 +86,10 @@ vis_spines.d_ori = vis_spines.ori - vis_spines.soma_ori;
 vis_spines.d_ori(vis_spines.d_ori>90) = vis_spines.d_ori(vis_spines.d_ori>90)-180;
 vis_spines.d_ori(vis_spines.d_ori<-90) = vis_spines.d_ori(vis_spines.d_ori<-90)+180;
 vis_spines.d_ori = abs(vis_spines.d_ori);
+
 vis_spines.stitch_den = spines.stitch_den;
+
+
 %% to add
 
 % fit tuning of the soma
@@ -88,21 +101,37 @@ vis_spines.stitch_den = spines.stitch_den;
 if doPlot
 
     figure; 
-    subplot(2,2,1)
+
+    subplot(3,2,1)
+    
+    patch([vis_spines.tun_dirs, flip(vis_spines.tun_dirs,2)]', [vis_spines.soma_ave+vis_spines.soma_se; flip(vis_spines.soma_ave-vis_spines.soma_se, 1)], [0.9 0.9 0.9], 'EdgeColor', 'none')
+    hold on;
+    plot(vis_spines.tun_dirs,vis_spines.soma_tuning_fit, 'k', 'Linewidth', 2)
+    formatAxes
+    xlabel('Stimulus direction')
+    ylabel('Spine sum')
+    xlim([-10 370])
+    ylim([-0 0.5])
+    set(gca, 'Xtick', [0 180 360])
+
+    subplot(3,2,3)
     plot(vis_spines.tun_dirs, vis_spines.tuning, 'Color', [0.5, 0.5, 0.5]);hold on
     plot(vis_spines.tun_dirs,vis_spines.soma_tuning, 'k', 'Linewidth', 2)
+    set(gca, 'Xtick', [0 180 360])
     formatAxes
     xlabel('D stimulus direction')
     ylabel('Tuning')
     xlim([-10 370])
     ylim([-0.3 1.1])
     title('iGluSnFR3 spines and soma')
-    subplot(2,2,3)
+
+    subplot(3,2,5)
 
     to_plot = vis_spines.tuning(:, vis_spines.sort_idx);
-    imagesc(to_plot');caxis([0 1]);
-
-    subplot(2,2,2)
+    imagesc(to_plot');caxis([-0 1]); colormap(1-gray);
+    set(gca, 'Xtick', [0 180 360])
+formatAxes
+    subplot(3,2,4)
     histogram(vis_spines.d_ori, [0:30:90]);
 %     figure;
 %     subplot(1,2,1)

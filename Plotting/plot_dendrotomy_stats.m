@@ -97,10 +97,10 @@ for iDb = 1:nDb
         
         
         % Orientation selectivity
-        OS(nthP) = 1- neuron(iDb).tuning(1).OS_circ;
+        OS(nthP) = neuron(iDb).tuning(1).OS_circ;
                 if iSeq >1
 
-        OS_cut(nthP) =1 -neuron(iDb).tuning(iSeq).relative.OS_circ;
+        OS_cut(nthP) =neuron(iDb).tuning(iSeq).relative.OS_circ;
                 else
                   OS_cut(nthP)   =OS(nthP);
                 end
@@ -611,6 +611,14 @@ print(fullfile(saveTo,'dendrotomy_average_tuning') ,  '-dpng');
     print(fullfile(saveTo,'dendrotomy_average_tuning') , '-dpdf', '-painters');
 
 
+anova_OS = cat(2, OS(type & is_cut), OS(~type & is_cut));
+anova_OScut = cat(2, OS_cut(type & is_cut), OS_cut(~type & is_cut));
+anova_all = cat(2, anova_OS, anova_OScut);
+para_or_orth = cat(2,ones(1, sum(type & is_cut)), ones(1, sum(~type & is_cut))*2);
+para_or_orth = cat(2, para_or_orth, para_or_orth);
+pre_or_post = cat(2, ones(1, numel(anova_OS)), ones(1, numel(anova_OScut))*2);
+
+[p, tbl] = anovan(anova_all, {para_or_orth, pre_or_post }, 'model', 'full', 'varnames', {'po', 'cut'});
 
 %% Plot average trees, angular hist, tuning across neurons
 
@@ -860,6 +868,10 @@ formatAxes
 axis square
 
 
+
+[~, ~, L_rel_g] = histcounts(L_rel, [0:0.1:0.6]);
+
+[p, tbl] = anovan(slope, {type+1,  L_rel_g}, 'model', 'linear', 'varnames', {'po', 'L_cut'});
 
 
 print(fullfile(saveTo,'Mult_or_Add') ,  '-dpng');

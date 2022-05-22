@@ -22,15 +22,18 @@ for iD = 1: numel(neuron.db.spine_seq)
     umperpx_Y = umperpx_Y/Ly;
 
     [umperpx_X_soma,  umperpx_Y_soma] = ppbox.zoom2fov(dendrite(iD).soma.zoomFactor);
-    umperpx_X_soma = umperpx_X_soma/1000;
-    umperpx_Y_soma = umperpx_Y_soma/1000;
+    umperpx_X_soma = umperpx_X_soma/1024;
+    umperpx_Y_soma = umperpx_Y_soma/1024;
     
-    dendrite(iD).soma.x_rel = (-dendrite(iD).soma.xpose + dendrite(iD).refpos(2))*umperpx_X_soma;
-    dendrite(iD).soma.y_rel = (-dendrite(iD).soma.ypose + dendrite(iD).refpos(4))*umperpx_Y_soma;
+    %distance of fov ref point from soma in zstack
+    dendrite(iD).soma.x_rel = (-dendrite(iD).soma.xpose + dendrite(iD).refpos(2))*umperpx_X_soma; % refpos(2) is X in imageJ;  soma.xpose is soma X position in ImageJ
+    dendrite(iD).soma.y_rel = (-dendrite(iD).soma.ypose + dendrite(iD).refpos(4))*umperpx_Y_soma; % refpos(4) is Y in imageJ
 
-    dendrite(iD).fov_x_um = (1:Lx)*umperpx_X - dendrite(iD).refpos(3)*umperpx_X ;
-    dendrite(iD).fov_y_um = (1:Ly)*umperpx_Y - dendrite(iD).refpos(1)*umperpx_Y ;
+    % distance of fov from ref point in s2P
+    dendrite(iD).fov_x_um = (1:Lx)*umperpx_X - dendrite(iD).refpos(3)*umperpx_X ; % refpos(3) is X in S2P
+    dendrite(iD).fov_y_um = (1:Ly)*umperpx_Y - dendrite(iD).refpos(1)*umperpx_Y ; % refpos(1) is Y in S2P
 
+    % distance of fov from soma
     dendrite(iD).fov_x_um = dendrite(iD).fov_x_um + dendrite(iD).soma.x_rel;
     dendrite(iD).fov_y_um = dendrite(iD).fov_y_um + dendrite(iD).soma.y_rel;
 
