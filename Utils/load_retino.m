@@ -68,41 +68,59 @@ ret.map_angle_axial = atan(ret.map_ele./ret.map_azi);
 
 if doPlot
 
-figure;
+figure ('Color', 'w');
 v = subplot(2,3,1);
-imagesc(ret.x_um, ret.y_um, ret.vessels); colormap(v,'bone'); axis image; hold on;
+imagesc(ret.x_um, ret.y_um, ret.vessels); colormap(v,'bone'); axis image; hold on; colorbar
 plot(0, 0, 'or')
 title('Vessels')
+formatAxes
+xlabel('ML (um)')
+ylabel('AP (um)')
+
 
 a = subplot(2,3,2);
 imagesc(ret.x_um, ret.y_um, ret.azimuth); axis image; colormap(a, 'jet'); hold on;
 plot(0, 0, 'ok')
 title('Azimuth (deg)')
 colorbar;
+formatAxes
+xlabel('ML (um)')
+ylabel('AP (um)')
 
 e = subplot(2,3,3);
 imagesc(ret.x_um, ret.y_um,ret.elevation); axis image; colormap(e,'jet');hold on;
 plot(0, 0, 'ok')
 title('Elevation (deg)')
 colorbar;
+formatAxes
+xlabel('ML (um)')
+ylabel('AP (um)')
 
 s = subplot(2,3,4);
 imagesc(ret.map_x_um, ret.map_y_um, neuron.spines.stitch_den.img); hold on;
 plot(0, 0,'*r')
 axis image; colormap(s, 1-gray);
+formatAxes
+xlabel('ML (um)')
+ylabel('AP (um)')
 
 am = subplot(2,3,5);
 imagesc(ret.map_x_um, ret.map_y_um, ret.map_azi); axis image; colormap(am, 'jet'); hold on;
 plot(0, 0,'*k')
 title('Azimuth (deg)')
 colorbar;
+formatAxes
+xlabel('ML (um)')
+ylabel('AP (um)')
 
 em = subplot(2,3,6);
 imagesc(ret.map_x_um, ret.map_y_um, ret.map_ele); axis image; colormap(em,'jet');hold on;
 plot(0,0, '*k')
 title('Elevation (deg)')
 colorbar;
-
+formatAxes
+xlabel('ML (um)')
+ylabel('AP (um)')
 
 end
 

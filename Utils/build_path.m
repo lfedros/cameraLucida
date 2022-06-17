@@ -69,6 +69,11 @@ if nargin>1
         case 'spine_seq'
             file = cat(1, dir(fullfile(folder, [db_tag, '*dendrite.mat'])));
             file = {file.name};
+        case 'spine_size_seq'
+            file = cat(1, dir(fullfile(folder, 'Spines', [db_tag, '*RoiSet*.txt'])));
+            file = {file.name};
+            folder = fullfile(data_repo, db_tag, 'Spines');
+
     end
 else
     file = [];
