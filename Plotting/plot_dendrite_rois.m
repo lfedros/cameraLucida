@@ -1,5 +1,7 @@
 function plot_dendrite_rois(dendrite)
 
+dendrite.SigInd = 1:numel(dendrite.xpixs);
+
 xpx = dendrite.xpixs(dendrite.SigInd);
 ypx = dendrite.ypixs(dendrite.SigInd);
 

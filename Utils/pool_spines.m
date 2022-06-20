@@ -28,7 +28,7 @@ for iD = 1:numel(neuron.dendrite)
    
     end
 
-%     plot_dendrite_rois(neuron.dendrite(iD))
+    plot_dendrite_rois(neuron.dendrite(iD))
 end
 spines.anova_t = logical(spines.anova_t);
 

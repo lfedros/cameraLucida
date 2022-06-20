@@ -891,6 +891,8 @@ end
 xlabel('Fraction dendrites cut')
 ylabel('F0')
 formatAxes
+[p, tbl] = anovan(F0_cut, {type+1,  L_rel_g}, 'model', 'linear', 'varnames', {'po', 'L_cut'});
+title(sprintf('anova po = %02f, anova Lcut = %02f', p(1), p(2)))
 axis square
 
 
