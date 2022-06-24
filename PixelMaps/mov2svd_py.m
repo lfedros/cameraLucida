@@ -1,8 +1,7 @@
 % compute SVD of data and save to file
 function [ops, U, Sv] = mov2svd_py(ops)
 
-addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\svd');
-addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\utils');
+
 ops.useGPU = getOr(ops, 'useGPU', 1);
 ops.nSVD = getOr(ops, 'nSVD', 1000);
 

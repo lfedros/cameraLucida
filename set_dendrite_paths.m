@@ -17,7 +17,11 @@ if ispc
     addpath(genpath('C:\Users\Federico\Documents\GitHub\treestoolbox'));
     %https://github.com/cuntzlab/treestoolbox
     cd(code_repo);
-    
+    %https://github.com/cortex-lab/Suite2P
+    addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\svd');
+    addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\utils');
+    addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\tiffTools');
+
 else
     code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
     addpath(code_repo);
@@ -30,7 +34,10 @@ else
     addpath('/Users/lfedros/Documents/GitHub/FedBox/Colormaps');
     addpath(genpath('/Users/lfedros/Documents/GitHub/treestoolbox'));
     cd(code_repo);
-    
+    addpath('/Users/lfedros/Documents/GitHub/Suite2P_Matlab/svd');
+    addpath('/Users/lfedros/Documents/GitHub/Suite2P_Matlab/utils');
+    addpath('/Users/lfedros/Documents/GitHub/Suite2P_Matlab/tiffTools');
+
 end
 
 end

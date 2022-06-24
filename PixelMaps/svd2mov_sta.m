@@ -1,9 +1,8 @@
 function [sta_mov, map] = svd2mov_sta(db, targetPlane, stim_type)
 
 %% load SVD compressed recording
-addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\tiffTools');
 
-root_folder = 'D:\OneDrive - University College London\Data\2P\';
+root_folder = db.root_folder;
 
 s2p_folder = fullfile(root_folder, db.mouse_name, db.date, ...
     sprintf('%d', db.expts),'suite2P', sprintf('plane%d', targetPlane-1));

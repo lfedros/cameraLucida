@@ -20,7 +20,7 @@ else
 end
 cd(code_repo);
 addpath(genpath(code_repo));
-set_dendrite_paths(); % edit the paths pointing to the code
+set_dendrite_paths(); % edit the paths pointing to the code, contains which packages to download
 
 root_folder = 'D:\OneDrive - University College London\Data\2P\';
 
@@ -43,6 +43,8 @@ db(i).expID         = 1; % the experiment you want to compute pixel map of
 db(i).expType  = 'gratings';
 db(i).nplanes       = 1;
 db(i).s2p_version = 'python';
+db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
+
 %% Use SVD compressed recording to make pixel maps
 
 for iExp = 1:numel(db)
