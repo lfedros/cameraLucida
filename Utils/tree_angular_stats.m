@@ -7,17 +7,22 @@ end
 
 X = tree.X; 
 Y = tree.Y;
-
+Z = tree.Z;
 % make sure we are centered at the soma
 X = X -X(1);
 Y = Y -Y(1);
+Z = Z -Z(1);
 
 % measure xy map
 
-if max(X)>100
+if max(X)>50
 bins = -350:5:350;
 stats.xy_density = hist3([Y, X], 'Edges', {bins', bins});
 stats.xy_density = stats.xy_density/sum(stats.xy_density(:));
+
+bins_z = -300:5:300;
+stats.zx_density = hist3([Z, X], 'Edges', {bins_z', bins});
+stats.zx_density = stats.zx_density/sum(stats.zx_density(:));
 else
   bins = -20:1:20;
 stats.xy_density = hist3([Y, X], 'Edges', {bins', bins});

@@ -7,10 +7,10 @@ if ~isfield (db, 'nPlanes')
 end
 
 switch db.s2p_version
-    case 'py'
+    case 'python'
         for iPlane = 1:db.nplanes
 
-            s2p_folder = fullfile(root_folder, db.mouse_name, db.date, sprintf('%d', db.expts),'suite2P', sprintf('plane%d', iPlane-1));
+            s2p_folder = fullfile(db.root_folder, db.mouse_name, db.date, sprintf('%d', db.expts),'suite2P', sprintf('plane%d', iPlane-1));
             s2p_file = fullfile(s2p_folder, 'Fall.mat');
             load(s2p_file, 'ops');
 

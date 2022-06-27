@@ -9,6 +9,7 @@ db(i).date          = '2022-06-15'; % date of the recording
 db(i).expts         = [4]; % all the experiments in the recording
 db(i).nplanes       = 1;
 db(i).s2p_version = 'python';
+db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 
 %% Set path to relevant code
 
@@ -22,8 +23,6 @@ cd(code_repo);
 addpath(genpath(code_repo));
 set_dendrite_paths(); % edit the paths pointing to the code, contains which packages to download
 
-root_folder = 'D:\OneDrive - University College London\Data\2P\';
-
 %% Use the .bin registered file from suite2p to compute SVD decomposition of each recording
 for iExp = 1:numel(db)
     %takes a while to run (few mins per db)
@@ -32,6 +31,18 @@ end
 
 %% USE SVD COMPRESSED MOVIES TO GENERATE STAs MOVIE and TUNING PIXEL MAPS 
 clear;
+
+%% Set path to relevant code
+
+if ispc
+    code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
+else
+    code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
+
+end
+cd(code_repo);
+addpath(genpath(code_repo));
+set_dendrite_paths(); % edit the paths pointing to the code, contains which packages to download
 %% database of the recording
 i = 0;
 
@@ -51,3 +62,7 @@ for iExp = 1:numel(db)
 [sta_mov, px_map]= svd2mov_sta(db, 1, db(i).expType);
 end
 
+%manually select the dendrites of interest
+px_map.doi = draw.freePolyROI(px_map.mimg);
+
+% save px_map

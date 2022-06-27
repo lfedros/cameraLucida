@@ -56,11 +56,11 @@ switch stim_type
 
         sT = gaussFilt(T(1:nSVD, :)',2);
         [resp, aveResp, ~, kernelTime] = ...
-            getStimulusSweepsLFR(sT, stimTimes, stimMatrix,frameRate); % responses is (nroi, nStim, nResp, nT)
+            ppbox.getStimulusSweepsLFR(sT, stimTimes, stimMatrix,frameRate); % responses is (nroi, nStim, nResp, nT)
         % measure response in respWindow
         respWin = [0, 2];
         [~, aveResPeak] = ...
-            Ori.gratingOnResp(resp, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
+            ppbox.gratingOnResp(resp, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
 
         aveResp = aveResp(:,:,kernelTime>-1 & kernelTime<3);
 
