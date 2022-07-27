@@ -74,6 +74,8 @@ vis_spines.soma_pars = mfun.fitTuning(vis_spines.tun_dirs,vis_spines.soma_tuning
 vis_spines.soma_tuning_fit = mfun.vonMises2(vis_spines.soma_pars, vis_spines.tun_dirs);
 
 
+%%
+
 vis_spines.pref_dir = vis_spines.tune_pars(:,1); %[0 360]
 [~, vis_spines.sort_idx] = sort(vis_spines.pref_dir, 'ascend');
 vis_spines.ori = vis_spines.pref_dir-90; %[-90, 270]
@@ -89,6 +91,35 @@ vis_spines.d_ori = abs(vis_spines.d_ori);
 
 vis_spines.stitch_den = spines.stitch_den;
 
+%%
+vis_spines.tune_pars_rel = vis_spines.tune_pars;
+vis_spines.pref_dir_rel = vis_spines.tune_pars_rel(:, 1)- vis_spines.soma_pars(1) +180;
+
+vis_spines.pref_dir_rel(vis_spines.pref_dir_rel >=360) = vis_spines.pref_dir_rel(vis_spines.pref_dir_rel>=360) - 360;
+vis_spines.pref_dir_rel(vis_spines.pref_dir_rel <0) = vis_spines.pref_dir_rel(vis_spines.pref_dir_rel<0) + 360;
+
+vis_spines.tune_pars_rel(:, 1) = vis_spines.pref_dir_rel;
+
+for iS = 1:nSpines
+
+
+    this_tun = mfun.vonMises2(vis_spines.tune_pars_rel(iS,:), vis_spines.tun_dirs);
+    vis_spines.tuning_rel(:, iS) = (this_tun-min(this_tun))/(max(this_tun)-min(this_tun));
+
+    
+end
+
+[~, vis_spines.sort_idx_rel] = sort(vis_spines.pref_dir_rel, 'ascend');
+
+
+vis_spines.soma_tuning_rel = nanmedian(vis_spines.tuning_rel, 2);
+vis_spines.soma_ave_rel = circGaussFilt(vis_spines.soma_tuning_rel,10);
+
+vis_spines.soma_se_rel = std(vis_spines.tuning_rel, [],2)/sqrt(size(vis_spines.tuning_rel,2));
+
+vis_spines.soma_pars_rel = mfun.fitTuning(vis_spines.tun_dirs,vis_spines.soma_tuning_rel, 'vm2');
+vis_spines.soma_tuning_fit_rel = mfun.vonMises2(vis_spines.soma_pars_rel, vis_spines.tun_dirs);
+
 
 %% to add
 
@@ -100,13 +131,14 @@ vis_spines.stitch_den = spines.stitch_den;
 
 if doPlot
 
+    %% plot relative to soma (remove _rel from variable to do absolute)
     figure; 
 
     subplot(3,2,1)
     
-    patch([vis_spines.tun_dirs, flip(vis_spines.tun_dirs,2)]', [vis_spines.soma_ave+vis_spines.soma_se; flip(vis_spines.soma_ave-vis_spines.soma_se, 1)], [0.9 0.9 0.9], 'EdgeColor', 'none')
+    patch([vis_spines.tun_dirs, flip(vis_spines.tun_dirs,2)]', [vis_spines.soma_ave_rel+vis_spines.soma_se_rel; flip(vis_spines.soma_ave_rel-vis_spines.soma_se_rel, 1)], [0.9 0.9 0.9], 'EdgeColor', 'none')
     hold on;
-    plot(vis_spines.tun_dirs,vis_spines.soma_tuning_fit, 'k', 'Linewidth', 2)
+    plot(vis_spines.tun_dirs,vis_spines.soma_tuning_fit_rel, 'k', 'Linewidth', 2)
     formatAxes
     xlabel('Stimulus direction')
     ylabel('Spine sum')
@@ -115,8 +147,8 @@ if doPlot
     set(gca, 'Xtick', [0 180 360])
 
     subplot(3,2,3)
-    plot(vis_spines.tun_dirs, vis_spines.tuning, 'Color', [0.5, 0.5, 0.5]);hold on
-    plot(vis_spines.tun_dirs,vis_spines.soma_tuning, 'k', 'Linewidth', 2)
+    plot(vis_spines.tun_dirs, vis_spines.tuning_rel, 'Color', [0.5, 0.5, 0.5]);hold on
+    plot(vis_spines.tun_dirs,vis_spines.soma_tuning_rel, 'k', 'Linewidth', 2)
     set(gca, 'Xtick', [0 180 360])
     formatAxes
     xlabel('D stimulus direction')
@@ -127,7 +159,7 @@ if doPlot
 
     subplot(3,2,5)
 
-    to_plot = vis_spines.tuning(:, vis_spines.sort_idx);
+    to_plot = vis_spines.tuning_rel(:, vis_spines.sort_idx_rel);
     imagesc(to_plot');caxis([-0 1]); colormap(1-gray);
     set(gca, 'Xtick', [0 180 360])
 formatAxes

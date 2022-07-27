@@ -51,11 +51,25 @@ for iDb = 1:nDb
         % Dendritic length and response amplitude
         L(nthP) = neuron(iDb).morph(1).stats.L;
         L_cut(nthP) = neuron(iDb).morph(iSeq).stats.L;
-        
+        L_basal(nthP) = neuron(iDb).morph_basal(1).stats.L;
+        L_basal_cut(nthP) = neuron(iDb).morph_basal(iSeq).stats.L;
+
+        L_apical(nthP) = neuron(iDb).morph_apical(1).stats.L;
+        L_apical_cut(nthP) = neuron(iDb).morph_apical(iSeq).stats.L;
+
         if strcmp(neuron(iDb).db.animal, 'FR172') && neuron(iDb).db.neuron_id == 7 % this reconstructions is missing the apical dendrite
+
+
+        L_basal(nthP) = L(nthP);
+        L_basal_cut(nthP) = L_cut(nthP);
+
+        L_apical(nthP) = 0.3*L(nthP);
+        L_apical_cut(nthP) = 0.3*L(nthP);
+
             apical_bit = 0.3*L(nthP);
             L(nthP) = L(nthP)+ apical_bit ;
             L_cut(nthP) = L_cut(nthP)+ apical_bit ;
+
         end
         
         Rp(nthP) = neuron(iDb).tuning(1).Rp;
@@ -241,12 +255,14 @@ end
 dOri = abs(dOri);
 dDir = abs(dDir);
 
+
+
 %%
-
-
 L_rel = 1 - L_cut./L;
 type = logical(type);
 is_cut = child_seq>1;
+parent = child_seq ==1;
+last_child = circshift(parent, -1);
 
 par_lm = fitlm(L_rel(type), RoR(type), 'Intercept', false);
 orth_lm = fitlm(L_rel(~type), RoR(~type),'Intercept', false);
@@ -359,14 +375,14 @@ se_orth_dist = std(centeredDist(:, ~type & is_cut),[],2)/sqrt(sum(~type & is_cut
 se_orth_trim = std(trims_dist(:, ~type & is_cut),[],2);
 se_orth_dist_cut = std(centeredDist_cut(:, ~type & is_cut),[],2)/sqrt(sum(~type & is_cut));
 
-ave_zx = mean(zx(:,:, is_cut),3);
+ave_zx = mean(zx(:,:, parent),3);
 z_top = max(ave_zx(:));
 ave_zx = ave_zx/z_top;
-ave_abl_zx = mean(zx_cut(:,:, is_cut),3)/z_top;
+ave_abl_zx = mean(zx_cut(:,:, last_child),3)/z_top;
 ave_z = mean(ave_zx,2);
-se_z = squeeze(std(mean(zx(:,:, is_cut),2), [], 3))/sqrt(sqrt(sum(is_cut)));
+se_z = squeeze(std(mean(zx(:,:, parent),2), [], 3))/sqrt(sum(parent));
 ave_abl_z = mean(ave_abl_zx,2);
-se_abl_z = squeeze(std(mean(zx_cut(:,:, is_cut),2), [], 3))/sqrt(sqrt(sum(is_cut)));
+se_abl_z = squeeze(std(mean(zx_cut(:,:, last_child),2), [], 3))/sqrt(sum(last_child));
 
 
 ave_par_xy = mean(xy(:,:, type & is_cut),3);
@@ -378,6 +394,33 @@ ave_orth_xy = mean(xy_horz(:,:, ~type & is_cut),3);
 orth_top = max(ave_orth_xy(:));
 ave_orth_xy = ave_orth_xy/orth_top;
 ave_orth_abl_xy = mean(xy_horz_cut(:,:, ~type & is_cut),3)/orth_top;
+
+
+%%
+figure('Color', 'w','Position', [536 178 797 300])
+
+subplot(1,3,1)
+plot([0 max(L_basal(parent))+100], [0 max(L_basal(parent))+100], '--', 'Color', [0.2 0.2 0.2]);
+hold on;
+scatter(L_basal(parent), L_apical(parent), 40,[0.2 0.2 0.2], 'MarkerFaceColor', [0.2 0.2 0.2],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
+axis square; 
+xlim([0 max(L_basal(parent))+100]); 
+ylim([0 max(L_basal(parent))+100]);
+formatAxes
+xlabel('L basal (mm)')
+ylabel('L apical (mm)')
+set(gca, 'XTick', [0 5000], 'XTickLabel', [0 5], 'YTick', [0 5000], 'YTickLabel', [0 5])
+
+subplot(1,3,2)
+plot([0 max(L_basal(parent))+100], [0 max(L_basal(parent))+100], '--', 'Color', [0.2 0.2 0.2]);
+hold on;
+scatter(L_basal(parent)./L(parent), L_basal_cut(last_child)./L(parent), 40,[1 0, 1], 'MarkerFaceColor', [1 0 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
+axis square;
+xlim([0 1]); 
+ylim([0 1]);
+formatAxes
+xlabel('% basal')
+ylabel('% basal after pruning')
 
 %% plot the pooled dendriti trees
 
@@ -462,8 +505,12 @@ saveTo = fullfile(neuron(1).db.data_repo, 'Results');
     print(fullfile(saveTo,'Pool_neurons_pruning') , '-dpdf', '-painters');
 
     %%
+
+    gamma = 0.3;
+
 z_d = ave_zx - ave_abl_zx;
 z_d(z_d<0) =0;
+
 
 
 z_rgb = repmat(ave_abl_zx.^gamma, 1,1,3);
@@ -480,7 +527,7 @@ zxbins = -300:5:300;
 
 z_top = max(ave_zx(:).^gamma);
 
-figure;
+figure('Color', 'w','Position', [536 178 797 745]);
 % p = subplot(1,3, 1);
 % imagesc(zxbins, xybins,(ave_zx.^gamma)/par_top); axis image
 % colormap(p, 1-gray); caxis([0, 1])
@@ -488,21 +535,27 @@ figure;
 % xlabel('\mum')
 % ylabel('\mum')
 
-ax1 = subplot(1,5, 1);
-image(zxbins, xybins,z_rgb); axis image
+ax1 = subplot(2,3, 1);
+image(xybins,zxbins, z_rgb); axis square
 formatAxes
 xlabel('\mum');
-%  ax1.Position = [0.1 0.1500 1/6 1/6];
-   
-ax2 = subplot(1,5, 2);
+ylabel('\mum');
+ylim([-300, 200])
+xlim([-250, 250])
+
+
+ax2 = subplot(2,3, 2);
 shadePlot(zxbins, ave_z, se_z, [0.2 0.2 0.2]); hold on
 shadePlot(zxbins, ave_abl_z, se_abl_z, [1 0 1]); hold on
 view([90 -90])
 ax2.XDir = 'reverse';
 formatAxes
-ax2.Position(4) = ax1.Position(4); 
+ylabel('Dendrite density')
+xlabel('\mum')
 axis square
-ax3 = subplot(1,5, 3);
+xlim([-300, 200])
+
+ax3 = subplot(2,3, 4);
 
 shadePlot(fit_pt_ori, ave_ori_all,se_ori_all, [0 0 0]); hold on;
 shadePlot([120 130], [ave_blank_all, ave_blank_all],[se_blank_all, se_blank_all], [0 0 0]); hold on
@@ -514,22 +567,21 @@ xlim([-100 135])
 ylim([-0.2 1.2])
 xlabel('\Delta pref orientation')
 ylabel('Normalised Tuning ')
-ax3.Position(4) = ax1.Position(4); 
 axis square
 
-ax4 = subplot(1,5, 4);
+ax4 = subplot(2,3, 5);
 
 % linear tuning curves
 
 hold on;
-all_lm = fitlm(ave_par_30, ave_par_abl_rel_30);
+all_lm = fitlm(ave_30, ave_abl_rel_30);
 
-pred_p = -.1:0.01:1;
-[all_pred,all_ci] = predict(all_lm, makeVec(pred_p));
+pred_pp = -.1:0.01:1;
+[all_pred,all_ci] = predict(all_lm, makeVec(pred_pp));
 % 
-plot(vm_30(:, is_cut), abl_rel_vm_30(:, is_cut), '-', 'Color', [1 0 1], 'Linewidth', 0.5); hold on;
+plot(vm_30(:, is_cut), abl_rel_vm_30(:, is_cut), '-', 'Color', [1 0 1 0.2], 'Linewidth', 0.5); hold on;
 
-plot(pred_p, all_pred, '-', 'Color', [1 0 1]); hold on;
+plot(pred_pp, all_pred, '-', 'Color', [1 0 1]); hold on;
 
 plot(ave_30, ave_abl_rel_30, 'o', 'Color', [1 0 1], 'MarkerFaceColor', [1 0 1], 'MarkerSize', 6); hold on
 
@@ -542,9 +594,8 @@ ylabel('Post-dendrotomy')
 
 axis square;
 formatAxes
-ax4.Position(4) = ax1.Position(4); 
 
-ax5 = subplot(1,5, 5);
+ax5 = subplot(2,3, 6);
 
 % slope vs dendrites cut
 sigm = @(pars, x) pars(4)./(1+ pars(3).*exp(pars(1).*(x - pars(2))));
@@ -562,19 +613,17 @@ scatter(L_rel, slope, 40,[1 0, 1], 'MarkerFaceColor', [1 0 1],'MarkerEdgeAlpha',
 
 for iDb = 1:nDb
     if sum(parent_db==iDb)>1
-        plot(L_rel(parent_db==iDb), slope(parent_db==iDb), '-', 'Color', [1 0 1], ...
+        plot(L_rel(parent_db==iDb), slope(parent_db==iDb), '-', 'Color', [1 0 1 0.2], ...
             'LineWidth', 0.5); hold on
     end
 end
 
-% plot([0 2], [0 2], '--k')
 xlim([-0.05 0.65]);
 ylim([-0.4 1.2]);
 xlabel('Fraction dendrites cut')
 ylabel('Multiplicative scaling')
 formatAxes
 axis square
-ax5.Position(4) = ax1.Position(4); 
 
 %% plot Rpp vs Lcut
 
@@ -718,8 +767,8 @@ scatter(Rb(type & is_cut), Rb_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor',
 scatter(Rb(~type & is_cut), Rb_cut(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 plot([-1 1], [-1 1], '--k')
 formatAxes
-xlim([-1 1]);
-ylim([-1 1]);
+xlim([-0.5 0.5]);
+ylim([-0.5 0.5]);
 axis square
 title(sprintf('p_pRb = %03f\np_oRb = %03f', p_pRb, p_oRb), 'Fontsize', 10);
 xlabel('Pre')
