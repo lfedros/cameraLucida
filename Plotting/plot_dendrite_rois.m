@@ -16,14 +16,15 @@ meanImg =  mat2gray(meanImg ./max(meanImg (:)), [0.02 0.2]);
 [Ly, Lx] = size(meanImg);
 
 
-pref_dir = dendrite.Fitpars(dendrite.SigInd,1); %[0 360]
+pref_dir = dendrite.Fitpars_Dir(dendrite.SigInd,1); %[0 360]
 pref_ori = pref_dir-90; %[-90, 270]
 pref_ori(pref_ori>180) = pref_ori(pref_ori>180)-180; %[-90 90]
 pref_ori(pref_ori<=0) = pref_ori(pref_ori<=0)+180; %[1 181]
 
 color = hsv(181);
 
-resps = dendrite.responses(dendrite.SigInd,:,:,:);
+% resps = dendrite.responses(dendrite.SigInd,:,:,:);
+resps = dendrite.response(dendrite.SigInd,:,:,:);
 
 nROI = numel(dendrite.SigInd);
 

@@ -23,7 +23,8 @@ for iDb = 1:nDb
 %     [db(iDb).morph_seq] = build_path(db(iDb), 'morph_seq');
 %     [db(iDb).vis_seq] = build_path(db(iDb), 'vis_seq');
     [db(iDb).ret_seq] = build_path(db(iDb), 'ret_seq');
-        [db(iDb).spine_seq] = build_path(db(iDb), 'spine_seq');
+    [db(iDb).spine_seq] = build_path(db(iDb), 'spine_seq');
+    [db(iDb).pix_map] = build_path(db(iDb), 'pix_map');
 
     neuron(iDb).db = db(iDb);
 

@@ -7,7 +7,10 @@ nDendrites =  numel(neuron.db.spine_seq);
 for iD = 1: nDendrites
 
     dendrite(iD) = load(fullfile(spine_folder, neuron.db.spine_seq{iD}));
-
+    try
+    load(fullfile(spine_folder, neuron.db.pix_map{iD}));
+    dendrite(iD).pixelMap = px_map;
+    end
 end
 
 % convert position in pixels to positions in microns referenced to the
@@ -37,11 +40,13 @@ for iD = 1: numel(neuron.db.spine_seq)
     dendrite(iD).fov_x_um = dendrite(iD).fov_x_um + dendrite(iD).soma.x_rel;
     dendrite(iD).fov_y_um = dendrite(iD).fov_y_um + dendrite(iD).soma.y_rel;
 
-    dendrite(iD).X = dendrite(iD).fov_x_um(dendrite(iD).centreMass(:,2));
-    dendrite(iD).Y = dendrite(iD).fov_y_um(dendrite(iD).centreMass(:,1));
+    dendrite(iD).X = dendrite(iD).fov_x_um(int32(dendrite(iD).centreMass(:,2)));
+    dendrite(iD).Y = dendrite(iD).fov_y_um(int32(dendrite(iD).centreMass(:,1)));
     
-%     dendrite(iD).Fitpars(:,1) = -dendrite(iD).Fitpars_Dir(:,1) +360;
-        dendrite(iD).Fitpars(:,1) = -dendrite(iD).Fitpars(:,1) +360;
+     dendrite(iD).Fitpars_Dir(:,1) = -dendrite(iD).Fitpars_Dir(:,1) +360;
+     dendrite(iD).Fitpars_Ori(:,1) = -dendrite(iD).Fitpars_Ori(:,1) +180;
+
+     dendrite(iD).SigInd = dendrite(iD).anovaStat<=0.05;
 
 %     figure; imagesc(dendrite(iD).fov_x_um,dendrite(iD).fov_y_um, dendrite(iD).meanImg); pause;
 end
