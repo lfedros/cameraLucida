@@ -4,17 +4,16 @@ i =0;
 i = i+1;
 
 db(i).animal           = 'FR224';
-db(i).mouse_name    = {'FR224','FR224'};
-db(i).mouse_name_s2p    = {'FR224','FR224'};
+db(i).mouse_name    = {'FR224','FR224','FR224','FR224'};
+db(i).mouse_name_s2p    = {'FR224','FR224','FR224','FR224'};
 db(i).date          = {'2022-08-02', '2022-08-02', '2022-08-03', '2022-08-03'};
 db(i).date_s2p      = {'2022-08-02', '2022-08-02', '2022-08-03', '2022-08-03'};
 db(i).expts         = {[1 2], [1 2], [2 3 4 5 6 8], [2 3 4 5 6 8]};
 db(i).expID         = {[2], [2], [5], [6]};
 db(i).plane         = [2, 2, 2, 2];
 db(i).starterID     = 1;
-db(i).stimList      = {[4:3:36, 37], [5:3:36, 37], [1:13], [1:13]}; 
-db(i).respWin       = [0 2];
-
+db(i).stimList      = {[4:7:84, 85], [5:7:84, 86], [1:13], [1:13]}; 
+db(i).respWin       = [0 3];
 
 db_abl(i).animal           = [];
 db_abl(i).mouse_name    = [];

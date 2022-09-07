@@ -1,4 +1,4 @@
-function rois = load_spine_img(neuron)
+function rois = load_spine_img_dev(neuron)
 
 % load the data from each imaged dendrite
 [~, spine_folder] = build_path(neuron.db, 'spine_size_seq');
@@ -31,7 +31,7 @@ idx = strfind(neuron.db.spine_size_seq{iD}, 'RoiSet');
 
     imgJ_import = readtable(fullfile(spine_folder, neuron.db.spine_size_seq{iD}));
 
-    head = contains(imgJ_import.Name(:), 's');
+    head = contains(imgJ_import.Name(:), 's','IgnoreCase',true);
 
     rois(iD).name =cat(1, imgJ_import.Name(head));
 
@@ -71,9 +71,10 @@ idx = strfind(neuron.db.spine_size_seq{iD}, 'RoiSet');
 
    spine_sz = round(1/px_sz_x);
 
-  x_win = -2*spine_sz:2*spine_sz;
+  x_win = -2*spine_sz:2*spine_sz; % window 4 spine size wide
     y_win = -2*spine_sz:2*spine_sz;
     z_win = -spine_sz:spine_sz;
+   se = strel('disk', spine_sz); % filter by pixel size
 
 
    for iR = 1:rois(iD).nRoi 
@@ -89,47 +90,49 @@ rois(iD).type(iR) = rois(iD).den_type(1);
   
 
    rois(iD).img(:,:,iR)= max(rois(iD).stack{iR}, [],3);
-
     
    % highpass a bit
-   se = strel('disk', spine_sz); % filter by pixel size
 
-   rois(iD).img(:,:,iR) =  imtophat(rois(iD).img(:,:,iR), se);
+   nonnanimg = rois(iD).img(:,:,iR);
+   nonnanimg(isnan(nonnanimg)) = median(nonnanimg(:), 'omitnan');
+   rois(iD).img_filt(:,:,iR) =  imtophat(nonnanimg, se);
 
    % normalise to dendrite branch fluorescence
    den_X_rel = rois(iD).den_X(iR) - rois(iD).head_X(iR) + numel(x_win)/2;
    den_Y_rel = rois(iD).den_Y(iR) - rois(iD).head_Y(iR) + numel(y_win)/2;
 
-   rois(iD).den_fluo(iR) = max(makeVec(interpn(rois(iD).img(:,:,iR), ...
-       den_Y_rel-2:den_Y_rel+2, den_X_rel-2:den_X_rel+2)));
+   rois(iD).den_fluo(iR) = max(makeVec(interpn(rois(iD).img_filt(:,:,iR), ...
+       den_Y_rel-round(spine_sz/2):den_Y_rel+round(spine_sz/2), den_X_rel-round(spine_sz/2):den_X_rel+round(spine_sz/2)))); % change
 
 %    rois(iD).den_fluo(iR) = mean(makeVec(interpn(stack, ...
 %        rois(iD).den_Y(iR)-1:rois(iD).den_Y(iR)+1, rois(iD).den_X(iR)-1:rois(iD).den_X(iR)+1, rois(iD).den_Z(iR)-1:rois(iD).den_Z(iR)+1)));
 
-   rois(iD).img(:,:,iR)= rois(iD).img(:,:,iR)/rois(iD).den_fluo(iR);
+   rois(iD).img(:,:,iR)= rois(iD).img_filt(:,:,iR)/rois(iD).den_fluo(iR);
 
    % rotate to align
    rois(iD).img_rot(:,:,iR) = imrotate(rois(iD).img(:,:,iR), -rad2deg(rois(iD).head_angle(iR)) -90, 'bilinear', 'crop');
    end
 
-   rois(iD).img_rot_crop = rois(iD).img_rot(spine_sz:end-(spine_sz-1),spine_sz:end-(spine_sz-1),:); % spine is 5 pixels wide, hardcoded. NEEDS CONVERSION TO MICRONS
+   rois(iD).img_rot_crop = rois(iD).img_rot(spine_sz:end-(spine_sz-1),spine_sz:end-(spine_sz-1),:); % crop width to 2 spine size
 
-   rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, ceil(size(rois(iD).img_rot_crop,2)/2), :)),1);
+   rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, ceil(size(rois(iD).img_rot_crop,2)/2), :)),1); % Take slice trough spine head
 
-   rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1)); % spine is 5 pixels wide, hardcoded. NEEDS CONVERSION TO MICRONS
+   rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1)); 
 
    for iR = 1:rois(iD).nRoi 
 
-   [~,peak(iR)] = max(rois(iD).img_rot_crop(spine_sz:3*spine_sz,ceil(size(rois(iD).img_rot_crop,2)/2), iR),[],1); % spine is 5 pixels wide, hardcoded. NEEDS CONVERSION TO MICRONS
-      rois(iD).profile_W(:,iR) = squeeze(rois(iD).img_rot_crop(6+peak(iR), round(spine_sz/2):end-(round(spine_sz/2)),iR)); % spine is 5 pixels wide, hardcoded. NEEDS CONVERSION TO MICRONS
+   [~,peak(iR)] = max(rois(iD).img_rot_crop(round(spine_sz/2):round(3*spine_sz/2),ceil(size(rois(iD).img_rot_crop,2)/2), iR),[],1); 
+
+    rois(iD).profile_W(:,iR) = squeeze(rois(iD).img_rot_crop(round(spine_sz/2)+peak(iR), round(spine_sz/2):end-(round(spine_sz/2)-1),iR)); 
+
    end
 
    rois(iD).peak = max(rois(iD).profile_W,[], 1);
 
 %    rois(iD).profile_W = squeeze(rois(iD).img_rot_crop(ceil(size(rois(iD).img_rot_crop,1)/2), 3:end-2,:));
 
-   rois(iD).profile_W_units = x_win(spine_sz:end-spine_sz); % spine is 5 pixels wide, hardcoded. NEEDS CONVERSION TO MICRONS
-
+   rois(iD).profile_W_units = x_win(spine_sz:end-(spine_sz-1)); 
+    rois(iD).profile_W_units = rois(iD).profile_W_units(round(spine_sz/2):end-(round(spine_sz/2)-1));
    rois(iD).mimg = mean(rois(iD).img_rot_crop,3, 'omitnan');
 end
 %%

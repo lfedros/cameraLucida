@@ -30,7 +30,7 @@ end
 
 for iDb = 1:nDb
 
-   neuron(iDb).spines = load_spine_img(neuron(iDb));
+   neuron(iDb).spines = load_spine_img_dev(neuron(iDb));
  
 end
 
