@@ -65,13 +65,15 @@ for iD = 1: nDendrites
     y_win = -2*spine_sz:2*spine_sz;
     z_win = -spine_sz:spine_sz;
     
-    se = strel('disk', round(spine_sz)); % highpass filter at the scale of spines
+    se = strel('disk', round(spine_sz/2)); % highpass filter at the scale of spines
     
     rois(iD).stack_mImg = max(imgaussfilt3(stack(:,:,rangeZ(1):rangeZ(2)), round([spine_sz/3,spine_sz/3, 1])), [], 3);
 
-    rois(iD).stack_mImg = imtophat(rois(iD).stack_mImg, se);
-    
-    se = strel('disk', spine_sz); % highpass filter at the scale of spines
+%     rois(iD).stack_mImg = imtophat(rois(iD).stack_mImg, se);
+%     
+%     rois(iD).stack_mImg = imgaussfilt(rois(iD).stack_mImg, spine_sz/3);
+%     
+    se = strel('disk', round(spine_sz)); % highpass filter at the scale of spines
 
     %% Calculate spine density
     
@@ -88,12 +90,64 @@ for iD = 1: nDendrites
     [~, rois(iD).order] = sort(Z(:, ext), 'ascend');
     
     rois(iD).extremes = [rois(iD).order(1), rois(iD).order(end)];
-    rois(iD).den_angle = cart2pol(rois(iD).den_X(rois(iD).extremes(1))-rois(iD).den_X(rois(iD).extremes(2)),...
-                            rois(iD).den_Y(rois(iD).extremes(1))-rois(iD).den_Y(rois(iD).extremes(2)));
-   
+    
+    if rois(iD).den_X(rois(iD).extremes(1)) > rois(iD).den_X(rois(iD).extremes(2))
+        rois(iD).extremes = [rois(iD).order(end), rois(iD).order(1)];
+    end
+%%
+    rois(iD).den_angle = cart2pol(rois(iD).den_X(rois(iD).extremes(2))-rois(iD).den_X(rois(iD).extremes(1)),...
+                            rois(iD).den_Y(rois(iD).extremes(2))-rois(iD).den_Y(rois(iD).extremes(1)));
+
+    L1 = sqrt((rois(iD).den_X(rois(iD).extremes(2))-rois(iD).den_X(rois(iD).extremes(1))).^2 +...
+        (rois(iD).den_Y(rois(iD).extremes(2))-rois(iD).den_Y(rois(iD).extremes(1))).^2);
+
+    x_vec = linspace(rois(iD).den_X(rois(iD).extremes(1)), rois(iD).den_X(rois(iD).extremes(2)), ...
+        L1);
+
+    y_vec = linspace(rois(iD).den_Y(rois(iD).extremes(1)), rois(iD).den_Y(rois(iD).extremes(2)),...
+        L1);
+    % use the range of x and y to define the line
+    x_c = mean(x_vec);
+    y_c = mean(y_vec);
+    
+%     [x_grid, y_grid] = meshgrid(x_vec, y_vec);
+    
+    shifts = -100:100;
+
+    y_shift =  shifts *cos(-rois(iD).den_angle);
+    x_shift = shifts*sin(-rois(iD).den_angle);
+
+    x_vec = x_vec(:) + x_shift;
+    y_vec = y_vec(:) + y_shift;
+
+    rois(iD).rot_mImg = interp2(rois(iD).stack_mImg, x_vec(:), y_vec(:));
+
+
+ rois(iD).rot_head_X =  rois(iD).head_X -rois(iD).den_X(rois(iD).extremes(1));
+  rois(iD).rot_head_Y =  rois(iD).head_Y -rois(iD).den_Y(rois(iD).extremes(1));
+
+R = [cos(rois(iD).den_angle) sin(rois(iD).den_angle);...
+    -sin(rois(iD).den_angle) cos(rois(iD).den_angle)];
+
+rc = R*[rois(iD).rot_head_X(:)'; rois(iD).rot_head_Y(:)'];
+
+rois(iD).rot_head_X = rc(1,:) +tan(-rois(iD).den_angle)./rc(2,:) ;
+rois(iD).rot_head_Y= rc(2,:) + 101;
+
+% for iS = 1:rois(iD).nRoi
+%     [~, idx] = min(abs(x_vec(:) - rois(iD).head_X(iS)));
+%     rois(iD).rot_head_X(iS) = x_vec(idx);
+%     [~, idx] = min(abs(y_vec(:) - rois(iD).head_Y(iS)));
+%     rois(iD).rot_head_Y(iS) = y_vec(idx);
+% end
+
+    rois(iD).rot_mImg = reshape(rois(iD).rot_mImg, size(x_vec))';
+% figure; imagesc(rois(iD).stack_mImg); axis image
+% figure; imagesc(rois(iD).rot_mImg); axis image; hold on
+% plot(rois(iD).rot_head_X, rois(iD).rot_head_Y, 'or');
     %calculate total dendritic length by summing pairwise distances of
     %neighboring points
-    
+    %%
     rois(iD).den_L =0;
     
     for iR = 2:rois(iD).nRoi
@@ -117,7 +171,7 @@ for iD = 1: nDendrites
         
         [yq, xq, zq] = ndgrid(y, x, z);
         
-        rois(iD).stack{iR} = interpn(stack, yq, xq, zq);
+        rois(iD).stack{iR} = interpn(stack, yq, xq, zq); % volume centered on spine head
         
         rois(iD).img(:,:,iR)= max(rois(iD).stack{iR}, [],3);
         
@@ -125,9 +179,10 @@ for iD = 1: nDendrites
         nonnanimg = rois(iD).img(:,:,iR);
         nonnanimg(isnan(nonnanimg)) = median(nonnanimg(:), 'omitnan');
         rois(iD).img_filt(:,:,iR) =  imtophat(nonnanimg, se);
-        
+%         rois(iD).img_filt(:,:,iR) =  imgaussfilt(nonnanimg, spine_sz/4);
+
         % normalise to dendrite branch fluorescence
-        den_X_rel = rois(iD).den_X(iR) - rois(iD).head_X(iR) + numel(x_win)/2;
+        den_X_rel = rois(iD).den_X(iR) - rois(iD).head_X(iR) + numel(x_win)/2; % coordinate of the dendrite in the roi centered on the spine
         den_Y_rel = rois(iD).den_Y(iR) - rois(iD).head_Y(iR) + numel(y_win)/2;
         
         rois(iD).den_fluo(iR) = max(makeVec(interpn(rois(iD).img_filt(:,:,iR), ...
@@ -136,14 +191,31 @@ for iD = 1: nDendrites
         %    rois(iD).den_fluo(iR) = mean(makeVec(interpn(stack, ...
         %        rois(iD).den_Y(iR)-1:rois(iD).den_Y(iR)+1, rois(iD).den_X(iR)-1:rois(iD).den_X(iR)+1, rois(iD).den_Z(iR)-1:rois(iD).den_Z(iR)+1)));
         
-        rois(iD).img(:,:,iR)= rois(iD).img_filt(:,:,iR)/rois(iD).den_fluo(iR);
+        rois(iD).img_filt(:,:,iR)= rois(iD).img_filt(:,:,iR)/rois(iD).den_fluo(iR);
         
         % rotate to align
-        rois(iD).img_rot(:,:,iR) = imrotate(rois(iD).img(:,:,iR), -rad2deg(rois(iD).head_angle(iR)) -90, 'bilinear', 'crop');
+        rois(iD).img_rot(:,:,iR) = imrotate(rois(iD).img_filt(:,:,iR), -rad2deg(rois(iD).head_angle(iR)) -90, 'bilinear', 'crop');
     end
-    
-    rois(iD).img_rot_crop = rois(iD).img_rot(spine_sz:end-(spine_sz-1),spine_sz:end-(spine_sz-1),:); % crop width to 2 spine size
-    
+
+        rois(iD).img_rot_crop = rois(iD).img_rot(spine_sz:end-(spine_sz-1),spine_sz:end-(spine_sz-1),:); % crop width to 2 spine size
+
+        %%
+
+%         peak = zeros(rois(iD).nRoi,2);
+% 
+%         for iR = 1:rois(iD).nRoi
+%      crop = rois(iD).img_rot_crop(round(spine_sz/2):round(3*spine_sz/2),round(spine_sz/2):round(3*spine_sz/2), iR);
+%      [~,idx] = max(crop(:));
+%      [peak(iR,1), peak(iR,2)] =ind2sub(size(crop),idx);
+%      peak(iR,:) = peak(iR,:) + round(spine_sz/2)-1;
+% 
+%  rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, peak(iR,2), :)),1); % Take slice trough spine head
+%     rois(iD).profile_W(:,iR) = squeeze(rois(iD).img_rot_crop(peak(iR, 1), round(spine_sz/2):end-(round(spine_sz/2)-1),iR));
+% 
+%         end
+
+
+%%
     rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, ceil(size(rois(iD).img_rot_crop,2)/2), :)),1); % Take slice trough spine head
     
     rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1));
@@ -156,11 +228,12 @@ for iD = 1: nDendrites
         rois(iD).profile_W(:,iR) = squeeze(rois(iD).img_rot_crop(round(spine_sz/2)+peak(iR), round(spine_sz/2):end-(round(spine_sz/2)-1),iR));
         
     end
-    
+        
+    %%
     rois(iD).peak = max(rois(iD).profile_W,[], 1);
-    
-    %    rois(iD).profile_W = squeeze(rois(iD).img_rot_crop(ceil(size(rois(iD).img_rot_crop,1)/2), 3:end-2,:));
-    
+
+    rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1));
+
     rois(iD).profile_W_units = x_win(spine_sz:end-(spine_sz-1));
     rois(iD).profile_W_units = rois(iD).profile_W_units(round(spine_sz/2):end-(round(spine_sz/2)-1));
     rois(iD).mimg = mean(rois(iD).img_rot_crop,3, 'omitnan');
@@ -171,6 +244,10 @@ end
 % summary for each dendrite
 for iD = 1: nDendrites
     
+        figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
+        plot_single_spine(rois(iD).img_rot_crop)
+    print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '_all_spines_img.pdf']), '-painters','-dpdf', '-bestfit');
+
     figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
     
     switch rois(iD).den_type
@@ -181,16 +258,22 @@ for iD = 1: nDendrites
     end
     
     subplot(1,5, [1 2])
-    imgg = mat2gray(rois(iD).stack_mImg);
+    imgg = mat2gray(rois(iD).rot_mImg);
     
 %     imggr = imrotate(imgg, rois(iD).den_angle*180/pi);
     
+vals = imgg(round(max(min(rois(iD).rot_head_X), 1)):round(min(max(rois(iD).rot_head_X), size(imgg,1))), round(max(min(rois(iD).rot_head_Y),1)):round(min(max(rois(iD).rot_head_Y),size(imgg,2))));
+mini = prctile(vals(:), 20);
+maxi = prctile(vals(:), 95);
+
     imagesc(imgg); axis image; hold on
-    caxis([0.0001 0.02])
+    caxis([mini maxi]);
+%     caxis([0 0.05])
+
     colormap(1-gray);
-    scatter(rois(iD).head_X, rois(iD).head_Y, 3, color);
-    xlim([min(rois(iD).head_X)-3, max(rois(iD).head_X)+3]);
-    ylim([min(rois(iD).head_Y)-3, max(rois(iD).head_Y)+3]);
+    scatter(rois(iD).rot_head_X, rois(iD).rot_head_Y, 3, color);
+    xlim([min(rois(iD).rot_head_X)-3, max(rois(iD).rot_head_X)+3]);
+    ylim([min(rois(iD).rot_head_Y)-3, max(rois(iD).rot_head_Y)+3]);
     formatAxes
     
     subplot(1,5, 3)
@@ -212,6 +295,8 @@ for iD = 1: nDendrites
     axis square
     formatAxes
     
+    print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '.pdf']), '-painters','-dpdf', '-bestfit');
+
 end
 
 

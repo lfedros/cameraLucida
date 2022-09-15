@@ -59,6 +59,9 @@ spine_dist_p(:, iDb) = spine_dist_p(:, iDb)/sum(spine_dist_p(:, iDb));
 spine_dist_o(:, iDb) = histcounts(spine_peak{iDb}(spine_type{iDb} == 'o'), dist_bins);
 spine_dist_o(:, iDb) = spine_dist_o(:, iDb)/sum(spine_dist_o(:, iDb));
 
+ave_o(iDb) = nanmean(spine_peak{iDb}(spine_type{iDb} == 'o'));
+ave_p(iDb) = nanmean(spine_peak{iDb}(spine_type{iDb} == 'p'));
+
 cum_dist_p(:, iDb) = histcounts(spine_peak{iDb}(spine_type{iDb}== 'p'), cum_bins);
 cum_dist_p(:, iDb) = cumsum(cum_dist_p(:, iDb))/sum(cum_dist_p(:, iDb));
 
@@ -68,6 +71,10 @@ cum_dist_o(:, iDb) = cumsum(cum_dist_o(:, iDb))/sum(cum_dist_o(:, iDb));
 
 spine_dens = cat(1, spine_dens, [neuron(iDb).spines(:).spines_per_um]');
 den_type = cat(1, den_type, neuron(iDb).spines(:).den_type);
+
+dens_p(iDb) = mean([neuron(iDb).spines((strcmp({neuron(iDb).spines(:).den_type},'para'))).spines_per_um]);
+dens_o(iDb) = mean([neuron(iDb).spines((strcmp({neuron(iDb).spines(:).den_type},'orth'))).spines_per_um]);
+
 end
 
 all_peak = cat(1, spine_peak{:});
@@ -91,11 +98,11 @@ den_lab(den_type(:,1) =='p') = 1;
 
 %%
 
-figure;
+figure('Position', [220 393 1196 420], 'color', 'w', 'PaperOrientation', 'landscape');
 
 [~, pks] = kstest2(all_peak(all_type== 'p'), all_peak(all_type== 'o'));
 
-subplot(1,5,1)
+subplot(2, 4,1)
 
 plot(dist_bins(1:end-1), spine_dist_p, 'Color', [1 0 0], 'LineWidth', 0.5); hold on
 plot(dist_bins(1:end-1), spine_dist_o, 'Color', [0 0.5 1], 'LineWidth', 0.5); hold on
@@ -107,8 +114,7 @@ formatAxes
 ylabel('probability')
 xlabel(['Spine head F'])
 
-subplot(1,5,2)
-
+subplot(2, 4, 2)
 plot(cum_bins(1:end-1), cum_dist_p, 'Color', [1 0 0], 'LineWidth', 0.5); hold on
 plot(cum_bins(1:end-1), cum_dist_o, 'Color', [0 0.5 1], 'LineWidth', 0.5); hold on
 plot(cum_bins(1:end-1), all_cum_dist_p, 'Color', [1 0 0], 'LineWidth', 2); hold on
@@ -119,8 +125,22 @@ formatAxes
 ylabel('Cumulative p')
 xlabel('Spine head fluo')
 
+prs = ranksum(ave_p, ave_o);
+subplot(2, 4, 7)
+plot(ave_p, ave_o, 'o', 'Color', [0.1 0.1 0.1], 'MarkerFaceColor', [0.1 0.1 0.1]); hold on;
+plot([0 2], [0 2], '--', 'Color', [0.5 0.5 0.5])
+xlim([0, 1.5])
+ylim([0, 1.5])
+axis square
+title(sprintf('p = %02f', prs));
+formatAxes
+set(gca, 'XTick', [0 1],'YTick', [0 1])
+xlabel('mean spine size p')
+ylabel('mean spine size o')
 
-subplot(1,5,3)
+
+subplot(2, 4,5)
+
 bar(dist_bins(1:end-1), all_spine_dist_p, 'EdgeColor', 'none', 'FaceColor', [1 0 0], 'FaceAlpha', 0.5); hold on
 bar(dist_bins(1:end-1), all_spine_dist_o, 'EdgeColor', 'none', 'FaceColor', [0 0.5 1], 'FaceAlpha', 0.5); hold on
 title(sprintf('%d spines \n %d den, N= %d', numel(all_peak), numel(den_lab), numel(neuron)));
@@ -129,7 +149,7 @@ formatAxes
 ylabel('probability')
 xlabel(['Spine head F'])
 
-subplot(1,5,4)
+subplot(2, 4,6)
 stairs(cum_bins(1:end-1), all_cum_dist_p, 'Color',[1 0 0]); hold on
 stairs(cum_bins(1:end-1), all_cum_dist_o, 'Color',[0 0.5 1]); hold on
 title(sprintf('p = %02f', pks));
@@ -138,10 +158,21 @@ formatAxes
 ylabel('Cumulative p')
 xlabel('Spine head fluo')
 
-
+prs = signrank(dens_p, dens_o);
+subplot(2, 4,8)
+plot(dens_p, dens_o, 'o', 'Color', [0.1 0.1 0.1], 'MarkerFaceColor', [0.1 0.1 0.1]); hold on;
+plot([0 2], [0 2], '--', 'Color', [0.5 0.5 0.5])
+xlim([0, 1])
+ylim([0, 1])
+axis square
+title(sprintf('p = %02f', prs));
+formatAxes
+set(gca, 'XTick', [0 1],'YTick', [0 1])
+xlabel('mean spine size p')
+ylabel('mean spine size o')
 
 prs = ranksum(spine_dens(den_lab==0), spine_dens(den_lab==1));
-subplot(1,5,5)
+subplot(2, 4,4)
 plot(den_lab(den_lab==0), spine_dens(den_lab==0), 'o', 'MarkerFaceColor', [0 0.5 1]); hold on;
 plot(den_lab(den_lab==1), spine_dens(den_lab==1), 'o', 'MarkerFaceColor', [1 0 0]); hold on;
 xlim([-1, 2])
@@ -152,7 +183,5 @@ formatAxes
 set(gca, 'XTick', [0 1],'XTickLabel', {'ortho', 'para'})
 ylabel('spines per um')
 
-
-
-
+print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
 
