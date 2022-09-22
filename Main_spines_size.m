@@ -125,7 +125,7 @@ formatAxes
 ylabel('Cumulative p')
 xlabel('Spine head fluo')
 
-prs = ranksum(ave_p, ave_o);
+prs = signrank(ave_p, ave_o);
 subplot(2, 4, 7)
 plot(ave_p, ave_o, 'o', 'Color', [0.1 0.1 0.1], 'MarkerFaceColor', [0.1 0.1 0.1]); hold on;
 plot([0 2], [0 2], '--', 'Color', [0.5 0.5 0.5])
