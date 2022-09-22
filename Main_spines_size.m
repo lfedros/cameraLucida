@@ -183,5 +183,5 @@ formatAxes
 set(gca, 'XTick', [0 1],'XTickLabel', {'ortho', 'para'})
 ylabel('spines per um')
 
-print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
+% print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
 

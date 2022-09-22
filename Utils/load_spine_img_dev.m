@@ -1,4 +1,9 @@
-function rois = load_spine_img_dev(neuron)
+function rois = load_spine_img_dev(neuron, doSave)
+
+if nargin <2
+    doSave  = 0; 
+end
+
 
 % load the data from each imaged dendrite
 [~, spine_folder] = build_path(neuron.db, 'spine_size_seq');
@@ -65,11 +70,11 @@ for iD = 1: nDendrites
     y_win = -2*spine_sz:2*spine_sz;
     z_win = -spine_sz:spine_sz;
     
-    se = strel('disk', round(spine_sz/2)); % highpass filter at the scale of spines
+    se = strel('disk', round(spine_sz*3)); % highpass filter at the scale of spines
     
     rois(iD).stack_mImg = max(imgaussfilt3(stack(:,:,rangeZ(1):rangeZ(2)), round([spine_sz/3,spine_sz/3, 1])), [], 3);
 
-%     rois(iD).stack_mImg = imtophat(rois(iD).stack_mImg, se);
+    rois(iD).stack_mImg = imtophat(rois(iD).stack_mImg, se);
 %     
 %     rois(iD).stack_mImg = imgaussfilt(rois(iD).stack_mImg, spine_sz/3);
 %     
@@ -230,8 +235,8 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
     end
         
     %%
-    rois(iD).peak = max(rois(iD).profile_W,[], 1);
-
+    rois(iD).peak = ((max(rois(iD).profile_W,[], 1).*rois(iD).den_fluo) - min(rois(iD).profile_W,[], 1))./(rois(iD).den_fluo - min(rois(iD).profile_W,[], 1));
+    
     rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1));
 
     rois(iD).profile_W_units = x_win(spine_sz:end-(spine_sz-1));
@@ -246,8 +251,9 @@ for iD = 1: nDendrites
     
         figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
         plot_single_spine(rois(iD).img_rot_crop)
+        if doSave
     print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '_all_spines_img.pdf']), '-painters','-dpdf', '-bestfit');
-
+        end
     figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
     
     switch rois(iD).den_type
@@ -295,8 +301,9 @@ maxi = prctile(vals(:), 95);
     axis square
     formatAxes
     
+    if doSave
     print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '.pdf']), '-painters','-dpdf', '-bestfit');
-
+    end
 end
 
 
@@ -331,8 +338,9 @@ for iD = 1: nDendrites
     formatAxes
 end
 
+if doSave
 print(fullfile(spine_folder, 'Dendrites summary'), '-painters','-dpdf');
-
+end
 
 
 %
