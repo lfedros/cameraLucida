@@ -1,4 +1,4 @@
-function rois = load_spine_img(neuron, doSave)
+function rois = load_spine_img_dev(neuron, doSave)
 
 if nargin <2
     doSave  = 0; 
@@ -66,8 +66,8 @@ for iD = 1: nDendrites
     
     spine_sz = round(1/px_sz_x);
     
-    x_win = -2*spine_sz:2*spine_sz; % window 4 spine size wide
-    y_win = -2*spine_sz:2*spine_sz;
+    x_win = -3*spine_sz:3*spine_sz; % window 4 spine size wide
+    y_win = -3*spine_sz:3*spine_sz;
     z_win = -spine_sz:spine_sz;
     
     se = strel('disk', round(spine_sz*3)); % highpass filter at the scale of spines
@@ -254,8 +254,8 @@ end
 for iD = 1: nDendrites
     
         figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
-        plot_single_spine(rois(iD).img_rot_crop)
-%                 plot_single_spine(rois(iD).img_raw_rot_crop,1)
+%         plot_single_spine(rois(iD).img_rot_crop)
+                plot_single_spine(rois(iD).img_raw_rot_crop,1)
 
         if doSave
     print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '_all_spines_img.pdf']), '-painters','-dpdf', '-bestfit');

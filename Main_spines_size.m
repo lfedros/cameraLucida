@@ -168,8 +168,8 @@ axis square
 title(sprintf('p = %02f', prs));
 formatAxes
 set(gca, 'XTick', [0 1],'YTick', [0 1])
-xlabel('mean spine size p')
-ylabel('mean spine size o')
+xlabel('soine density p')
+ylabel('spine density o')
 
 prs = ranksum(spine_dens(den_lab==0), spine_dens(den_lab==1));
 subplot(2, 4,4)
@@ -183,5 +183,5 @@ formatAxes
 set(gca, 'XTick', [0 1],'XTickLabel', {'ortho', 'para'})
 ylabel('spines per um')
 
-% print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
-
+print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
+% 

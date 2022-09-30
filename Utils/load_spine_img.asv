@@ -254,8 +254,8 @@ end
 for iD = 1: nDendrites
     
         figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
-        plot_single_spine(rois(iD).img_rot_crop)
-%                 plot_single_spine(rois(iD).img_raw_rot_crop,1)
+%         plot_single_spine(rois(iD).img_rot_crop)
+                plot_single_spine(rois(iD).img_raw_rot_crop,1)
 
         if doSave
     print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '_all_spines_img.pdf']), '-painters','-dpdf', '-bestfit');

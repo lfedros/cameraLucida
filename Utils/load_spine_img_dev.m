@@ -66,8 +66,8 @@ for iD = 1: nDendrites
     
     spine_sz = round(1/px_sz_x);
     
-    x_win = -2*spine_sz:2*spine_sz; % window 4 spine size wide
-    y_win = -2*spine_sz:2*spine_sz;
+    x_win = -3*spine_sz:3*spine_sz; % window 4 spine size wide
+    y_win = -3*spine_sz:3*spine_sz;
     z_win = -spine_sz:spine_sz;
     
     se = strel('disk', round(spine_sz*3)); % highpass filter at the scale of spines
@@ -183,6 +183,7 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
         % highpass a bit
         nonnanimg = rois(iD).img(:,:,iR);
         nonnanimg(isnan(nonnanimg)) = median(nonnanimg(:), 'omitnan');
+        rois(iD).img(:,:,iR) = nonnanimg;
         rois(iD).img_filt(:,:,iR) =  imtophat(nonnanimg, se);
 %         rois(iD).img_filt(:,:,iR) =  imgaussfilt(nonnanimg, spine_sz/4);
 
@@ -200,9 +201,12 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
         
         % rotate to align
         rois(iD).img_rot(:,:,iR) = imrotate(rois(iD).img_filt(:,:,iR), -rad2deg(rois(iD).head_angle(iR)) -90, 'bilinear', 'crop');
+        rois(iD).img_raw_rot(:,:,iR) = imrotate(rois(iD).img(:,:,iR), -rad2deg(rois(iD).head_angle(iR)) -90, 'bilinear', 'crop');
+
     end
 
-        rois(iD).img_rot_crop = rois(iD).img_rot(spine_sz:end-(spine_sz-1),spine_sz:end-(spine_sz-1),:); % crop width to 2 spine size
+        rois(iD).img_rot_crop = rois(iD).img_rot(2*spine_sz:end-(2*spine_sz-1),2*spine_sz:end-(2*spine_sz-1),:); % crop width to 2 spine size
+        rois(iD).img_raw_rot_crop = rois(iD).img_raw_rot(2*spine_sz:end-(2*spine_sz-1),2*spine_sz:end-(2*spine_sz-1),:); % crop width to 2 spine size
 
         %%
 
@@ -223,7 +227,7 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
 %%
     rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, ceil(size(rois(iD).img_rot_crop,2)/2), :)),1); % Take slice trough spine head
     
-    rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1));
+    rois(iD).profile_H_units = y_win(2*spine_sz:end-(2*spine_sz-1));
     
     peak = zeros(rois(iD).nRoi,1);
     for iR = 1:rois(iD).nRoi
@@ -237,9 +241,9 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
     %%
     rois(iD).peak = ((max(rois(iD).profile_W,[], 1).*rois(iD).den_fluo) - min(rois(iD).profile_W,[], 1))./(rois(iD).den_fluo - min(rois(iD).profile_W,[], 1));
     
-    rois(iD).profile_H_units = y_win(spine_sz:end-(spine_sz-1));
+    rois(iD).profile_H_units = y_win(2*spine_sz:end-(2*spine_sz-1));
 
-    rois(iD).profile_W_units = x_win(spine_sz:end-(spine_sz-1));
+    rois(iD).profile_W_units = x_win(2*spine_sz:end-(2*spine_sz-1));
     rois(iD).profile_W_units = rois(iD).profile_W_units(round(spine_sz/2):end-(round(spine_sz/2)-1));
     rois(iD).mimg = mean(rois(iD).img_rot_crop,3, 'omitnan');
 end
@@ -251,6 +255,8 @@ for iD = 1: nDendrites
     
         figure('Position', [149 57 1186 742],'color', 'w', 'PaperOrientation', 'landscape');
         plot_single_spine(rois(iD).img_rot_crop)
+%                 plot_single_spine(rois(iD).img_raw_rot_crop,1)
+
         if doSave
     print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '_all_spines_img.pdf']), '-painters','-dpdf', '-bestfit');
         end
