@@ -1,5 +1,26 @@
 function dendrite = load_dendrite(neuron)
 
+%% loads data saved in the dendrite.mat file, with following variables
+%            ANOVA: [1×1 struct]
+%             Basl: [177×36×8 double]
+%      Fitpars_Dir: [3×177×5 double]
+%      Fitpars_Ori: [3×177×4 double]
+%           RANOVA: [1×1 struct]
+%           all_ws: {177×1 cell}
+%     best_combAll: {177×1 cell}
+%       centreMass: [1×1 struct]
+%          meanImg: [512×512 double]
+%           refpos: []
+%         response: [177×38×8 double]
+%      response_tc: [177×38×8×60 double]
+%             soma: [1×1 struct]
+%            xpixs: {1×177 cell}
+%            ypixs: {1×177 cell}
+%       zoomFactor: 14
+
+%%
+
+
 % load the data from each imaged dendrite
 [~, spine_folder] = build_path(neuron.db);
 
@@ -7,9 +28,25 @@ nDendrites =  numel(neuron.db.spine_seq);
 for iD = 1: nDendrites
 
     dendrite(iD) = load(fullfile(spine_folder, neuron.db.spine_seq{iD}));
+end
+
+for iD = 1: nDendrites
+
     try
-    load(fullfile(spine_folder, neuron.db.pix_map{iD}));
-    dendrite(iD).pixelMap = px_map;
+        load(fullfile(spine_folder, neuron.db.pix_map{iD}));
+        pxAmp_ori = abs(px_map.ori);
+        pxAng_ori = angle(px_map.ori);
+        pxAng_ori = -pxAng_ori;
+        px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
+
+
+        pxAmp_dir = abs(px_map.dir);
+        pxAng_dir= angle(px_map.dir);
+        pxAng_dir = -pxAng_dir;
+        px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
+        
+        dendrite(iD).pixelMap = px_map;
+        
     end
 end
 
@@ -17,7 +54,7 @@ end
 % zstack
 for iD = 1: numel(neuron.db.spine_seq)
 
-    [umperpx_X,  umperpx_Y] = ppbox.zoom2fov(dendrite(iD).zoomFactor);
+    [umperpx_X,  umperpx_Y] = ppbox.zoom2fov(dendrite(iD).zoomFactor, [], neuron.db.morph.expRef{2});
     
     [Ly, Lx] = size(dendrite(iD).meanImg);
 
@@ -40,14 +77,35 @@ for iD = 1: numel(neuron.db.spine_seq)
     dendrite(iD).fov_x_um = dendrite(iD).fov_x_um + dendrite(iD).soma.x_rel;
     dendrite(iD).fov_y_um = dendrite(iD).fov_y_um + dendrite(iD).soma.y_rel;
 
-    dendrite(iD).X = dendrite(iD).fov_x_um(int32(dendrite(iD).centreMass(:,2)));
-    dendrite(iD).Y = dendrite(iD).fov_y_um(int32(dendrite(iD).centreMass(:,1)));
+    dendrite(iD).X = dendrite(iD).fov_x_um(int32(dendrite(iD).centreMass.y)); % changed
+    dendrite(iD).Y = dendrite(iD).fov_y_um(int32(dendrite(iD).centreMass.x));
     
-     dendrite(iD).Fitpars_Dir(:,1) = -dendrite(iD).Fitpars_Dir(:,1) +360;
-     dendrite(iD).Fitpars_Ori(:,1) = -dendrite(iD).Fitpars_Ori(:,1) +180;
+%      dendrite(iD).SigInd = dendrite(iD).ANOVA<=0.05;
+nS = numel(dendrite(iD).ANOVA);
+% nS = numel(dendrite(iD).RANOVA);s
 
-     dendrite(iD).SigInd = dendrite(iD).anovaStat<=0.05;
+     for iS = 1:nS
 
+     [~, dendrite(iD).bestCombo(iS)] = max(dendrite(iD).all_ws(iS,:));
+     
+     these_stim = [ [1:12] + (dendrite(iD).bestCombo(iS)-1)*12, 37];
+     resps = squeeze(dendrite(iD).response(iS, these_stim,:));
+
+     this_anova = anova1(resps', 1:13, 'off');
+      dendrite(iD).SigInd(iS) = this_anova <=0.05;
+
+%      dendrite(iD).SigInd(iS) = dendrite(iD).ANOVA{iS}.Pval{1} <=0.05;
+%           dendrite(iD).SigInd(iS) = sum(dendrite(iD).RANOVA{iS}.pValue <=0.005)>0; 
+dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir(dendrite(iD).bestCombo(iS), iS,:);
+dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori(dendrite(iD).bestCombo(iS), iS,:);
+
+
+     end
+    
+
+     dendrite(iD).pars_dir(:,1) = -dendrite(iD).pars_dir(:,1) +360;
+     dendrite(iD).pars_ori(:,1) = -dendrite(iD).pars_ori(:,1) +180;
+     
 %     figure; imagesc(dendrite(iD).fov_x_um,dendrite(iD).fov_y_um, dendrite(iD).meanImg); pause;
 end
 

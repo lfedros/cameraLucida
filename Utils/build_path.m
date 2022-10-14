@@ -70,8 +70,8 @@ if nargin>1
             file = cat(1, dir(fullfile(folder, [db_tag, '*dendrite.mat'])));
             file = {file.name};
 
-        case 'pix_maps'
-            file = cat(1, dir(fullfile(folder, ['pixMap*', db_tag,  '.mat'])));
+        case 'pix_map'
+            file = cat(1, dir(fullfile(folder, ['pixMap_', db_tag,'*.mat'])));
             file = {file.name};
 
 

@@ -43,7 +43,9 @@ if ~doLoad % recompute from suite2P output
         % neuropil correction (equivalent to dF)
         [dF{iExp}, npPars] = estimateNeuropil_LFR(F,Fneu);
         % estimate F0 from lower quantile of data binned based on neuropil
-        F0(iExp) = npPars.corrFactor(2)*npPars.lowCell(1) + npPars.corrFactor(1);
+%         F0(iExp) = npPars.corrFactor(2)*npPars.lowCell(1) + npPars.corrFactor(1);
+                F0(iExp) = npPars.corrFactor(2)*npPars.fitNeuro(1) + npPars.corrFactor(1);
+
         % compute dF/F0
         dF{iExp} = dF{iExp}/F0(iExp);
         % smooth a bit

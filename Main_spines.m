@@ -34,15 +34,26 @@ end
 
 for iDb = 1:nDb
 
-   neuron(iDb).dendrite = load_dendrite(neuron(iDb));
+%    neuron(iDb).dendrite = load_dendrite_old(neuron(iDb));
+      neuron(iDb).dendrite = load_dendrite(neuron(iDb));
+
  
 end
 
 %% pool position and visual properties across dendrites
 
 for iDb = 1:nDb
+%    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines_old(neuron(iDb),1);
 
    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
+end
+
+
+%% combine pixel maps
+for iDb = 1:nDb
+
+     neuron(iDb).px_map = pxmap_combo(neuron(iDb));
+
 end
 
 %% compute visual position of spines

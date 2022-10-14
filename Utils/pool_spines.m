@@ -10,7 +10,7 @@ end
 
 spines.x_um = double(cat(2, neuron.dendrite(:).X));
 spines.y_um = double(cat(2, neuron.dendrite(:).Y));
-spines.tune_pars = cat(1,neuron.dendrite(:).Fitpars_Dir);
+spines.tune_pars = cat(1,neuron.dendrite(:).pars_dir);
 % spines.anova_p  = double(cat(1, neuron.dendrite(:).anovaStat));
 % spines.anova_t = spines.anova_p<0.05;
 nSpines = numel(spines.x_um);
@@ -30,7 +30,7 @@ for iD = 1:numel(neuron.dendrite)
    
     end
 
-    plot_dendrite_rois(neuron.dendrite(iD))
+    plot_dendrite_rois(neuron.dendrite(iD),1)
 end
 spines.anova_t = logical(spines.anova_t);
 
@@ -81,7 +81,7 @@ vis_spines.soma_tuning_fit = mfun.vonMises2(vis_spines.soma_pars, vis_spines.tun
 vis_spines.pref_dir = vis_spines.tune_pars(:,1); %[0 360]
 [~, vis_spines.sort_idx] = sort(vis_spines.pref_dir, 'ascend');
 vis_spines.ori = vis_spines.pref_dir-90; %[-90, 270]
-vis_spines.ori(vis_spines.ori>180) = vis_spines.ori(vis_spines.ori>180)-180; %[-90 90]
+vis_spines.ori(vis_spines.ori>180) = vis_spines.ori(vis_spines.ori>180)-180; %[-90 180]
 vis_spines.ori(vis_spines.ori<0) = vis_spines.ori(vis_spines.ori<0)+180; %[0 180]
 
 vis_spines.soma_ori = rad2deg(circ_mean(vis_spines.ori*2*pi/180))/2;
@@ -197,11 +197,11 @@ formatAxes
     plot(vis_spines.tun_dirs,vis_spines.soma_tuning, 'k', 'Linewidth', 2)
     set(gca, 'Xtick', [0 180 360])
     formatAxes
-    xlabel('D stimulus direction')
+    xlabel('Stimulus direction')
     ylabel('Tuning')
     xlim([-10 370])
     ylim([-0.3 1.1])
-    title('iGluSnFR3 spines and soma')
+    title('iGluSnFR3 spines ands soma')
 
     subplot(3,2,5)
 

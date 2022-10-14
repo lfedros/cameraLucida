@@ -46,12 +46,12 @@ end
 %% Load neurons tuning to drifting gratings
 
 for iDb = 1:nDb
-    doPlot = 0;
+    doPlot = 1;
     % if you want to save
-    doSave = 0;
+    doSave = 1;
     neuron(iDb).tuning = load_tuning_longitudinal_dev(db(iDb),db(iDb).vis_seq, doPlot,doSave);
     
-    % plot_responses(neuron(iDb)); plot responses if needed
+%     plot_responses(neuron(iDb));% plot responses if needed
 
 end
 

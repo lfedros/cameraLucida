@@ -29,40 +29,40 @@ switch map_type
 
         %%
         figure ('Color', 'w', 'Position', [283 224 1370 605]);
-        d = subplot(2,3,1);
-        imagesc(mimg); axis image; caxis([0.5, 0.9])
-        colormap(d, gray);
-        colorbar('Location', 'southoutside', 'Ticks', []);
-        formatAxes
-        title('Avg img')
+%         d = subplot(2,3,1);
+%         imagesc(mimg); axis image; caxis([0.5, 0.9])
+%         colormap(d, gray);
+%         colorbar('Location', 'southoutside', 'Ticks', []);
+%         formatAxes
+%         title('Avg img')
+% 
+%          d = subplot(2,3,4);
+%         imshow(mimg); axis image; caxis([0.5, 0.9])
+%         formatAxes
 
-         d = subplot(2,3,4);
-        imshow(mimg); axis image; caxis([0.5, 0.9])
-        formatAxes
 
-
-        d = subplot(2,3,2);
+        d = subplot(1,4,1);
         image(pixelMap_dir); axis image;
         formatAxes
         colormap(d, 'hsv'); caxis([0 1]); colorbar('Location', 'southoutside', 'Ticks', [0 0.5 1], 'TickLabels', [-180 0 180]);
         title('Direction tuning')
 
        
-        d = subplot(2,3,5);
-        imshow(mimg); axis image; caxis([0.5, 0.9]); hold on
+        d = subplot(1,4,2);
+        imshow(1-mimg); axis image; caxis([0.5, 0.9]); hold on
 %         colormap(d, gray);
         h = imshow(pixelMap_dir); axis image; hold off
-        set(h, 'AlphaData', mat2gray(pxAmp_dir, [1 3]).^0.5)
+        set(h, 'AlphaData', mat2gray(pxAmp_dir, [0.3 3]).^0.5)
         formatAxes
-
-        o = subplot(2,3,3);
+% 
+        o = subplot(1,4,3);
         image(pixelMap_ori); axis image;
         formatAxes
         colormap(o, 'hsv'); caxis([0 1]); colorbar('Location', 'southoutside', 'Ticks', [0 0.5 1], 'TickLabels', [-90 0 90]);
         title('Orientation tuning')
 
-           o = subplot(2,3,6);
-        imshow(mimg); axis image; caxis([0.5, 0.9]); hold on
+           o = subplot(1,4,4);
+        imshow(1-mimg); axis image; caxis([0.5, 0.9]); hold on
         h = imshow(pixelMap_ori); axis image; hold off
         set(h, 'AlphaData', mat2gray(pxAmp_ori, [1 3]).^0.5)
         formatAxes

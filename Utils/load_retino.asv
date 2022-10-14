@@ -22,16 +22,13 @@ ret.Px_sz_x = 3550/Px_x;
 ret.Px_sz_y = 3550/Px_y;
 
 ret.x_um = (1:Px_x) * ret.Px_sz_x;
-ret.y_um = (1:Px_y) * ret.Px_sz_y;
+ret.y_um = flip((1:Px_y) * ret.Px_sz_y,2);
 
 ret.soma_um(1) = ret.x_um(neuron.db.retino.somaIJ(2));
 ret.soma_um(2) = ret.y_um(neuron.db.retino.somaIJ(1));
 
-% ret.soma_ele = interp2(ret.x_um', ret.y_um, ret.elevation, ret.soma_um(1), ret.soma_um(2));
-% ret.soma_azi = interp2(ret.x_um', ret.y_um, ret.azimuth, ret.soma_um(1), ret.soma_um(2));
-
-ret.soma_ele = ret.elevation(neuron.db.retino.somaIJ(1), neuron.db.retino.somaIJ(2));
-ret.soma_azi = ret.azimuth(neuron.db.retino.somaIJ(1), neuron.db.retino.somaIJ(2));
+ret.soma_ele = interp2(ret.x_um', ret.y_um, ret.elevation, ret.soma_um(1), ret.soma_um(2));
+ret.soma_azi = interp2(ret.x_um', ret.y_um, ret.azimuth, ret.soma_um(1), ret.soma_um(2));
 
 ret.x_um = ret.x_um- ret.soma_um(1);
 ret.y_um = ret.y_um - ret.soma_um(2);
@@ -58,8 +55,8 @@ lm_a = fitlm([x(:), y(:)], ret.map_azi(:), 'linear');
 lm_e = fitlm([x(:), y(:)], ret.map_ele(:), 'linear');
 
 [x, y] = meshgrid(ret.map_x_um, ret.map_y_um);
-ret.map_azi = reshape(predict(lm_a,[x(:), y(:)]), size(x)) - predict(lm_a,[0, 0]);
-ret.map_ele = reshape(predict(lm_e,[x(:), y(:)]), size(x))- predict(lm_e,[0, 0]);
+ret.map_azi = reshape(predict(lm_a,[x(:), y(:)]), size(x));
+ret.map_ele = reshape(predict(lm_e,[x(:), y(:)]), size(x));
 
 %%
 % ret.map_ele = imgaussfilt(ret.map_ele,5);

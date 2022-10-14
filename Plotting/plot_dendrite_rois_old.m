@@ -1,9 +1,7 @@
-function plot_dendrite_rois(dendrite, sig_flag)
+function plot_dendrite_rois_old(dendrite, sig_flag)
 
 if nargin <2 || sig_flag ==0
-% dendrite.SigInd = 1:numel(dendrite.xpixs);
-dendrite.SigInd = true(1,numel(dendrite.xpixs));
-
+dendrite.SigInd = 1:numel(dendrite.xpixs);
 end
 
 xpx = dendrite.xpixs(dendrite.SigInd);
@@ -20,7 +18,7 @@ meanImg =  mat2gray(meanImg ./max(meanImg (:)), [0.02 0.2]);
 [Ly, Lx] = size(meanImg);
 
 
-pref_dir = dendrite.pars_dir(dendrite.SigInd,1); %[0 360]
+pref_dir = dendrite.Fitpars(dendrite.SigInd,1); %[0 360]
 pref_ori = pref_dir-90; %[-90, 270]
 pref_ori(pref_ori>180) = pref_ori(pref_ori>180)-180; %[-90 90]
 pref_ori(pref_ori<=0) = pref_ori(pref_ori<=0)+180; %[1 181]
@@ -28,9 +26,9 @@ pref_ori(pref_ori<=0) = pref_ori(pref_ori<=0)+180; %[1 181]
 color = hsv(181);
 
 % resps = dendrite.responses(dendrite.SigInd,:,:,:);
-resps = dendrite.response(dendrite.SigInd,:,:,:);
+% resps = dendrite.response(dendrite.SigInd,:,:,:);
 
-nROI = sum(dendrite.SigInd);
+nROI = numel(dendrite.SigInd);
 
 map = zeros(numel(meanImg), 3);
 

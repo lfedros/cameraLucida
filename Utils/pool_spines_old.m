@@ -1,4 +1,4 @@
-function [spines, vis_spines] = pool_spines(neuron, doPlot)
+function [spines, vis_spines] = pool_spines_old(neuron, doPlot)
 
 if nargin < 2
     doPlot = 0;
@@ -10,7 +10,7 @@ end
 
 spines.x_um = double(cat(2, neuron.dendrite(:).X));
 spines.y_um = double(cat(2, neuron.dendrite(:).Y));
-spines.tune_pars = cat(1,neuron.dendrite(:).Fitpars_Dir);
+spines.tune_pars = cat(1,neuron.dendrite(:).Fitpars);
 % spines.anova_p  = double(cat(1, neuron.dendrite(:).anovaStat));
 % spines.anova_t = spines.anova_p<0.05;
 nSpines = numel(spines.x_um);
@@ -30,7 +30,7 @@ for iD = 1:numel(neuron.dendrite)
    
     end
 
-    plot_dendrite_rois(neuron.dendrite(iD))
+    plot_dendrite_rois_old(neuron.dendrite(iD),1)
 end
 spines.anova_t = logical(spines.anova_t);
 
