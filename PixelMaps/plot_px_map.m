@@ -1,7 +1,11 @@
-function plot_px_map(map, map_type, sigma)
+function plot_px_map(map, map_type, sigma, lims)
 
 if nargin <3
     sigma = 1; % sigma of gaussian filter
+end
+
+if nargin <4
+    lims = [1 3]; % lims of color S for plot
 end
 
 switch map_type
@@ -18,12 +22,12 @@ switch map_type
         pxAng_ori = angle(pxTun_ori);
 
         Hue = mat2gray(pxAng_dir);
-        Sat = mat2gray(pxAmp_dir, [1 3]);
+        Sat = mat2gray(pxAmp_dir, lims);
         Val = ones(size(pxAng_dir));
         pixelMap_dir = hsv2rgb(cat(3, Hue, Sat, Val));
 
         Hue = mat2gray(pxAng_ori);
-        Sat = mat2gray(pxAmp_ori, [1 3]);
+        Sat = mat2gray(pxAmp_ori, lims);
         Val = ones(size(pxAng_ori));
         pixelMap_ori = hsv2rgb(cat(3, Hue, Sat, Val));
 
@@ -52,7 +56,7 @@ switch map_type
         imshow(1-mimg); axis image; caxis([0.5, 0.9]); hold on
 %         colormap(d, gray);
         h = imshow(pixelMap_dir); axis image; hold off
-        set(h, 'AlphaData', mat2gray(pxAmp_dir, [0.3 3]).^0.5)
+        set(h, 'AlphaData', mat2gray(pxAmp_dir, [1 3]).^0.5)
         formatAxes
 % 
         o = subplot(1,4,3);

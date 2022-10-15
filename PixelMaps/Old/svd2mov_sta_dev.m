@@ -1,4 +1,4 @@
-function [sta_mov, map] = svd2mov_sta(db, targetPlane, stim_type)
+function [sta_mov, map] = svd2mov_sta_dev(db, targetPlane, stim_type)
 %% load a svd compresesed 2P recordinga adn computes stim triggered movies and pixelMaps
 %OUTPUTS
 % - sta_mov: stimulus triggered movie, concat across stimuli
