@@ -29,7 +29,7 @@ for iExp = 1:numel(db)
     add_SVDcomps(db(iExp))
 end
 
-%% USE SVD COMPRESSED MOVIES TO GENERATE STAs MOVIE and TUNING PIXEL MAPS 
+%% USE SVD COMPRESSED MOVIES TO GENERATE STAs MOVIE and TUNING PIXEL MAPS
 clear;
 
 %% Set path to relevant code
@@ -59,7 +59,12 @@ db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 %% Use SVD compressed recording to make pixel maps
 
 for iExp = 1:numel(db)
-[sta_mov, px_map]= svd2mov_sta_dev(db, 1, db(i).expType);
+    % pxmap
+    px_map= svd2pxmap(db, 1, db(i).expType);
+    % run if you want to generate sta movie, otherwise comment out for
+    % speed
+    sta_mov= svd2mov_sta(db, 1, db(i).expType);
+
 end
 
 %manually select the dendrites of interest

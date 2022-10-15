@@ -1,7 +1,6 @@
-function [sta_mov, map] = svd2mov_sta_dev(db, targetPlane, stim_type)
-%% load a svd compresesed 2P recordinga adn computes stim triggered movies and pixelMaps
+function map = svd2pxmap(db, targetPlane, stim_type)
+%% load a svd compresesed 2P recordinga adn computes stim triggered pixelMaps
 %OUTPUTS
-% - sta_mov: stimulus triggered movie, concat across stimuli
 % - map: contain tuning pixel maps. Struct with fields:
 %       - dir: pixel map of preferred direction
 %       - dir_Sf_Tf: pixel map of preferred combo of SfTf for orientation
@@ -190,18 +189,6 @@ switch stim_type
 end
 
 map.p = p;
-%% now generate and save the sta movie
-
-newT = reshape(permute(aveResp, [3,2,1]), [], nSVD)'; %nSVD*nT
-sta_mov =  S(:, 1:nSVD)*newT(1:nSVD, :);
-% sta_mov = zscore(sta_mov')';
-sta_mov = reshape(sta_mov, nY, nX, []);
-% sta_mov = bsxfun(@minus, sta_mov, min(sta_mov, [], 2));
-% sta_mov = bsxfun(@rdivide, sta_mov, max(sta_mov, [], 2));
-
-sta_mov = permute(imgaussfilt3(sta_mov, [0.5, 0.5, 1]), [2 1 3]); % for some reason the SVDs are transposed
-
-saveastiff(uint16(mat2gray(sta_mov)*(2^15-1)), fullfile(s2p_folder, sprintf('%s_sta_mov.tif', stim_type)));
 
 end
 
