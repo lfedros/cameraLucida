@@ -60,6 +60,9 @@ if ~doLoad % recompute from suite2P output
         frameRate = (1/mean(diff(frameTimes{iExp})));
         stimTimes = ppbox.getStimTimes(info);
         stimSequence = ppbox.getStimSequence_LFR(info);
+        if strcmp(this_db.date, '2022-09-14') && strcmp(this_db.mouse_name, 'FR225')
+                stimSequence.seq= stimSequence.seq(1:87*5);
+        end
         stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes{iExp});
         % select a subset of stimuli if specified in the db
         if isfield(db, 'stimList')

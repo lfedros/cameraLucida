@@ -30,7 +30,7 @@ end
 
 for iDb = 1:nDb
 
-   neuron(iDb).spines = load_spine_img_dev(neuron(iDb));
+   neuron(iDb).spines = load_spine_img_dev(neuron(iDb),1);
  
 end
 
@@ -183,5 +183,5 @@ formatAxes
 set(gca, 'XTick', [0 1],'XTickLabel', {'ortho', 'para'})
 ylabel('spines per um')
 
-print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
+% print(fullfile(db(1).data_repo,'Results', 'Spine Size Stats'), '-painters','-dpdf', '-bestfit');
 % 

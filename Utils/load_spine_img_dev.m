@@ -66,8 +66,8 @@ for iD = 1: nDendrites
     
     spine_sz = round(1/px_sz_x);
     
-    x_win = -3*spine_sz:3*spine_sz; % window 4 spine size wide
-    y_win = -3*spine_sz:3*spine_sz;
+    x_win = -4*spine_sz:4*spine_sz; % window 4 spine size wide
+    y_win = -4*spine_sz:4*spine_sz;
     z_win = -spine_sz:spine_sz;
     
     se = strel('disk', round(spine_sz*3)); % highpass filter at the scale of spines
@@ -225,16 +225,26 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
 
 
 %%
-    rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, ceil(size(rois(iD).img_rot_crop,2)/2), :)),1); % Take slice trough spine head
+%     rois(iD).profile_H = flip(squeeze(rois(iD).img_rot_crop(:, ceil(size(rois(iD).img_rot_crop,2)/2), :)),1); % Take slice trough spine head
     
-    rois(iD).profile_H_units = y_win(2*spine_sz:end-(2*spine_sz-1));
+%     rois(iD).profile_H_units = y_win(2*spine_sz:end-(2*spine_sz-1));
     
+    [nR, nC, ~] = size(rois(iD).img_rot_crop);
     peak = zeros(rois(iD).nRoi,1);
     for iR = 1:rois(iD).nRoi
         
-        [~,peak(iR)] = max(rois(iD).img_rot_crop(round(spine_sz/2):round(3*spine_sz/2),ceil(size(rois(iD).img_rot_crop,2)/2), iR),[],1);
-        
-        rois(iD).profile_W(:,iR) = squeeze(rois(iD).img_rot_crop(round(spine_sz/2)+peak(iR), round(spine_sz/2):end-(round(spine_sz/2)-1),iR));
+        crosshair_row = round(nR/2-spine_sz/2):round(nR/2+ spine_sz/2);
+        crosshair_col =  round(nC/2-spine_sz/2):round(nC/2+ spine_sz/2);
+
+        [~, idx] =max(rois(iD).img_rot_crop(crosshair_row, crosshair_col), [], 'all');
+        [peak_i(iR), peak_j(iR)] = ind2sub([numel(crosshair_row),numel(crosshair_col)], idx);
+
+        peak_i(iR) = peak_i(iR) + crosshair_row(1) -1;
+        peak_j(iR) = peak_j(iR) + crosshair_col(1) -1;
+
+        rois(iD).profile_H(:,iR)  = flip(squeeze(rois(iD).img_rot_crop(:, peak_j(iR), iR)),1); % Take slice trough spine head
+
+        rois(iD).profile_W(:,iR) = squeeze(rois(iD).img_rot_crop(peak_i(iR), round(spine_sz/2):end-(round(spine_sz/2)-1),iR));
         
     end
         
@@ -243,8 +253,13 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
     
     rois(iD).profile_H_units = y_win(2*spine_sz:end-(2*spine_sz-1));
 
+rois(iD).profile_H_units = rois(iD).profile_H_units*px_sz_x;
+    
     rois(iD).profile_W_units = x_win(2*spine_sz:end-(2*spine_sz-1));
     rois(iD).profile_W_units = rois(iD).profile_W_units(round(spine_sz/2):end-(round(spine_sz/2)-1));
+
+rois(iD).profile_W_units = rois(iD).profile_W_units*px_sz_x;
+
     rois(iD).mimg = mean(rois(iD).img_rot_crop,3, 'omitnan');
 end
 

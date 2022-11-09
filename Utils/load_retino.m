@@ -42,8 +42,8 @@ ret.y_um = ret.y_um - ret.soma_um(2);
 % ret.map_x_um = neuron.spines.stitch_den.x_um + ret.soma_um(1);
 % ret.map_y_um = neuron.spines.stitch_den.y_um + ret.soma_um(2);
 
-ret.map_x_um = neuron.spines.stitch_den.x_um;
-ret.map_y_um = neuron.spines.stitch_den.y_um;
+ret.map_x_um = neuron.stitch.x_um;
+ret.map_y_um = neuron.stitch.y_um;
 
 temp_x_um = -300:300;
 temp_y_um = -300:300;
@@ -58,13 +58,25 @@ lm_a = fitlm([x(:), y(:)], ret.map_azi(:), 'linear');
 lm_e = fitlm([x(:), y(:)], ret.map_ele(:), 'linear');
 
 [x, y] = meshgrid(ret.map_x_um, ret.map_y_um);
+
 ret.map_azi = reshape(predict(lm_a,[x(:), y(:)]), size(x)) - predict(lm_a,[0, 0]);
 ret.map_ele = reshape(predict(lm_e,[x(:), y(:)]), size(x))- predict(lm_e,[0, 0]);
 
 %%
+% ret.map_azi_lm = reshape(predict(lm_a,[x(:), y(:)]), size(x)) - predict(lm_a,[0, 0]);
+% ret.map_ele_lm = reshape(predict(lm_e,[x(:), y(:)]), size(x))- predict(lm_e,[0, 0]);
+% 
+% %%
+% ret.map_ele = interp2(ret.x_um', ret.y_um, ret.elevation, ret.map_x_um', ret.map_y_um) - ret.soma_ele;
+% ret.map_azi = interp2(ret.x_um', ret.y_um, ret.azimuth,  ret.map_x_um', ret.map_y_um) - ret.soma_azi;
+% 
+% ret.map_ele(isnan(ret.map_ele)) = ret.map_ele_lm(isnan(ret.map_ele));
+% ret.map_azi(isnan(ret.map_azi)) = ret.map_azi_lm(isnan(ret.map_azi));
+% 
 % ret.map_ele = imgaussfilt(ret.map_ele,5);
 % ret.map_azi = imgaussfilt(ret.map_azi,5);
 
+%%
 ret.map_angle = cart2pol(ret.map_azi, ret.map_ele);
 ret.map_angle_axial = atan(ret.map_ele./ret.map_azi);
 
@@ -83,7 +95,7 @@ if doPlot
 
 figure ('Color', 'w');
 v = subplot(2,3,1);
-imagesc(ret.x_um, ret.y_um, ret.vessels); colormap(v,'bone'); axis image; hold on; colorbar
+imagesc(ret.x_um, ret.y_um, imadjust(mat2gray(ret.vessels))); colormap(v,'bone'); axis image; hold on; colorbar
 plot(0, 0, 'or')
 title('Vessels')
 formatAxes
@@ -92,7 +104,7 @@ ylabel('AP (um)')
 
 
 a = subplot(2,3,2);
-imagesc(ret.x_um, ret.y_um, ret.azimuth); axis image; colormap(a, 'jet'); hold on;
+imagesc(ret.x_um, ret.y_um, ret.azimuth, 'AlphaData', ~isnan(ret.azimuth)); axis image; colormap(a, 'jet'); hold on;
 plot(0, 0, 'ok')
 title('Azimuth (deg)')
 colorbar;
@@ -101,7 +113,7 @@ xlabel('ML (um)')
 ylabel('AP (um)')
 
 e = subplot(2,3,3);
-imagesc(ret.x_um, ret.y_um,ret.elevation); axis image; colormap(e,'jet');hold on;
+imagesc(ret.x_um, ret.y_um,ret.elevation, 'AlphaData', ~isnan(ret.elevation)); axis image; colormap(e,'jet');hold on;
 plot(0, 0, 'ok')
 title('Elevation (deg)')
 colorbar;
@@ -110,7 +122,7 @@ xlabel('ML (um)')
 ylabel('AP (um)')
 
 s = subplot(2,3,4);
-imagesc(ret.map_x_um, ret.map_y_um, neuron.spines.stitch_den.img); hold on;
+imagesc(ret.map_x_um, ret.map_y_um, neuron.stitch.img); hold on;
 plot(0, 0,'*r')
 axis image; colormap(s, 1-gray);
 formatAxes

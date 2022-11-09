@@ -2,24 +2,26 @@
 
 clear;
 addpath('C:\Users\Federico\Documents\GitHub\cameraLucida\db');
-make_db_dendrite_ablation; % master database of orientation tuning recordings
-% make_db_dendrite_iGluSnFR_GCaMP; % master database of orientation tuning recordings
+% make_db_dendrite_ablation; % master database of orientation tuning recordings
+make_db_dendrite_iGluSnFR_GCaMP; % master database of orientation tuning recordings
 
 addpath('\\zserver.cortexlab.net\Code\Neuropil Correction\');
 addpath('E:\Google Drive\CarandiniLab\CarandiniLab_MATLAB\FedericoBox\2P')
 nDb = numel(db);
 %% load and save 2 separate mat files in the target folder: gratings and gratings_cut
 
-for iDb = 11:nDb
+for iDb = 11
     
     ops.saveDir = 'D:\OneDrive - University College London\Data\Dendrites';
     ops.doLoad = 0;
     ops.expType = '';
     [resp(iDb), dF, frameTimes, recDateExp] = poolOri(db(iDb), ops);
 
+    if exist('db_abl')
     ops.expType = '_abl';
     if ~isempty(db_abl(iDb).animal)
         [resp_abl(iDb), dF_abl, frameTimes_abl, recDateExp_abl] = poolOri(db_abl(iDb), ops);
+    end
     end
     %     figure;
     %     subplot(2,1,1)
@@ -29,7 +31,9 @@ for iDb = 11:nDb
     
 end
 % plotSweepResp_LFR(resp_abl(iDb).allResp(:, :,:), resp_abl(iDb).time, 2);
-% plotSweepResp_LFR(resp(iDb).allResp(:, :,:), resp(iDb).time, 2);
+for iDb = 1:3
+plotSweepResp_LFR(resp(iDb).allResp(:, :,:), resp(iDb).time, 2);
+end
 
 %% plot
 

@@ -24,7 +24,7 @@ dirs(dirs>=360) = dirs(dirs>=360) -360;
 % oris(oris>=180) =oris (oris>=180) -180;
 
 
-tune.allReps(1:12, :, :) = tune.allResp(sort_dirs, :, :);
+tune.allResp(1:12, :, :) = tune.allResp(sort_dirs, :, :);
 tune.allPeaks(1:12, :) = tune.allPeaks(sort_dirs, :);
 
 tune.oris = tune.dirs; %[0 360]

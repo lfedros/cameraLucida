@@ -118,13 +118,13 @@ combo_map.sig_i = cat(1, signal(:).i);
 combo_map.sig_j = cat(1, signal(:).j);
 combo_map.sig_x_um = cat(2, signal(:).px_x_um)';
 combo_map.sig_y_um = cat(2, signal(:).px_y_um)';
-combo_map.sig_ori = cat(1, signal(:).px_ori);
-combo_map.sig_dir = cat(1, signal(:).px_dir);
+% combo_map.sig_ori = cat(1, signal(:).px_ori);
+% combo_map.sig_dir = cat(1, signal(:).px_dir);
 combo_map.sig_ori_norm = cat(1, signal(:).px_ori_norm);
 combo_map.sig_dir_norm = cat(1, signal(:).px_dir_norm);
 
-% combo_map.sig_ori = cat(1, signal(:).px_ori_norm);
-% combo_map.sig_dir = cat(1, signal(:).px_dir_norm);
+combo_map.sig_ori = cat(1, signal(:).px_ori_norm);
+combo_map.sig_dir = cat(1, signal(:).px_dir_norm);
 
 %%
 combo_map.dir_bin = 0:pi/6:2*pi;
@@ -221,9 +221,8 @@ color = hsv(360); % colors for ori_bin
 imagesc(x_um, y_um, img);
 axis image; hold on;colormap(1-gray);
 this_amp = ceil((amp_dir/max(amp_dir))/0.2).^2;
-idx = this_amp ==0;
 this_amp(this_amp ==0) = NaN;
-scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(dir(idx)),:), 'filled');
+scatter(sig_x_um, sig_y_um, this_amp, color(ceil(dir),:), 'filled');
 formatAxes
 xlabel('um')
 title('Dir')
@@ -234,9 +233,8 @@ color = hsv(180); % colors for ori_bin
 imagesc(x_um, y_um, img);
 axis image; hold on;colormap(1-gray);
 this_amp = ceil((amp_ori/max(amp_ori))/0.2).^2;
-idx = this_amp ==0;
 this_amp(this_amp ==0) = NaN;
-scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(ori(idx)),:), 'filled');
+scatter(sig_x_um, sig_y_um, this_amp, color(ceil(ori),:), 'filled');
 formatAxes
 xlabel('um')
 title('Ori')
@@ -258,7 +256,6 @@ end
 set(gca, 'Xtick', [-90 0 90]);
 xlabel('D pref ori')
 ylabel('Norm tuning')
-formatAxes
 axis square
 %%
 figure;

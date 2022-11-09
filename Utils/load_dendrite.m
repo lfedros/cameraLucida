@@ -1,4 +1,4 @@
-function dendrite = load_dendrite(neuron)
+function [dendrite, soma, stitch] = load_dendrite(neuron)
 
 %% loads data saved in the dendrite.mat file, with following variables
 %            ANOVA: [1×1 struct]
@@ -26,14 +26,20 @@ function dendrite = load_dendrite(neuron)
 
 nDendrites =  numel(neuron.db.spine_seq);
 for iD = 1: nDendrites
-
-    dendrite(iD) = load(fullfile(spine_folder, neuron.db.spine_seq{iD}));
+    foo = load(fullfile(spine_folder, neuron.db.spine_seq{iD}));
+    if ~isfield(foo, 'all_ws')
+        foo.all_ws = ones(numel(foo.ANOVA), 1);
+        foo.best_combAll = ones(numel(foo.ANOVA), 1);
+    end
+    dendrite(iD) = foo;
+    clear foo
 end
 
 for iD = 1: nDendrites
 
     try
         load(fullfile(spine_folder, neuron.db.pix_map{iD}));
+        try
         pxAmp_ori = abs(px_map.ori);
         pxAng_ori = angle(px_map.ori);
         pxAng_ori = -pxAng_ori;
@@ -45,10 +51,46 @@ for iD = 1: nDendrites
         pxAng_dir = -pxAng_dir;
         px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
         
+        catch
+
+             pxAmp_ori = abs(px_map.all_st.ori);
+        pxAng_ori = angle(px_map.all_st.ori);
+        pxAng_ori = -pxAng_ori;
+        px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
+
+
+        pxAmp_dir = abs(px_map.all_st.dir);
+        pxAng_dir= angle(px_map.all_st.dir);
+        pxAng_dir = -pxAng_dir;
+        px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
+
+        px_map.mimg = px_map.all_st.mimg;
+        end
+
         dendrite(iD).pixelMap = px_map;
         
     end
 end
+
+%% if exist, load somatic responses
+[vis_file, vis_path] = build_path(neuron.db, 'vis');
+
+% if data for baseline recs don't exist, return
+if exist(fullfile(vis_path, vis_file), 'file')
+    resps = load(fullfile(vis_path, vis_file));
+
+    soma = retune(resps, [], 'date');
+else
+    soma = [];
+    warning(sprintf('%s not found', vis_file))
+    
+end
+
+
+
+
+%%
+
 
 % convert position in pixels to positions in microns referenced to the
 % zstack
@@ -88,7 +130,13 @@ nS = numel(dendrite(iD).ANOVA);
 
      [~, dendrite(iD).bestCombo(iS)] = max(dendrite(iD).all_ws(iS,:));
      
-     these_stim = [ [1:12] + (dendrite(iD).bestCombo(iS)-1)*12, 37];
+     if size(dendrite(iD).response,2) >13
+         blank = 37;
+     else
+         blank = 13;
+     end
+     these_stim = [ [1:12] + (dendrite(iD).bestCombo(iS)-1)*12, blank];
+
      resps = squeeze(dendrite(iD).response(iS, these_stim,:));
 
      this_anova = anova1(resps', 1:13, 'off');
@@ -96,8 +144,14 @@ nS = numel(dendrite(iD).ANOVA);
 
 %      dendrite(iD).SigInd(iS) = dendrite(iD).ANOVA{iS}.Pval{1} <=0.05;
 %           dendrite(iD).SigInd(iS) = sum(dendrite(iD).RANOVA{iS}.pValue <=0.005)>0; 
+
+if blank ==13
+    dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir( iS,:);
+dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori( iS,:);
+else
 dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir(dendrite(iD).bestCombo(iS), iS,:);
 dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori(dendrite(iD).bestCombo(iS), iS,:);
+end
 
 
      end
@@ -111,6 +165,5 @@ end
 
 
 %% create fov image in common reference
-
-stitch_den = stitch_dendrite(dendrite);
+stitch = stitch_dendrite(dendrite);
 end

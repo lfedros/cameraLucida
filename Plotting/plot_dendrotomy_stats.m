@@ -1003,6 +1003,18 @@ print(fullfile(saveTo,'dendrotomy_stats') ,  '-dpng');
 
 
 %%
+ave_par_abl_30 = median(abl_vm_30(:, type & is_cut),2);
+ave_orth_abl_30 = median(abl_vm_30(:, ~type & is_cut),2);
+ave_abl_30 = median(abl_vm_30(:, type & is_cut),2);
+
+ave_par_abl_rel_30 = median(abl_rel_vm_30(:, type & is_cut),2);
+ave_orth_abl_rel_30 = median(abl_rel_vm_30(:, ~type),2);
+ave_abl_rel_30 = median(abl_rel_vm_30(:, is_cut),2);
+
+
+ave_par_30 = median(vm_30(:, type & is_cut),2);
+ave_orth_30 = median(vm_30(:, ~type & is_cut),2);
+
 figure('Color', 'w', 'Position', [423 515 1002 320]);
 
 subplot(1,3,1)
@@ -1016,9 +1028,6 @@ pred_p = -.1:0.01:1;
 % 
 plot(vm_30(:, type & is_cut), abl_rel_vm_30(:, type & is_cut), '-', 'Color', [1 0 0 0.2], 'Linewidth', 0.5); hold on;
 plot(vm_30(:, ~type & is_cut), abl_rel_vm_30(:, ~type & is_cut), '-', 'Color', [0 0.5 1 0.2], 'Linewidth', 0.5); hold on;
-% scatter(makeVec(vm_30(:, type & is_cut)), makeVec(abl_rel_vm_30(:, type & is_cut)),  30,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
-% scatter(makeVec(vm_30(:, ~type & is_cut)), makeVec(abl_rel_vm_30(:, ~type & is_cut)), 30,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);
-
 
 plot(pred_p, par_pred, '-', 'Color', [1 0 0 ]); hold on;
 plot(pred_p, orth_pred, '-', 'Color', [0 0.5 1]); hold on;

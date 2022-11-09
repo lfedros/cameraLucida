@@ -1,5 +1,8 @@
-function stitch_den = stitch_dendrite(dendrite)
+function stitch_den = stitch_dendrite(dendrite, doPlot)
 
+if nargin <2
+doPlot = 0;
+end
 %% create fov image in common reference
 
 Ly = max(abs(cat(2, dendrite(:).fov_y_um)));
@@ -31,10 +34,13 @@ stitch_den.img(nan_idx) = NaN;
 
 stitch_den.x_um = x_um;
 stitch_den.y_um = y_um;
+
+if doPlot
 figure; imagesc(stitch_den.x_um, stitch_den.y_um, stitch_den.img);
 axis image; hold on
 formatAxes
 colormap(1-gray);
+end
 
 % spines_x_um = double(cat(2, dendrite(:).X));
 % spines_y_um = double(cat(2, dendrite(:).Y));
