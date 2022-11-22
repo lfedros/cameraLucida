@@ -26,7 +26,11 @@ convStimS = cat(2, convStimS, ones(size(convStimS,1), 1)); % add column of one t
 responseS = [response; zeros(nPx, nN)]; % add trail of 0 to response, to set the conditions for smoothness constraint
 
 % estRF = pinv(convStimS)*responseS; % pseudoinverse estimation of receptive field
+
+convStimS = gpuArray(convStimS);
+responseS = gpuArray(responseS);
 estRF = convStimS\responseS; % pseudoinverse estimation of receptive field
+estRF = gather(estRF);
 
 const = estRF(end,:); % that's the intercept
 estRF = estRF(1:end-1,:); % that is the spatial RF
