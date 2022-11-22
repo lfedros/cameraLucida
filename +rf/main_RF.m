@@ -13,12 +13,16 @@ i =0;
 
 
 i = i+1;
-db(i).mouse_name    = 'FR225';
-db(i).date          = '2022-09-11';
-db(i).expts         = [4];
+db(i).mouse_name    = 'AY009';
+db(i).date          = '2022-11-09';
+db(i).expts         = [1];
 db(i).expID         =1; 
 db(i).plane         = 3;
 db(i).starterID     = 5;
+
+%%
+addpath('\\zserver.cortexlab.net\Code\Stimulus');
+addpath('\\zserver.cortexlab.net\Data\xfiles');
 %% load info
 
 info = ppbox.infoPopulateTempLFR(db.mouse_name, db.date, db.expts(db.expID ));
