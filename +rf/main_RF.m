@@ -13,16 +13,17 @@ i =0;
 
 
 i = i+1;
-db(i).mouse_name    = 'AY009';
-db(i).date          = '2022-11-09';
-db(i).expts         = [1];
+db(i).mouse_name    = 'FR225';
+db(i).date          = '2022-09-11';
+db(i).expts         = [4];
 db(i).expID         =1; 
-db(i).plane         = 3;
-db(i).starterID     = 5;
+db(i).plane         = 5;
+db(i).starterID     = 4;
 
 %%
 addpath('\\zserver.cortexlab.net\Code\Stimulus');
 addpath('\\zserver.cortexlab.net\Data\xfiles');
+addpath('\\zserver.cortexlab.net\Code\Neuropil Correction');
 %% load info
 
 info = ppbox.infoPopulateTempLFR(db.mouse_name, db.date, db.expts(db.expID ));
@@ -41,22 +42,39 @@ info = ppbox.infoPopulateTempLFR(db.mouse_name, db.date, db.expts(db.expID ));
     
     frameTimes = ppbox.getFrameTimes(info, planeFrames);
 
+    nNeurons = size(dF, 2); 
+
 %% load stimulus info
 
 stimTimes = rf.getStimTimes(info);
 
 [stimFrames, stimFrameTimes, stimPosition] = rf.getStimulusFrames(info);
 
-load('C:\Users\Federico\Documents\GitHub\cameraLucida\+rf\TimeCourseSmooth');
+[nPx_x, nPx_y, nsf] = size(stimFrames);
+%% interpolate stimulus and imaging at same rate
+load('C:\Users\Federico\Documents\GitHub\cameraLucida\+rf\TimeCourseSmooth'); % 10Hz
 tKernel = TimeCourseSmooth(:)/sum(TimeCourseSmooth);
 tKernel = tKernel(2:21);
 
+%calculate rates
+stimFrameRate = mean(unique(diff(stimFrameTimes)));
+frameRate = mean(unique(diff(frameTimes)));
 
+% interpolate at 10Hz
+newFrameTimes = min(stimFrameTimes):0.1:max(stimFrameTimes);
+
+stimFrames = reshape(stimFrames, nPx_x*nPx_y, nsf);
+stimFrames = interp2(stimFrameTimes',1:(nPx_x*nPx_y), stimFrames, newFrameTimes', 1:(nPx_x*nPx_y)); 
+stimFrames = reshape(stimFrames, nPx_x, nPx_y, []);
+
+stimFrames(isnan(stimFrames)) = 0;
+
+stimFrameTimes =newFrameTimes;
 %% calculate RF
-nNeurons = size(dF, 2); 
-trace = dF;
 
-RFtype = {'on', 'off'}; 
+trace = dF; 
+
+RFtype = {'on', 'off', 'onoff'}; 
 
 [aveResp, oneTrace] = rf.aveSparseNoiseReps(trace, ...
         frameTimes, stimFrameTimes, stimTimes); 

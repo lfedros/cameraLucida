@@ -9,7 +9,7 @@ for rep = 1:length(repetitionTimes.onset)
         stimTimes + repetitionTimes.onset(rep));
 end
 
-resp = squeeze((median(oneTrace, 3)));
+resp = squeeze((nanmedian(oneTrace, 3)));
 resp = zscore(resp);
 
 end
