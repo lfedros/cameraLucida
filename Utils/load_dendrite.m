@@ -45,7 +45,6 @@ for iD = 1: nDendrites
         pxAng_ori = -pxAng_ori;
         px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
 
-
         pxAmp_dir = abs(px_map.dir);
         pxAng_dir= angle(px_map.dir);
         pxAng_dir = -pxAng_dir;
@@ -53,11 +52,10 @@ for iD = 1: nDendrites
         
         catch
 
-             pxAmp_ori = abs(px_map.all_st.ori);
+        pxAmp_ori = abs(px_map.all_st.ori);
         pxAng_ori = angle(px_map.all_st.ori);
         pxAng_ori = -pxAng_ori;
         px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
-
 
         pxAmp_dir = abs(px_map.all_st.dir);
         pxAng_dir= angle(px_map.all_st.dir);
@@ -75,18 +73,16 @@ end
 %% if exist, load somatic responses
 [vis_file, vis_path] = build_path(neuron.db, 'vis');
 
-% if data for baseline recs don't exist, return
+% if data for soma recs don't exist, return
 if exist(fullfile(vis_path, vis_file), 'file')
     resps = load(fullfile(vis_path, vis_file));
 
     soma = retune(resps, [], 'date');
 else
     soma = [];
-    warning(sprintf('%s not found', vis_file))
+    warning(sprintf('%s somatic resps not found', vis_file))
     
 end
-
-
 
 
 %%

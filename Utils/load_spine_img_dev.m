@@ -43,14 +43,14 @@ for iD = 1: nDendrites
     
     rois(iD).head_X = imgJ_import.X(head)+ imgJ_import.Width(head)/2;
     rois(iD).head_Y = imgJ_import.Y(head) + imgJ_import.Height(head)/2;
-    rois(iD).head_Z = imgJ_import.Z(head);
+    rois(iD).head_Z = imgJ_import.Pos(head); % Z does not work always
     
     rois(iD).den_X = imgJ_import.X(~head)+ imgJ_import.Width(~head)/2;
     rois(iD).den_Y = imgJ_import.Y(~head) + imgJ_import.Height(~head)/2;
-    rois(iD).den_Z = imgJ_import.Z(~head);
+    rois(iD).den_Z = imgJ_import.Pos(~head);
     
-    rangeZ(1) = min(imgJ_import.Z)-1;
-    rangeZ(2) = max(imgJ_import.Z)+1;
+    rangeZ(1) = min(imgJ_import.Pos)-1;
+    rangeZ(2) = max(imgJ_import.Pos)+1;
         
     rois(iD).head_angle = cart2pol(-rois(iD).head_X + rois(iD).den_X, rois(iD).head_Y - rois(iD).den_Y);
     
@@ -249,8 +249,12 @@ rois(iD).rot_head_Y= rc(2,:) + 101;
     end
         
     %%
-    rois(iD).peak = ((max(rois(iD).profile_W,[], 1).*rois(iD).den_fluo) - min(rois(iD).profile_W,[], 1))./(rois(iD).den_fluo - min(rois(iD).profile_W,[], 1));
-    
+    % at this point W is 2 spine size
+    rois(iD).peak = max(rois(iD).profile_W,[], 1);
+
+    rois(iD).d_peak = (rois(iD).peak.*rois(iD).den_fluo - min(rois(iD).profile_W,[], 1).*rois(iD).den_fluo)./...
+        (rois(iD).den_fluo);
+
     rois(iD).profile_H_units = y_win(2*spine_sz:end-(2*spine_sz-1));
 
 rois(iD).profile_H_units = rois(iD).profile_H_units*px_sz_x;
@@ -261,6 +265,8 @@ rois(iD).profile_H_units = rois(iD).profile_H_units*px_sz_x;
 rois(iD).profile_W_units = rois(iD).profile_W_units*px_sz_x;
 
     rois(iD).mimg = mean(rois(iD).img_rot_crop,3, 'omitnan');
+
+   
 end
 
 %% Plot
@@ -284,7 +290,7 @@ for iD = 1: nDendrites
             color = [1 0 0 ];
     end
     
-    subplot(1,5, [1 2])
+    subplot(1,6, [1 2])
     imgg = mat2gray(rois(iD).rot_mImg);
     
 %     imggr = imrotate(imgg, rois(iD).den_angle*180/pi);
@@ -303,24 +309,33 @@ maxi = prctile(vals(:), 95);
     ylim([min(rois(iD).rot_head_Y)-3, max(rois(iD).rot_head_Y)+3]);
     formatAxes
     
-    subplot(1,5, 3)
+    subplot(1,6, 3)
     imagesc(rois(iD).mimg); title(rois(iD).den_type);
     caxis([0 1]); axis image; colormap(1-gray); colorbar;
     formatAxes
     
-    subplot(1,5,4)
+    subplot(1,6,4)
     plot( rois(iD).profile_H_units, rois(iD).profile_H, 'Color', [0.2 0.2 0.2],'LineWidth', 0.5); hold on;
     plot( rois(iD).profile_H_units, mean(rois(iD).profile_H,2, 'omitnan'),'Color', color, 'LineWidth', 2); hold on;
     axis square
     ylim([0 1])
     
     formatAxes
-    subplot(1,5,5)
+    subplot(1,6,5)
     plot( rois(iD).profile_W_units, rois(iD).profile_W, 'Color', [0.2 0.2 0.2], 'LineWidth', 0.5); hold on;
     plot( rois(iD).profile_W_units, mean(rois(iD).profile_W, 2, 'omitnan'),'Color', color, 'LineWidth', 2); hold on;
     ylim([0 1])
     axis square
     formatAxes
+
+    subplot(1,6,6)
+    dist_bins = 0:0.1:1.5;
+    all_spine_dist = histcounts( rois(iD).d_peak, dist_bins);
+    bar(dist_bins(1:end-1), all_spine_dist, 'EdgeColor', color, 'FaceColor', color, 'FaceAlpha', 0.5); hold on
+    axis square
+    formatAxes
+    ylabel('probability')
+    xlabel(['Spine head F'])
     
     if doSave
     print(fullfile(spine_folder, [neuron.db.spine_size_seq{iD}(1:end-4), '.pdf']), '-painters','-dpdf', '-bestfit');

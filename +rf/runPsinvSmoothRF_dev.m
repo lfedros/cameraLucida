@@ -38,7 +38,7 @@ k = 6;
 [testResp, trainingResp, testStim, trainingStim] = rf.kfoldSplit(resp, stim , k);
 
 % la = [0.005 0.01 0.02 0.05 0.1 0.2 0.5 1 2 5 10 20 50 100];
-la = [sqrt(exp(-10:7)) 1000];
+la = [0 sqrt(exp(-10:7)) 1000];
 
 nl = numel(la);
 

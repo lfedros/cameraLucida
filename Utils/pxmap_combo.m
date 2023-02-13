@@ -2,114 +2,88 @@ function [combo_map, map, signal]= pxmap_combo(neuron)
 
 nDendrites = numel(neuron.dendrite);
 
-[combo_map, map] = stitch_px_map(neuron.dendrite);
+[combo_map, map] = stitch_px_map(neuron.dendrite,0);
 
-% for each_map
-
-thrs_scale = 2;
+% thrs = 2; % threshold for significance, fold of std over the mean
 
 for iD = 1:nDendrites
 
-    % - find threshold of significance to consider pixels
-    this_img = map(iD).mimg;
-    nan_idx = isnan(this_img);
-    this_img(nan_idx) =0;
-    amp_mimg = imtophat(this_img, strel('disk', 2));
-    % amp_mimg = map(iD).mimg;
-    amp_mimg(nan_idx) = NaN;
-    amp_mimg = amp_mimg/nanmax(amp_mimg(:));
-    null_mimg = amp_mimg.*(map(iD).branch_bw <1);
-    null_mimg(map(iD).branch_bw >0) = NaN;
-    thres_mimg = nanmean(null_mimg(:)) + thrs_scale*nanstd(null_mimg(:));
-    sig_mimg = amp_mimg>thres_mimg;
+    % - threshold pixels based on intensity image
+    thrs = 95; % threshold for significance, perctile of background
+    sig_mimg =threshold_map(map(iD).mimg, map(iD).branch_bw, 'tile', thrs);
 
-    this_img = abs(map(iD).dir);
-    nan_idx = isnan(this_img);
-    this_img(nan_idx) =0;
-    amp_dir = imtophat(this_img,strel('disk', 2));
-    amp_dir(nan_idx) = NaN;
-    % amp_dir = abs(map(iD).dir);
-    amp_dir = amp_dir/nanmax(amp_dir(:));
-    null_dir = amp_dir.*(map(iD).branch_bw <1);
-    null_dir(map(iD).branch_bw >0) = NaN;
-    thres_dir = nanmean(null_dir(:)) + thrs_scale*nanstd(null_dir(:));
-    sig_dir = amp_dir>thres_dir;
+    % - threshold pixels based on amplitude of direction tuning
+    sig_dir = threshold_map(abs(map(iD).dir), map(iD).branch_bw, 'tile', 99);
 
-    this_img = abs(map(iD).ori);
-    nan_idx = isnan(this_img);
-    this_img(nan_idx) =0;
-    amp_ori = imtophat(this_img,strel('disk', 2));
-    % amp_ori = abs(map(iD).ori);
-    amp_ori(nan_idx) = NaN;
-    amp_ori = amp_dir/nanmax(amp_ori(:));
-    null_ori = amp_ori.*(map(iD).branch_bw <1);
-    null_ori(map(iD).branch_bw >0) = NaN;
-    thres_ori = nanmean(null_ori(:)) + thrs_scale*nanstd(null_ori(:));
-    sig_ori = amp_ori>thres_ori;
+    % - threshold pixels based on amplitude of orientation tuning
+    sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99);
 
+    % - combine all significant pixels
     sig_px = sig_ori | sig_dir | sig_mimg;
-    sig_px = bwareaopen(sig_px,6);
-    % figure; imagesc(sig_px)
-    signal(iD).bw =sig_px & map(iD).branch_bw>0;
-%     figure; imagesc(signal(iD).bw)
+    %     figure; imagesc(sig_px)
 
+    % remove noise (unconnected components smaller than 6 px)
+    signal(iD).bw= bwareaopen(sig_px,6);
+    %      figure; imagesc(signal(iD).bw)
+
+
+    % extract properties of significant pixels.
     [signal(iD).i, signal(iD).j] = find(signal(iD).bw);
-
     signal(iD).px_x_um = combo_map.x_um(signal(iD).j);
     signal(iD).px_y_um = combo_map.y_um(signal(iD).i);
     signal(iD).px_ori = map(iD).ori(signal(iD).bw);
     signal(iD).px_dir = map(iD).dir(signal(iD).bw);
-      signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmax(abs(map(iD).ori(signal(iD).bw)));
+
+    % normalise responses to max in each receording
+    signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmax(abs(map(iD).ori(signal(iD).bw)));
     signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmax(abs(map(iD).dir(signal(iD).bw)));
 
-    signal(iD).dir_bin = 0:pi/6:2*pi;
+    %% measure distribution of preferred direction, weighted by DSI
+
+    signal(iD).dir_edges = 0:pi/6:2*pi; % hardcoded, assumes 12 dir shown
     angles = angle(signal(iD).px_dir);
     angles(angles<0)  = angles(angles<0) +2*pi;
+    [~,~,signal(iD).dir_bin_idx] = histcounts(angles, signal(iD).dir_edges);
 
-    [~,~,signal(iD).dir_bin_idx] = histcounts(angles, signal(iD).dir_bin);
-
-    signal(iD).dir_bin = (signal(iD).dir_bin(1:end-1) + pi/12)*180/pi;
+    signal(iD).dir_bin = (signal(iD).dir_edges(1:end-1) + pi/12)*180/pi;
 
     for iB = 1:numel(signal(iD).dir_bin)
         signal(iD).dir_bin_amp(iB) = sum(abs(signal(iD).px_dir(signal(iD).dir_bin_idx == iB)));
     end
-
+    % fit a tuning curve to the distribution
     signal(iD).tun_dirs = 0:360;
     signal(iD).dir_pars = mfun.fitTuning(signal(iD).dir_bin, circGaussFilt(double(signal(iD).dir_bin_amp),1), 'vm2');
     signal(iD).tuning_fit = mfun.vonMises2(signal(iD).dir_pars, signal(iD).tun_dirs);
 
-    %%
-%     signal(iD).ori_bin = 0:pi/6:pi;
-%     angles = angle(signal(iD).px_ori);
-%     angles(angles<0)  = angles(angles<0) +pi;
+    %% measure distribution of preferred orientation, weighted by OSI
 
-    signal(iD).ori_bin = -pi/2:pi/6:pi/2;
-    angles = angle(signal(iD).px_ori);
-    angles(angles<0)  = angles(angles<0) +pi;
-    angles(angles>=pi/2)  = angles(angles>=pi/2) -pi;
+    signal(iD).ori_edges = -pi/2:pi/6:pi/2;
+    angles = angle(signal(iD).px_ori)/2;
 
-    [~,~,signal(iD).ori_bin_idx] = histcounts(angles, signal(iD).ori_bin);
+    [~,~,signal(iD).ori_bin_idx] = histcounts(angles, signal(iD).ori_edges);
 
-    signal(iD).ori_bin = (signal(iD).ori_bin(1:end-1) + pi/12)*180/pi;
+    signal(iD).ori_bin = (signal(iD).ori_edges(1:end-1) + pi/12)*180/pi;
 
     for iB = 1:numel(signal(iD).ori_bin)
         signal(iD).ori_bin_amp(iB) = sum(abs(signal(iD).px_ori(signal(iD).ori_bin_idx == iB)));
     end
-
+    % fit a tuning curve to the distribution
     signal(iD).tun_oris = -90:90;
     signal(iD).ori_pars = mfun.fitTuning(signal(iD).ori_bin*2, circGaussFilt(double(signal(iD).ori_bin_amp),1), 'vm1');
     signal(iD).tuning_fit_ori = mfun.vonMises(signal(iD).ori_pars, signal(iD).tun_oris*2);
 
-    %%
-
 end
+
+%% pool significant pixels across dendrites
 
 % combo_map.soma_tuning = nanmean(cat(2,signal(:).tuning_fit),2);
 % combo_map.soma_pars = mfun.fitTuning(signal(1).tun_dirs, combo_map.soma_tuning, 'vm2');
 % combo_map.soma_tuning_fit = mfun.vonMises2(combo_map.soma_pars, signal(1).tun_dirs);
+combo_map.dir_edges = signal(iD).dir_edges;
 combo_map.dir_bin = signal(iD).dir_bin;
 combo_map.tun_dirs = signal(iD).tun_dirs;
 
+combo_map.ori_edges = signal(iD).ori_edges;
 combo_map.ori_bin = signal(iD).ori_bin;
 combo_map.tun_oris = signal(iD).tun_oris;
 
@@ -126,73 +100,83 @@ combo_map.sig_dir_norm = cat(1, signal(:).px_dir_norm);
 % combo_map.sig_ori = cat(1, signal(:).px_ori_norm);
 % combo_map.sig_dir = cat(1, signal(:).px_dir_norm);
 
-%%
-combo_map.dir_bin = 0:pi/6:2*pi;
+%% measure distribution of preferred directions, weighted by OSI
+
 angles = angle(combo_map.sig_dir);
 angles(angles<0)  = angles(angles<0) +2*pi;
 
-[~,~,combo_map.dir_bin_idx] = histcounts(angles,combo_map.dir_bin);
-
-combo_map.dir_bin = (combo_map.dir_bin(1:end-1) + pi/12)*180/pi;
+[~,~,combo_map.dir_bin_idx] = histcounts(angles,combo_map.dir_edges);
 
 for iB = 1:numel(combo_map.dir_bin)
-   combo_map.dir_bin_amp(iB) = sum(abs(combo_map.sig_dir(combo_map.dir_bin_idx == iB)));
+    combo_map.dir_bin_amp(iB) = sum(abs(combo_map.sig_dir(combo_map.dir_bin_idx == iB)));
 end
 
-combo_map.soma_pars = mfun.fitTuning(combo_map.dir_bin,  double(combo_map.dir_bin_amp), 'vm2');
-combo_map.soma_tuning_fit = mfun.vonMises2(combo_map.soma_pars, combo_map.tun_dirs );
+combo_map.dir_pars = mfun.fitTuning(combo_map.dir_bin,  double(combo_map.dir_bin_amp), 'vm2');
+combo_map.tuning_fit = mfun.vonMises2(combo_map.dir_pars, combo_map.tun_dirs );
 
 
-combo_map.soma_dir= combo_map.soma_pars(1); %[0 360];
-combo_map.soma_ori = combo_map.soma_dir -90; %[-90 270]
-combo_map.soma_ori(combo_map.soma_ori >=180) = combo_map.soma_ori(combo_map.soma_ori >=180) -180;%[0 180];
-combo_map.soma_ori(combo_map.soma_ori <0) = combo_map.soma_ori(combo_map.soma_ori <0) +180;%[0 180];
+combo_map.pref_dir= combo_map.dir_pars(1); %[0 360];
+combo_map.pref_dir_ori = combo_map.pref_dir -90; %[-90 270]
+combo_map.pref_dir_ori(combo_map.pref_dir_ori >=180) = combo_map.pref_dir_ori(combo_map.pref_dir_ori >=180) -180;%[0 180];
+combo_map.pref_dir_ori(combo_map.pref_dir_ori <0) = combo_map.pref_dir_ori(combo_map.pref_dir_ori <0) +180;%[0 180];
 
-if ~isempty(neuron.soma)
-%   
-% combo_map.soma_dir = neuron.soma.dir_pars_vm(1);
-% combo_map.soma_ori = combo_map.soma_dir -90; %[-90 270]
-% combo_map.soma_ori(combo_map.soma_ori >=180) = combo_map.soma_ori(combo_map.soma_ori >=180) -180;%[0 180];
-% combo_map.soma_ori(combo_map.soma_ori <0) = combo_map.soma_ori(combo_map.soma_ori <0) +180;%[0 180];
+%% measure distribution of preferred orientation, weighted by OSI
+angles = angle(combo_map.sig_ori)/2;
 
-end
-%%
-
-% combo_map.ori_bin = 0:pi/6:pi;
-% angles = angle(combo_map.sig_ori);
-% angles(angles<0)  = angles(angles<0) +pi;
-
-combo_map.ori_bin = -pi/2:pi/6:pi/2;
-angles = angle(combo_map.sig_ori);
-angles(angles<0)  = angles(angles<0) +pi;
-    angles(angles>=pi/2)  = angles(angles>=pi/2) -pi;
-
-[~,~,combo_map.ori_bin_idx] = histcounts(angles,combo_map.ori_bin);
-
-combo_map.ori_bin = (combo_map.ori_bin(1:end-1) + pi/12)*180/pi;
+[~,~,combo_map.ori_bin_idx] = histcounts(angles,combo_map.ori_edges);
 
 for iB = 1:numel(combo_map.ori_bin)
-   combo_map.ori_bin_amp(iB) = sum(abs(combo_map.sig_ori(combo_map.ori_bin_idx == iB)));
+    combo_map.ori_bin_amp(iB) = sum(abs(combo_map.sig_ori(combo_map.ori_bin_idx == iB)));
 end
 
-combo_map.soma_pars_ori = mfun.fitTuning(combo_map.ori_bin*2,  double(combo_map.ori_bin_amp), 'vm1');
-combo_map.soma_pars_ori_rel = combo_map.soma_pars_ori;
-combo_map.soma_pars_ori_rel(1) = 0;
+combo_map.ori_pars = mfun.fitTuning(combo_map.ori_bin*2,  double(combo_map.ori_bin_amp), 'vm1');
+combo_map.ori_pars_rel = combo_map.ori_pars;
+combo_map.ori_pars_rel(1) = 0;
 
-combo_map.soma_tuning_fit_ori = mfun.vonMises(combo_map.soma_pars_ori, combo_map.tun_oris*2 );
-combo_map.soma_tuning_fit_ori_rel = mfun.vonMises(combo_map.soma_pars_ori_rel, combo_map.tun_oris*2 );
+combo_map.tuning_fit_ori = mfun.vonMises(combo_map.ori_pars, combo_map.tun_oris*2 );
+combo_map.tuning_fit_ori_rel = mfun.vonMises(combo_map.ori_pars_rel, combo_map.tun_oris*2 );
 
-combo_map.soma_ori_ori = combo_map.soma_pars_ori(1)/2;
+combo_map.pref_ori = combo_map.ori_pars(1)/2;
+
+%% compare single dendrites with soma
+
+if ~isempty(neuron.soma)
+    
+    combo_map.soma_pref_dir = neuron.soma.dir_pars_vm(1);
+    combo_map.soma_pref_dir_ori = combo_map.soma_pref_dir -90; %[-90 270]
+    combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori >=180) = combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori >=180) -180;%[0 180];
+    combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori <0) = combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori <0) +180;%[0 180];
+    combo_map.soma_pref_ori = neuron.soma.ori_pars_vm(1)/2;
+
+    neuron.soma.ori_pars_vm_rel = neuron.soma.ori_pars_vm;
+    neuron.soma.ori_pars_vm_rel(1) = neuron.soma.ori_pars_vm_rel(1)-combo_map.ori_pars(1);
+
+    if neuron.soma.ori_pars_vm_rel(1) <-180
+        neuron.soma.ori_pars_vm_rel(1) = neuron.soma.ori_pars_vm_rel(1) +360;
+    elseif neuron.soma.ori_pars_vm_rel(1) >= 180
+        neuron.soma.ori_pars_vm_rel(1) = neuron.soma.ori_pars_vm_rel(1) -360;
+
+    end
+
+else
+     combo_map.soma_pref_dir = [];
+    combo_map.soma_pref_dir_ori = [];
+       combo_map.soma_pref_ori = [];
+
+
+end
+
 
 for iD = 1: nDendrites
-   signal(iD).ori_pars_rel =signal(iD).ori_pars;
-    signal(iD).ori_pars_rel(1) = signal(iD).ori_pars_rel(1) - combo_map.soma_pars_ori(1);
-if signal(iD).ori_pars_rel(1) <-90
-    signal(iD).ori_pars_rel(1) = signal(iD).ori_pars_rel(1) +180;
-elseif signal(iD).ori_pars_rel(1) >= 90
-        signal(iD).ori_pars_rel(1) = signal(iD).ori_pars_rel(1) -180;
+    signal(iD).ori_pars_rel =signal(iD).ori_pars;
+    signal(iD).ori_pars_rel(1) = signal(iD).ori_pars_rel(1) - combo_map.ori_pars(1);
 
-end
+    if signal(iD).ori_pars_rel(1) <-180
+        signal(iD).ori_pars_rel(1) = signal(iD).ori_pars_rel(1) +360;
+    elseif signal(iD).ori_pars_rel(1) >= 180
+        signal(iD).ori_pars_rel(1) = signal(iD).ori_pars_rel(1) -360;
+
+    end
 
     signal(iD).tuning_fit_ori_rel = mfun.vonMises(signal(iD).ori_pars_rel, signal(iD).tun_oris*2);
 
@@ -221,7 +205,7 @@ color = hsv(360); % colors for ori_bin
 imagesc(x_um, y_um, img);
 axis image; hold on;colormap(1-gray);
 this_amp = ceil((amp_dir/max(amp_dir))/0.2).^2;
-idx = this_amp ==0;
+idx = this_amp >0;
 this_amp(this_amp ==0) = NaN;
 scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(dir(idx)),:), 'filled');
 formatAxes
@@ -234,7 +218,7 @@ color = hsv(180); % colors for ori_bin
 imagesc(x_um, y_um, img);
 axis image; hold on;colormap(1-gray);
 this_amp = ceil((amp_ori/max(amp_ori))/0.2).^2;
-idx = this_amp ==0;
+idx = this_amp >0;
 this_amp(this_amp ==0) = NaN;
 scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(ori(idx)),:), 'filled');
 formatAxes
@@ -245,14 +229,20 @@ subplot(1,3,3)
 % if ~isempty(neuron.soma)
 %     plot(neuron.soma.ori_fit_pt, neuron.soma.ori_fit_vm/sum(neuron.soma.ori_fit_vm), '--k', 'Linewidth', 2); hold on
 % end
-soma = combo_map.soma_tuning_fit_ori_rel/sum(combo_map.soma_tuning_fit_ori_rel);
 
-plot(signal(iD).tun_oris, soma/max(soma), 'k', 'Linewidth', 2); hold on
+allden = combo_map.tuning_fit_ori_rel/sum(combo_map.tuning_fit_ori_rel);
+
+plot(signal(iD).tun_oris, allden/sum(allden), 'k', 'Linewidth', 2); hold on
+
+if ~isempty(neuron.soma)
+soma = mfun.vonMises(neuron.soma.ori_pars_vm_rel, combo_map.tun_oris*2 );
+plot(signal(iD).tun_oris, soma/sum(soma), 'r', 'Linewidth', 2); hold on
+end
 
 for iD = 1: nDendrites
     den = signal(iD).tuning_fit_ori_rel/sum( signal(iD).tuning_fit_ori_rel);
-    den = den/max(soma);
-plot(signal(iD).tun_oris, den, 'Color', [0.2 0.2 0.2]); hold on
+%     den = den/max(allden);
+    plot(signal(iD).tun_oris, den, 'Color', [0.2 0.2 0.2]); hold on
 end
 
 set(gca, 'Xtick', [-90 0 90]);
@@ -261,44 +251,68 @@ ylabel('Norm tuning')
 formatAxes
 axis square
 %%
-figure;
+figure('Color', 'w', 'Position', [680 419 560 559]);
 
 subplot(3,2,2)
 if ~isempty(neuron.soma)
-    plot(neuron.soma.fit_pt, neuron.soma.fit_vm/max(neuron.soma.fit_vm), 'r', 'Linewidth', 2); hold on
+    plot(neuron.soma.fit_pt, neuron.soma.fit_vm/max(neuron.soma.fit_vm), '--r', 'Linewidth', 2); hold on
     plot(neuron.soma.dirs, neuron.soma.avePeak(1:12)/max(neuron.soma.avePeak(1:12)), 'r', 'Linewidth', 0.5)
 end
-plot(signal(iD).tun_dirs, combo_map.soma_tuning_fit/max(combo_map.soma_tuning_fit), 'k', 'Linewidth', 2); hold on
+plot(signal(iD).tun_dirs, combo_map.tuning_fit/max(combo_map.tuning_fit), '--k', 'Linewidth', 2); hold on
 plot(combo_map.dir_bin, combo_map.dir_bin_amp/max(combo_map.dir_bin_amp), 'k', 'Linewidth', 0.5)
-axis tight
+formatAxes
+xlim([0 360])
+ylim([0, 1])
+
+subplot(3,2,6)
+den_raw = cat(1, signal(:).dir_bin_amp)';
+plot(signal(iD).dir_bin,den_raw./sum(den_raw), 'k'); hold on
+formatAxes
+xlim([0 360])
+ylim([0, max(max(den_raw./sum(den_raw)))])
+xlabel('direction')
 
 subplot(3,2,4)
-plot(signal(iD).tun_dirs, cat(2, signal(:).tuning_fit)); hold on
-axis tight;
-subplot(3,2,6)
-plot(signal(iD).dir_bin,cat(1, signal(:).dir_bin_amp)'); hold on
-axis tight;
+den = cat(2, signal(:).tuning_fit);
+plot(signal(iD).tun_dirs, den./sum(den_raw), 'k'); hold on
+formatAxes
+xlim([0 360])
+ylim([0, max(max(den./sum(den_raw)))])
 
 subplot(3,2,1)
 if ~isempty(neuron.soma)
-%     neuron.soma.ori_fit_vm = mfun.vonMises(neuron.soma.ori_pars_vm, combo_map.tun_oris*2);
-%     neuron.soma.ori_fit_pt = signal(1).tun_oris;
-    plot(neuron.soma.ori_fit_pt, neuron.soma.ori_fit_vm/max(neuron.soma.ori_fit_vm), 'r', 'Linewidth', 2); hold on
-        plot(neuron.soma.oris(1:6), neuron.soma.aveOriPeak/max(neuron.soma.aveOriPeak), 'r', 'Linewidth', 0.5)
+    %     neuron.soma.ori_fit_vm = mfun.vonMises(neuron.soma.ori_pars_vm, combo_map.tun_oris*2);
+    %     neuron.soma.ori_fit_pt = signal(1).tun_oris;
+    plot(neuron.soma.ori_fit_pt, neuron.soma.ori_fit_vm/max(neuron.soma.ori_fit_vm), '--r', 'Linewidth', 2); hold on
+    plot(neuron.soma.oris(1:6), neuron.soma.aveOriPeak/max(neuron.soma.aveOriPeak), 'r', 'Linewidth', 0.5)
 
 end
 
-plot(signal(iD).tun_oris, combo_map.soma_tuning_fit_ori/max(combo_map.soma_tuning_fit_ori), 'k', 'Linewidth', 2); hold on
+plot(signal(iD).tun_oris, combo_map.tuning_fit_ori/max(combo_map.tuning_fit_ori), '--k', 'Linewidth', 2); hold on
 plot(combo_map.ori_bin, combo_map.ori_bin_amp/max(combo_map.ori_bin_amp), 'k', 'Linewidth', 0.5)
 
-axis tight
-subplot(3,2,3)
-plot(signal(iD).tun_oris, cat(2, signal(:).tuning_fit_ori)); hold on
-axis tight;
-subplot(3,2,5)
-plot(signal(iD).ori_bin,cat(1, signal(:).ori_bin_amp)'); hold on
-axis tight;
+formatAxes
+xlim([-90 90])
+ylim([0, 1])
+ylabel('response')
 
+subplot(3,2,5)
+den_raw =  cat(1, signal(:).ori_bin_amp)';
+plot(signal(iD).ori_bin,den_raw./sum(den_raw), 'k'); hold on
+formatAxes
+xlim([-90 90])
+ylim([0, max(max(den_raw./sum(den_raw)))])
+xlabel('orientation')
+ylabel('dendrites')
+
+subplot(3,2,3)
+den = cat(2, signal(:).tuning_fit_ori);
+plot(signal(iD).tun_oris, den./sum(den_raw), 'k'); hold on
+axis tight;
+formatAxes
+xlim([-90 90])
+ylim([0, max(max(den./sum(den_raw)))])
+ylabel('dendrites fit')
 
 % - find the significant pixels
 % - save vector with their x and y pos around the soma

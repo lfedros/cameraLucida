@@ -53,9 +53,68 @@ for iDb = 1:nDb
 
      [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px]  = pxmap_combo(neuron(iDb));
 
+     
+end
+%%
+% plotSweepResp_LFR(neuron(iDb).soma.allResp, neuron(iDb).soma.time, 2);
+for iDb = 1:nDb
+    try
+plot_soma_responses(neuron(iDb));
+    end
+end
+%%
+for iDb = 1:nDb
+
+    den_pref_ori(iDb) = neuron(iDb).combo_px_map.pref_ori;
+    if ~isempty(neuron(iDb).combo_px_map.soma_pref_ori)
+        soma_pref_ori(iDb) = neuron(iDb).combo_px_map.soma_pref_dir_ori;
+    else
+        soma_pref_ori(iDb) = NaN;
+    end
 end
 
-% plotSweepResp_LFR(neuron(iDb).soma.allResp, neuron(iDb).soma.time, 2);
+missing = isnan(soma_pref_ori);
+[r, p] = circ_corrcc(soma_pref_ori(~missing)*2*pi/180, den_pref_ori(~missing)*2*pi/180);
+
+figure; 
+subplot(1,2,1)
+hold on;
+plot([0 180], [0 180], '--r');
+plot(soma_pref_ori, den_pref_ori, 'ok');
+axis square
+xlim([0 180])
+ylim([0 180])
+formatAxes
+subplot(1,2,2)
+edges = 0:15:90;
+ad = histcounts(abs(soma_pref_ori-den_pref_ori),edges); 
+bar(edges(1:end-1), ad);
+
+%%
+for iDb = 1:nDb
+
+    den_pref_dir(iDb) = neuron(iDb).combo_px_map.pref_dir;
+    if ~isempty(neuron(iDb).combo_px_map.soma_pref_dir)
+        soma_pref_dir(iDb) = neuron(iDb).combo_px_map.soma_pref_dir;
+    else
+        soma_pref_dir(iDb) = NaN;
+    end
+end
+
+
+missing = isnan(soma_pref_ori);
+[r, p] = circ_corrcc(soma_pref_dir(~missing)*pi/180, den_pref_dir(~missing)*pi/180);
+
+figure; 
+subplot(1,2,1)
+hold on;
+plot([0 360], [0 360], '--r');
+plot(soma_pref_dir, den_pref_dir, 'ok');
+axis square
+xlim([0 360])
+ylim([0 360])
+formatAxes
+
 %% compute visual position of spines
 
 for iDb = 1:nDb

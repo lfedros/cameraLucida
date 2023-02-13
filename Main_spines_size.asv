@@ -59,8 +59,8 @@ spine_dist_p(:, iDb) = spine_dist_p(:, iDb)/sum(spine_dist_p(:, iDb));
 spine_dist_o(:, iDb) = histcounts(spine_peak{iDb}(spine_type{iDb} == 'o'), dist_bins);
 spine_dist_o(:, iDb) = spine_dist_o(:, iDb)/sum(spine_dist_o(:, iDb));
 
-ave_o(iDb) = nanmedian(spine_peak{iDb}(spine_type{iDb} == 'o'));
-ave_p(iDb) = nanmedian(spine_peak{iDb}(spine_type{iDb} == 'p'));
+ave_o(iDb) = nanmean(spine_peak{iDb}(spine_type{iDb} == 'o'));
+ave_p(iDb) = nanmean(spine_peak{iDb}(spine_type{iDb} == 'p'));
 
 cum_dist_p(:, iDb) = histcounts(spine_peak{iDb}(spine_type{iDb}== 'p'), cum_bins);
 cum_dist_p(:, iDb) = cumsum(cum_dist_p(:, iDb))/sum(cum_dist_p(:, iDb));
@@ -135,8 +135,8 @@ axis square
 title(sprintf('p = %02f', prs));
 formatAxes
 set(gca, 'XTick', [0 1],'YTick', [0 1])
-xlabel('median spine size p')
-ylabel('median spine size o')
+xlabel('mean spine size p')
+ylabel('mean spine size o')
 
 
 subplot(2, 4,5)
@@ -168,7 +168,7 @@ axis square
 title(sprintf('p = %02f', prs));
 formatAxes
 set(gca, 'XTick', [0 1],'YTick', [0 1])
-xlabel('spine density p')
+xlabel('soine density p')
 ylabel('spine density o')
 
 prs = ranksum(spine_dens(den_lab==0), spine_dens(den_lab==1));

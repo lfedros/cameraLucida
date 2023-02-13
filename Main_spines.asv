@@ -49,13 +49,15 @@ end
 
 
 %% combine pixel maps
-for iDb = 1:nDb
+for iDb = 6:nDb
 
      [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px]  = pxmap_combo(neuron(iDb));
 
 end
 
 % plotSweepResp_LFR(neuron(iDb).soma.allResp, neuron(iDb).soma.time, 2);
+plot_soma_responses(neuron(iDb));
+
 %% compute visual position of spines
 
 for iDb = 1:nDb
@@ -73,7 +75,7 @@ for iDb = 1:nDb
 
       [neuron(iDb).combo_px_map]  = ...
        map_px_retino( neuron(iDb).ret, neuron(iDb).combo_px_map);
-   i
+   iDb
 end
 
 
@@ -126,7 +128,7 @@ set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
 xlabel('Delta ori (deg)')
 ylabel('% para spines')
 p = anova1(parallel_dist', [], 'off');
-title(sprintf('p = %.2f', p));
+title(sprintf('p = %.4f', p));
 formatAxes
 
 
@@ -139,7 +141,7 @@ set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
 xlabel('Delta ori (deg)')
 ylabel('% ortho spines')
 p = anova1(ortho_dist', [], 'off');
-title(sprintf('p = %.2f', p))
+title(sprintf('p = %.4f', p))
 formatAxes
 
 subplot(3,1,3); 
@@ -151,7 +153,7 @@ set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
 xlabel('Delta ori (deg)')
 ylabel('% para - ortho')
 p = anova1(po_ratio', [], 'off');
-title(sprintf('p = %.2f', p))
+title(sprintf('p = %.6f', p))
 formatAxes
 
 %% ROI analysis

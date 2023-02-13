@@ -18,6 +18,9 @@ function map = svd2pxmap(db, targetPlane, stim_type)
 
 root_folder = db.root_folder;
 
+switch db.s2p_version
+    case 'python'
+
 s2p_folder = fullfile(root_folder, db.mouse_name, db.date, ...
     sprintf('%d', db.expts),'suite2P', sprintf('plane%d', targetPlane-1));
 
@@ -29,6 +32,24 @@ svd = load(svd_file);
 [nY, nX, nBasis] = size(svd.U);
 
 nFrames = size(svd.Vcell{db.expID},2);
+
+    case 'matlab'
+
+s2p_folder = fullfile(root_folder, db.mouse_name, db.date, ...
+    sprintf('%d', db.expts));
+
+svd_file = sprintf('%s/SVD_%s_%s_plane%d.mat', s2p_folder, ...
+    db.mouse_name, db.date, targetPlane);
+
+
+
+% nFrames = size(svd.Vcell{db.expID},2);
+
+end
+
+
+svd = load(svd_file);
+[nY, nX, nBasis] = size(svd.U);
 
 %     S = imgaussfilt(svd.U, 3*sigma); % smooth spatial basis with gaussian 30 um sigma
 S = svd.U;
@@ -46,7 +67,13 @@ switch stim_type
 
 
         % load stimulus info
+        switch db.s2p_version
+    case 'python'
         nFrames = svd.ops.frames_per_folder(db.expID);
+            case 'matlab'
+                nFrames = svd.ops.Nframes(db.expID);
+
+        end
         planeFrames = targetPlane:info.nPlanes:(nFrames*info.nPlanes); % check if it works for multiplane recs
         %         allFrameTimes = allFrameTimes(planeFrames);
 
@@ -83,7 +110,7 @@ switch stim_type
                 [resp, ~, ~, kernelTime] = ppbox.getStimulusSweepsLFR(sT, stimTimes, stimMatrix,frameRate); % responses is (nroi, nStim, nResp, nT)
 
                 % measure response in respWindow
-                respWin = [0, 2];
+                respWin = [0, 2]; % HARDCODED
                 [~, aveResPeak] = ...
                     ppbox.gratingOnResp(resp, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
 
