@@ -23,20 +23,21 @@ if ispc
     addpath('C:\Users\Federico\Documents\GitHub\Suite2P_Matlab\tiffTools');
 
 else
-    code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
+    home = '/Users/federico';
+    code_repo = fullfile(home, 'Documents/GitHub/cameraLucida');
     addpath(code_repo);
     addpath(fullfile(code_repo, 'Plotting'));
     addpath(fullfile(code_repo, 'Pre_proc'));
     addpath(fullfile(code_repo, 'Utils'));
-    addpath('/Users/lfedros/Documents/GitHub/Dbs/V1_dendrites');
+    addpath(fullfile(home, 'Documents/GitHub/Dbs/V1_dendrites'));
     addpath(genpath('/Users/lfedros/Documents/GitHub/FedBox'));
-    addpath('/Users/lfedros/Documents/GitHub/circstat-matlab');
+    addpath(fullfile(home, 'Documents/GitHub/circstat-matlab'));
     addpath('/Users/lfedros/Documents/GitHub/FedBox/Colormaps');
-    addpath(genpath('/Users/lfedros/Documents/GitHub/treestoolbox'));
+    addpath(genpath(fullfile(home, 'Documents/GitHub/treestoolbox')));
     cd(code_repo);
-    addpath('/Users/lfedros/Documents/GitHub/Suite2P_Matlab/svd');
-    addpath('/Users/lfedros/Documents/GitHub/Suite2P_Matlab/utils');
-    addpath('/Users/lfedros/Documents/GitHub/Suite2P_Matlab/tiffTools');
+    addpath(fullfile(home, 'Documents/GitHub/Suite2P_Matlab/svd'));
+    addpath(fullfile(home, 'Documents/GitHub/Suite2P_Matlab/utils'));
+    addpath(fullfile(home, 'Documents/GitHub/Suite2P_Matlab/tiffTools'));
 
 end
 
