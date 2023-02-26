@@ -85,33 +85,34 @@ px_map.doi = draw.freePolyROI(px_map.mimg);
 
 %%
 
-pref_dir = angle(px_map.dir(:)); 
+pref_dir = angle(px_map.dir); 
+
+[~, dir_sort] = sort(pref_dir, 'ascend'); 
+
+pref_amp = abs(px_map.dir); 
+
+% amp_thres = prctile(pref_amp, 99.5); 
+% 
+% amp_sg = pref_amp>amp_thres;
 
 resps = px_map.all_st.resp_sS*px_map.all_st.resp_sT;
 
-% [~, dir_sort] = sort(pref_dir, 'ascend'); 
-% 
-% pref_amp = abs(px_map.dir); 
-% 
-% amp_thres = prctile(pref_amp, 99.8); 
-% 
-% amp_sg = pref_amp>amp_thres;
-% 
-% 
-% resps = resps(dir_sort(amp_sg),:);
-
 [max_resp, dir_sort] = max(resps, [],2);
 
-[ ~,dir_sort] = sort(dir_sort, 'ascend');
+dir_sort = sort(dir_sort, 'ascend');
+
+[dir_sort, ~] = ind2sub(size(resps), dir_sort);
+
+
 
 max_thres = prctile(max_resp, 95);
 
 max_sg = max_resp >max_thres;
 
-resps = resps(dir_sort(max_sg), :); 
+resps = resps(dir_sort(amp_sg), :); 
 
-resps = bsxfun(@minus, resps, min(resps, [], 2));
-resps = bsxfun(@rdivide, resps, max(resps, [], 2));
+% resps = bsxfun(@minus, resps, min(resps, [], 2));
+% resps = bsxfun(@rdivide, resps, max(resps, [], 2));
 
 figure; 
 imagesc(resps)

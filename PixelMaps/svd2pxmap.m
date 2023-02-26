@@ -111,14 +111,20 @@ switch stim_type
 
                 % measure response in respWindow
                 respWin = [0, 2]; % HARDCODED
-                [~, aveResPeak] = ...
+                [resPeak, aveResPeak] = ...
                     ppbox.gratingOnResp(resp, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
-
+                
                 % gentle spatial smoothing of the spatial components
                 sS =reshape( S(:, 1:nSVD), nY, nX, nSVD);
                 sS = imgaussfilt(sS, 0.5);
                 sS = reshape(sS, nY*nX, nSVD);
-                
+
+                % save US and V to reconstruct resp for each px, px =
+                % sS*sT;
+                map.st(iST).resp_sT = single(resPeak);
+                map.st(iST).aveResp_sT = aveResPeak;
+                map.st(iST).resp_sS = sS ;
+
                 %pixel maxps for direction
                 svdTun_dir = aveResPeak.*exp(1i*dirs);
                 svdTun_dir = mean(svdTun_dir, 2);
@@ -185,13 +191,19 @@ switch stim_type
        
         % measure response in respWindow
         respWin = [0, 2];
-        [~, aveResPeak] = ...
+        [resPeak, aveResPeak] = ...
             ppbox.gratingOnResp(resp, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
 
          % gentle spatial smoothing of the spatial components
         sS =reshape( S(:, 1:nSVD), nY, nX, nSVD);
         sS = imgaussfilt(sS, 0.5);
         sS = reshape(sS, nY*nX, nSVD);
+
+        % save US and V to reconstruct resp for each px, px =
+        % sS*sT;
+        map.all_st.resp_sT = single(resPeak);
+        map.all_st.aveResp_sT = aveResPeak;
+        map.all_st.resp_sS = sS ;
 
         %pixel maxps for direction
         svdTun_dir = aveResPeak.*exp(1i*dirs);

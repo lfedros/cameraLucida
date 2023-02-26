@@ -47,6 +47,8 @@ ret.map_y_um = neuron.stitch.y_um;
 
 temp_x_um = -300:300;
 temp_y_um = -300:300;
+% temp_x_um = -1000:1000;
+% temp_y_um = -1000:1000;
 
 ret.map_ele = interp2(ret.x_um', ret.y_um, ret.elevation, temp_x_um', temp_y_um) - ret.soma_ele;
 ret.map_azi = interp2(ret.x_um', ret.y_um, ret.azimuth, temp_x_um',temp_y_um) - ret.soma_azi;

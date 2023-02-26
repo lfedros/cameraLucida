@@ -39,19 +39,20 @@ for iDb = 1:nDb
  
 end
 
+
 %% pool position and visual properties across dendrites
 
-for iDb = 1:nDb
-%    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines_old(neuron(iDb),1);
-
-   [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
-end
+% for iDb = 1:nDb
+% %    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines_old(neuron(iDb),1);
+% 
+%    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
+% end
 
 
 %% combine pixel maps
 for iDb = 1:nDb
 
-     [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px]  = pxmap_combo(neuron(iDb));
+     [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px, neuron(iDb).soma]  = pxmap_combo(neuron(iDb));
 
      
 end
@@ -64,14 +65,13 @@ plot_soma_responses(neuron(iDb));
 end
 %% plot soma vs aggregate spines pref ori and dir
 
-soma_vs_spines_ori(neruon, 1);
-soma_vs_spines_ori(neruon, 0);
+plot_soma_vs_den_ori(neuron, 1,1);
 
 %% compute visual position of spines
 
 for iDb = 1:nDb
 
-   neuron(iDb).ret = load_retino(neuron(iDb),1);
+   neuron(iDb).ret = load_retino(neuron(iDb),0);
    
 end
 
@@ -83,7 +83,7 @@ for iDb = 1:nDb
 %        map_spine_retino( neuron(iDb).ret, neuron(iDb).visual_spines);
 
       [neuron(iDb).combo_px_map]  = ...
-       map_px_retino( neuron(iDb).ret, neuron(iDb).combo_px_map);
+       map_px_retino( neuron(iDb).ret, neuron(iDb).combo_px_map, 1);
    iDb
 end
 
@@ -93,77 +93,23 @@ end
 for iDb = 1:nDb
 
 %   neuron(iDb).visual_spines = plot_joint_ori_ret(neuron(iDb).visual_spines);
-     neuron(iDb).combo_px_map = plot_px_joint_ori_ret(neuron(iDb).combo_px_map);
+     neuron(iDb).combo_px_map = plot_px_joint_ori_ret_dev(neuron(iDb).combo_px_map,1,0);
 
 end
-
-
-
 %% pixel analysis
 
-azi_rot = [];
-ele_rot = [];
-ori_bin = [];
+plot_den_ori_vs_ret_stats(neuron);
+%%
+
 for iDb = 1:nDb
-parallel_dist(:, iDb) = neuron(iDb).combo_px_map.parallel_dist;
-ortho_dist(:, iDb) = neuron(iDb).combo_px_map.ortho_dist;
-po_ratio(:, iDb) = neuron(iDb).combo_px_map.po_ratio;
 
-angs = [0 120 240];
-
-r_para(iDb) = circ_r(angs', parallel_dist(:, iDb));
-r_ortho(iDb) = circ_r(angs', ortho_dist(:, iDb));
-
-ret_ori_bins  =  neuron(iDb).combo_px_map.ret_ori_bins;
-
-azi_rot = cat(2, azi_rot, neuron(iDb).combo_px_map.azi_rot);
-ele_rot = cat(2, ele_rot, neuron(iDb).combo_px_map.ele_rot);
-ori_bin = cat(1, ori_bin, neuron(iDb).combo_px_map.all_ori_bin);
+     neuron(iDb).combo_px_map = clusta_syn(neuron(iDb).combo_px_map,[0 30 2],1);
 
 end
 
-ave_para_dist = nanmean(parallel_dist, 2);
-ave_ortho_dist = nanmean(ortho_dist, 2);
-ave_po_ratio = nanmean(po_ratio, 2);
-
-%%
-figure;
-
-subplot(3,1,1); 
-hold on; axis square; xlim([0 90]); ylim([0.1 0.6])
-plot(ret_ori_bins, parallel_dist, 'Color', [1 0 0],'LineWidth', 0.5);
-plot(ret_ori_bins,ave_para_dist, 'Color', [0.5 0 0], 'LineWidth', 2);
-set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
-xlabel('Delta ori (deg)')
-ylabel('% para spines')
-p = anova1(parallel_dist', [], 'off');
-title(sprintf('p = %.4f', p));
-formatAxes
+plot_clusta(neuron);
 
 
-subplot(3,1,2); 
-
-hold on; axis square; xlim([0 90]); ylim([0.1 0.6])
-plot(ret_ori_bins, ortho_dist, 'Color', [0 0.5 1], 'LineWidth', 0.5);
-plot(ret_ori_bins, ave_ortho_dist, 'Color', [0 0.25 0.5], 'LineWidth', 2);
-set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
-xlabel('Delta ori (deg)')
-ylabel('% ortho spines')
-p = anova1(ortho_dist', [], 'off');
-title(sprintf('p = %.4f', p))
-formatAxes
-
-subplot(3,1,3); 
-
-hold on; axis square; xlim([0 90]); ylim([-0.2 0.2]);
-plot(ret_ori_bins, po_ratio, 'Color', [0.5 0.5 0.5], 'LineWidth', 0.5);
-plot(ret_ori_bins, ave_po_ratio, 'Color', [0 0 0], 'LineWidth', 2);
-set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
-xlabel('Delta ori (deg)')
-ylabel('% para - ortho')
-p = anova1(po_ratio', [], 'off');
-title(sprintf('p = %.6f', p))
-formatAxes
 
 %% ROI analysis
 

@@ -78,6 +78,13 @@ if exist(fullfile(vis_path, vis_file), 'file')
     resps = load(fullfile(vis_path, vis_file));
 
     soma = retune(resps, [], 'date');
+    soma.ori_pars_vm_centred = soma.ori_pars_vm;
+    soma.ori_pars_vm_centred(1) = 0;
+    soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, soma.ori_fit_pt*2);    
+    soma.aveOriPeak_centred = soma.aveOriPeak;
+    [~, Op] = min(abs(unique(soma.oris) - soma.prefOri));
+    soma.aveOriPeak_centred = circshift(soma.aveOriPeak_centred, 4-Op);
+    
 else
     soma = [];
     warning(sprintf('%s somatic resps not found', vis_file))

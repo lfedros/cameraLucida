@@ -119,7 +119,7 @@ db(i).expID         = {[1], [1]};
 db(i).plane         = [6, 6];
 db(i).starterID     = 11;
 db(i).stimList      = {[1:3:36, 37], [1:3:36, 37]}; 
-db(i).respWin       = [1 4];
+db(i).respWin       = [2 4];
 
 % db(i).animal           = 'FR213';
 % db(i).mouse_name    = {'FR213','FR213','FR213','FR213','FR213','FR213','FR213'};
@@ -151,6 +151,20 @@ db(i).respWin       = [0 2];
 
 %% FR225 neuron 2
 
+% i = i+1;
+% 
+% db(i).animal           = 'FR225';
+% db(i).mouse_name    = {'FR225','FR225','FR225'};
+% db(i).mouse_name_s2p    = {'FR225','FR225','FR225'};
+% db(i).date          = {'2022-09-09', '2022-09-09','2022-11-08'};
+% db(i).date_s2p      = {'2022-09-09', '2022-09-09','2022-11-08'};
+% db(i).expts         = {[1 3], [1 3], [2]};
+% db(i).expID         = {[2], [2], [1]};
+% db(i).plane         = [3, 3, 5];
+% db(i).starterID     = 2;
+% db(i).stimList      = {[1:7:84, 85],  [7:7:84, 85],  [7:7:84, 85]}; 
+% db(i).respWin       = [0 2];
+
 i = i+1;
 
 db(i).animal           = 'FR225';
@@ -164,6 +178,7 @@ db(i).plane         = [3, 3];
 db(i).starterID     = 2;
 db(i).stimList      = {[1:7:84, 85],  [7:7:84, 85]}; 
 db(i).respWin       = [0 2];
+
 
 %% FR225 neuron 3
 
@@ -180,6 +195,7 @@ db(i).plane         = [4, 4, 4];
 db(i).starterID     = 3;
 db(i).stimList      = {[2:7:84, 85], [1:7:84, 85],  [6:7:84, 85]}; 
 db(i).respWin       = [0 2];
+
 
 %% FR225 neuron 4
 

@@ -22,10 +22,10 @@ for iD = 1:nDendrites
 
     % - find pixels with no signal (amp = 0) and remove them
     
-    sig_zero_amp = abs(map(iD).ori) ==0 | abs(map(iD).dir) ==0;
+    sig_zero_amp = abs(map(iD).ori) ==0 |
 
     % - combine all significant pixels
-    sig_px = (sig_ori | sig_dir | sig_mimg) & ~sig_zero_amp;
+    sig_px = sig_ori | sig_dir | sig_mimg;
     %     figure; imagesc(sig_px)
 
     % remove noise (unconnected components smaller than 6 px)

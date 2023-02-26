@@ -1,5 +1,9 @@
 function tune = retune(tune, fixPars, normalisation)
 
+% if nargin <4
+%     forcepositive = false;
+% end
+
 if nargin <2 || isempty(fixPars)
     
     fixPars.dir = nan(1,4);
@@ -91,10 +95,11 @@ tune.aveResp = squeeze(mean(tune.allResp, 2));
 tune.seResp = squeeze(std(tune.allResp, [], 2))/sqrt(nRep);
 tune.avePeak = squeeze(mean(tune.allPeaks,2));
 tune.sePeak = squeeze(std(tune.allPeaks,[], 2))/sqrt(nRep);
-
 tune.aveOriPeak = mean(cat(2, tune.allPeaks(1:6, :), tune.allPeaks(7:12, :)),2);
 tune.seOriPeak = std(cat(2, tune.allPeaks(1:6, :), tune.allPeaks(7:12, :)),[], 2)/sqrt(nRep*2);
 
+% if forcepositive
+% end
 %% fit model tuning curve
 
 % double gaussian (MatteoBox) direction tuning
@@ -108,6 +113,8 @@ tune.fit_vm = mfun.vonMises2(tune.dir_pars_vm, 0:1:359);
 tune.fit_vm_12 = mfun.vonMises2(tune.dir_pars_vm, 0:30:330);
 tune.fit_pt = 0:1:359;
 tune.prefDir = tune.dir_pars_vm(1);
+tune.prefDir_Ori = tune.prefDir -90;
+tune.prefDir_Ori(tune.prefDir_Ori >90) = tune.prefDir_Ori(tune.prefDir_Ori >90) -180;
 
 % von Mises orientation tuning
 tune.ori_pars_vm = mfun.fitTuning(repmat(tune.oris*2, 1,nRep), toFit, 'vm1', fixPars.ori);
