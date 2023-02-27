@@ -123,7 +123,7 @@ switch stim_type
                 % sS*sT;
                 nStim = size(resPeak,2); nRep = size(resPeak,3);
                 resPeak = reshape(resPeak, nSVD, nStim*nRep);
-                rr.st(iST).trial_stim_resp = single(sS*resPeak); % this is nPx*nReps*nStim (more convenient than next lines if nResp*nStim<1000)
+                rr.st(iST).trial_stim_resp = single(sS*resPeak); % this is nPx by nStim*nReps (more convenient than next lines if nResp*nStim<1000)
                 rr.st(iST).stim_resp = single(sS*aveResPeak); % this is nPx*nStim
                 rr.st(iST).nStim = nStim;
                 rr.st(iST).nRep = nRep;
