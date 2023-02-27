@@ -121,10 +121,12 @@ switch stim_type
 
                 % save US and V to reconstruct resp for each px, px =
                 % sS*sT;
-                nStim = size(resPeak,2); nReps = size(resPeak,3);
-                resPeak = reshape(resPeak, nSVD, nStim*nReps);
+                nStim = size(resPeak,2); nRep = size(resPeak,3);
+                resPeak = reshape(resPeak, nSVD, nStim*nRep);
                 rr.st(iST).trial_stim_resp = single(sS*resPeak); % this is nPx*nReps*nStim (more convenient than next lines if nResp*nStim<1000)
                 rr.st(iST).stim_resp = single(sS*aveResPeak); % this is nPx*nStim
+                rr.st(iST).nStim = nStim;
+                rr.st(iST).nRep = nRep;
 %                 rr.st(iST).resp_sT = single(resPeak); % this is 1000*nReps*nStim
 %                 rr.st(iST).aveResp_sT = aveResPeak; % this is 1000*nStim
 %                 rr.st(iST).resp_sS = sS ; % this is nPx*1000
@@ -205,8 +207,8 @@ switch stim_type
 
         % save US and V to reconstruct resp for each px, px =
         % sS*sT;
-        nStim = size(resPeak,2); nReps = size(resPeak,3);
-        resPeak = reshape(resPeak, nSVD, nStim*nReps);
+        nStim = size(resPeak,2); nRep = size(resPeak,3);
+        resPeak = reshape(resPeak, nSVD, nStim*nRep);
         rr.all_st.trial_stim_resp = single(sS*resPeak);
         rr.all_st.stim_resp = single(sS*aveResPeak);
 %         rr.all_st.resp_sT = single(resPeak);
@@ -236,6 +238,12 @@ switch stim_type
 end
 
 map.p = p;
+rr.p = p;
+rr.nX = nX;
+rr.nY = nY;
+rr.all_st.nRep = nRep;
+rr.all_st.nStim = nStim;
+rr.all_st.nSfTf = numel(rr.st);
 
 end
 

@@ -101,27 +101,16 @@ trial_stim_resps = permute(trial_stim_resps, [1, 3, 2]);
 trial_stim_resps = reshape(trial_stim_resps, [], nRep*3, nStim/3); 
 trial_stim_resps = permute(trial_stim_resps, [1, 3, 2]);
 
+
 even_resp = mean(trial_stim_resps(:, :, 2:2:end),3);
 odd_resp = mean(trial_stim_resps(:, :, 1:2:end),3);
 all_resp = mean(trial_stim_resps,3);
 
 max_resp = max(all_resp, [],2);
 max_thres = prctile(max_resp, 95);
-max_sg = max_resp >max_thres;
 
 [even_max, even_sort] = max(even_resp, [],2);
 
-even_resp = even_resp(even_sort(max_sg), :); 
-odd_resp = odd_resp(even_sort(max_sg), :); 
-
-
-figure; 
-subplot(1,2,1)
-imagesc(even_resp)
-caxis([0 5])
-subplot(1,2,2)
-imagesc(odd_resp)
-caxis([0 5])
 
 %%
 resps = px_rr.all_st.stim_resp;
