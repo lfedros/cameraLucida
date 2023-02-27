@@ -1,4 +1,4 @@
-function map = svd2pxmap(db, targetPlane, stim_type)
+function [map, rr] = svd2pxmap(db, targetPlane, stim_type)
 %% load a svd compresesed 2P recordinga adn computes stim triggered pixelMaps
 %OUTPUTS
 % - map: contain tuning pixel maps. Struct with fields:
@@ -121,9 +121,13 @@ switch stim_type
 
                 % save US and V to reconstruct resp for each px, px =
                 % sS*sT;
-                map.st(iST).resp_sT = single(resPeak);
-                map.st(iST).aveResp_sT = aveResPeak;
-                map.st(iST).resp_sS = sS ;
+                nStim = size(resPeak,2); nReps = size(resPeak,3);
+                resPeak = reshape(resPeak, nSVD, nStim*nReps);
+                rr.st(iST).trial_stim_resp = single(sS*resPeak); % this is nPx*nReps*nStim (more convenient than next lines if nResp*nStim<1000)
+                rr.st(iST).stim_resp = single(sS*aveResPeak); % this is nPx*nStim
+%                 rr.st(iST).resp_sT = single(resPeak); % this is 1000*nReps*nStim
+%                 rr.st(iST).aveResp_sT = aveResPeak; % this is 1000*nStim
+%                 rr.st(iST).resp_sS = sS ; % this is nPx*1000
 
                 %pixel maxps for direction
                 svdTun_dir = aveResPeak.*exp(1i*dirs);
@@ -201,9 +205,13 @@ switch stim_type
 
         % save US and V to reconstruct resp for each px, px =
         % sS*sT;
-        map.all_st.resp_sT = single(resPeak);
-        map.all_st.aveResp_sT = aveResPeak;
-        map.all_st.resp_sS = sS ;
+        nStim = size(resPeak,2); nReps = size(resPeak,3);
+        resPeak = reshape(resPeak, nSVD, nStim*nReps);
+        rr.all_st.trial_stim_resp = single(sS*resPeak);
+        rr.all_st.stim_resp = single(sS*aveResPeak);
+%         rr.all_st.resp_sT = single(resPeak);
+%         rr.all_st.aveResp_sT = aveResPeak;
+%         rr.all_st.resp_sS = sS ;
 
         %pixel maxps for direction
         svdTun_dir = aveResPeak.*exp(1i*dirs);

@@ -11,6 +11,7 @@ db(i).nplanes       = 4;
 db(i).s2p_version = 'matlab';
 db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 
+
 %% Set path to relevant code
 
 if ispc
@@ -71,7 +72,7 @@ db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 
 for iExp = 1:numel(db)
     % pxmap
-    px_map= svd2pxmap(db, 1, db(i).expType);
+    [px_map, px_rr]= svd2pxmap(db, 1, db(i).expType);
     % run if you want to generate sta movie, otherwise comment out for
     % speed
     sta_mov= svd2mov_sta(db, 2, db(i).expType);
@@ -82,12 +83,15 @@ end
 px_map.doi = draw.freePolyROI(px_map.mimg);
 
 % save px_map
+% add here your preferred way of saving px_map, rr, (sta_mov)
 
-%%
 
-pref_dir = angle(px_map.dir(:)); 
 
-resps = px_map.all_st.resp_sS*px_map.all_st.resp_sT;
+%% some test code
+
+% pref_dir = angle(px_map.dir(:)); 
+
+% resps = px_map.all_st.resp_sS*px_map.all_st.resp_sT;
 
 % [~, dir_sort] = sort(pref_dir, 'ascend'); 
 % 
@@ -99,6 +103,7 @@ resps = px_map.all_st.resp_sS*px_map.all_st.resp_sT;
 % 
 % 
 % resps = resps(dir_sort(amp_sg),:);
+resps = px_rr.all_st.stim_resp;
 
 [max_resp, dir_sort] = max(resps, [],2);
 
@@ -116,7 +121,28 @@ resps = bsxfun(@rdivide, resps, max(resps, [], 2));
 figure; 
 imagesc(resps)
 
+figure;
 
+for iSt = 1:numel(rr.st)
+resps = px_rr.st(iSt).stim_resp;
+
+[max_resp, dir_sort] = max(px_rr.all_st.stim_resp, [],2);
+
+[ ~,dir_sort] = sort(dir_sort, 'ascend');
+
+max_thres = prctile(max_resp, 95);
+
+max_sg = max_resp >max_thres;
+
+resps = resps(dir_sort(max_sg), :); 
+
+resps = bsxfun(@minus, resps, min(resps, [], 2));
+resps = bsxfun(@rdivide, resps, max(resps, [], 2));
+
+subplot(1,numel(rr.st), iSt);
+imagesc(resps)
+
+end
 
 
 
