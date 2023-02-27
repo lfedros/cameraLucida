@@ -127,6 +127,7 @@ switch stim_type
                 rr.st(iST).stim_resp = single(sS*aveResPeak); % this is nPx*nStim
                 rr.st(iST).nStim = nStim;
                 rr.st(iST).nRep = nRep;
+
 %                 rr.st(iST).resp_sT = single(resPeak); % this is 1000*nReps*nStim
 %                 rr.st(iST).aveResp_sT = aveResPeak; % this is 1000*nStim
 %                 rr.st(iST).resp_sS = sS ; % this is nPx*1000
@@ -176,10 +177,10 @@ switch stim_type
         end
 
         %% now compute average across SfTf
-        stimSequence.seq = ceil(stimSequence.seq/nSfTf); % treat all sftf as the same
-        stimSequence.labels = stimSequence.labels(1:nSfTf:end);
+        stimSequence_dir.seq = ceil(stimSequence.seq/nSfTf); % treat all sftf as the same
+        stimSequence_dir.labels = stimSequence.labels(1:nSfTf:end);
 
-        stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes);
+        stimMatrix = ppbox.buildStimMatrix(stimSequence_dir, stimTimes, frameTimes);
 
         % remove blank from stimMatrix
         stimMatrix(p.nDir+1,:) = [];
@@ -209,8 +210,11 @@ switch stim_type
         % sS*sT;
         nStim = size(resPeak,2); nRep = size(resPeak,3);
         resPeak = reshape(resPeak, nSVD, nStim*nRep);
-        rr.all_st.trial_stim_resp = single(sS*resPeak);
-        rr.all_st.stim_resp = single(sS*aveResPeak);
+        rr.trial_stim_resp = single(sS*resPeak);
+        rr.stim_resp = single(sS*aveResPeak);
+        rr.stimSequence = stimSequence;
+        rr.stimSequence_dir = stimSequence_dir;
+
 %         rr.all_st.resp_sT = single(resPeak);
 %         rr.all_st.aveResp_sT = aveResPeak;
 %         rr.all_st.resp_sS = sS ;
@@ -241,9 +245,9 @@ map.p = p;
 rr.p = p;
 rr.nX = nX;
 rr.nY = nY;
-rr.all_st.nRep = nRep;
-rr.all_st.nStim = nStim;
-rr.all_st.nSfTf = numel(rr.st);
+rr.nRep = nRep;
+rr.nStim = nStim;
+rr.nSfTf = numel(rr.st);
 
 end
 
