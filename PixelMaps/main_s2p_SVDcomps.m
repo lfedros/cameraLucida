@@ -93,27 +93,26 @@ load('/Users/federico/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Data
 
 trial_stim_resps = px_rr.all_st.trial_stim_resp;
 
-nStim = 36; nRep = 8; nTfSf = numel(px_rr.st);
+nStim = 12; nRep = 24; %nTfSf = numel(px_rr.st);
 
 trial_stim_resps = reshape(trial_stim_resps, [], nStim, nRep);
-%combine sftf
-trial_stim_resps = permute(trial_stim_resps, [1, 3, 2]);
-trial_stim_resps = reshape(trial_stim_resps, [], nRep*3, nStim/3); 
-trial_stim_resps = permute(trial_stim_resps, [1, 3, 2]);
 
-even_resp = mean(trial_stim_resps(:, :, 2:2:end),3);
-odd_resp = mean(trial_stim_resps(:, :, 1:2:end),3);
+%%
+trial_perm = randperm(nRep);
+even_resp = mean(trial_stim_resps(:, :, trial_perm(2:2:end)),3);
+odd_resp = mean(trial_stim_resps(:, :, trial_perm(1:2:end)),3);
 all_resp = mean(trial_stim_resps,3);
 
 max_resp = max(all_resp, [],2);
-max_thres = prctile(max_resp, 95);
+max_thres = prctile(max_resp, 99.9);
 max_sg = max_resp >max_thres;
 
 [even_max, even_sort] = max(even_resp, [],2);
 
+[ ~,even_sort] = sort(even_sort, 'ascend');
+
 even_resp = even_resp(even_sort(max_sg), :); 
 odd_resp = odd_resp(even_sort(max_sg), :); 
-
 
 figure; 
 subplot(1,2,1)
@@ -126,6 +125,7 @@ caxis([0 5])
 %%
 resps = px_rr.all_st.stim_resp;
 
+% resps = mean(trial_stim_resps,3);
 [max_resp, dir_sort] = max(resps, [],2);
 
 [ ~,dir_sort] = sort(dir_sort, 'ascend');
@@ -146,25 +146,26 @@ caxis([0 5])
 %%
 figure;
 
-for iSt = 1:numel(rr.st)
-resps = px_rr.st(iSt).stim_resp;
-
-[max_resp, dir_sort] = max(px_rr.all_st.stim_resp, [],2);
+[max_resp, dir_sort] = max(px_rr.st(2).stim_resp, [],2);
 
 [ ~,dir_sort] = sort(dir_sort, 'ascend');
 
-max_thres = prctile(max_resp, 95);
+max_thres = prctile(max_resp, 99.9);
 
 max_sg = max_resp >max_thres;
+
+for iSt = 1:numel(px_rr.st)
+
+resps = px_rr.st(iSt).stim_resp;
 
 resps = resps(dir_sort(max_sg), :); 
 
 % resps = bsxfun(@minus, resps, min(resps, [], 2));
 % resps = bsxfun(@rdivide, resps, max(resps, [], 2));
 
-subplot(1,numel(rr.st), iSt);
+subplot(1,numel(px_rr.st), iSt);
 imagesc(resps)
-
+caxis([0 5])
 end
 
 
