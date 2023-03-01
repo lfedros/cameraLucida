@@ -7,7 +7,7 @@ clear;
 if ispc
    code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
 else
-code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
+code_repo = '/Users/federico/Documents/GitHub/cameraLucida';
 
 end
 cd(code_repo);
@@ -32,7 +32,7 @@ end
 
 for iDb = 1:nDb
 
-    doPlot = 0;
+    doPlot = 1;
     % if you want to save
     doSave = 0;
     % if you want to recompute and overwrite saved one
