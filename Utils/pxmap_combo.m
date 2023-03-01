@@ -12,13 +12,14 @@ for iD = 1:nDendrites
 
     % - threshold pixels based on intensity image
     thrs = 95; % threshold for significance, perctile of background
-    sig_mimg =threshold_map(map(iD).mimg, map(iD).branch_bw, 'tile', thrs);
+    filt_scale = 3; % spatial scale of filtering in pixels
+    sig_mimg =threshold_map(map(iD).mimg, map(iD).branch_bw, 'tile', thrs, filt_scale);
 
     % - threshold pixels based on amplitude of direction tuning
-    sig_dir = threshold_map(abs(map(iD).dir), map(iD).branch_bw, 'tile', 99);
+    sig_dir = threshold_map(abs(map(iD).dir), map(iD).branch_bw, 'tile', 99, 5);
 
     % - threshold pixels based on amplitude of orientation tuning
-    sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99);
+    sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99, 5);
 
     % - find pixels with no signal (amp = 0) and remove them
     
@@ -30,7 +31,7 @@ for iD = 1:nDendrites
 
     % remove noise (unconnected components smaller than 6 px)
     signal(iD).bw= bwareaopen(sig_px,6);
-    %      figure; imagesc(signal(iD).bw)
+         figure; imagesc(signal(iD).bw)
 
 
     % extract properties of significant pixels.

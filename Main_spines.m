@@ -25,6 +25,7 @@ for iDb = 1:nDb
     [db(iDb).ret_seq] = build_path(db(iDb), 'ret');
     [db(iDb).spine_seq] = build_path(db(iDb), 'spine_seq');
     [db(iDb).pix_map] = build_path(db(iDb), 'pix_map');
+    [db(iDb).pix_resp] = build_path(db(iDb), 'pix_resp');
 
     neuron(iDb).db = db(iDb);
 
@@ -56,6 +57,15 @@ for iDb = 1:nDb
 
      
 end
+
+%% combine stats about px resps 
+for iDb = 1:nDb
+
+     [neuron(iDb).combo_resp]  = pxresp_combo(neuron(iDb));
+
+     
+end
+
 %%
 % plotSweepResp_LFR(neuron(iDb).soma.allResp, neuron(iDb).soma.time, 2);
 for iDb = 1:nDb

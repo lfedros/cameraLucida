@@ -16,12 +16,6 @@ s2p_folder = fullfile(root_folder, db.mouse_name, db.date, ...
 svd_file = sprintf('%s/SVD_%s_%s_plane%d.mat', s2p_folder, ...
     db.mouse_name, db.date, targetPlane-1);
 
-svd = load(svd_file);
-
-[nY, nX, nBasis] = size(svd.U);
-
-nFrames = size(svd.Vcell{db.expID},2);
-
     case 'matlab'
 
 s2p_folder = fullfile(root_folder, db.mouse_name, db.date, ...
@@ -39,7 +33,7 @@ end
 
 svd = load(svd_file);
 [nY, nX, nBasis] = size(svd.U);
-
+nFrames = size(svd.Vcell{db.expID},2);
 
 %     S = imgaussfilt(svd.U, 3*sigma); % smooth spatial basis with gaussian 30 um sigma
 S = svd.U;

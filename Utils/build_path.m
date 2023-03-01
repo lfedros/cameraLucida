@@ -74,6 +74,10 @@ if nargin>1
             file = cat(1, dir(fullfile(folder, ['pixMap_', db_tag,'*.mat'])));
             file = {file.name};
 
+        case 'pix_resp'
+            file = cat(1, dir(fullfile(folder, ['pixResp_', db_tag,'*.mat'])));
+            file = {file.name};
+
 
         case 'spine_size_seq'
             file = cat(1, dir(fullfile(folder, 'Spines', [db_tag, '*RoiSet*.txt'])));

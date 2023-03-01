@@ -1,8 +1,12 @@
-function sig_px = threshold_map(img, foreground, tmode, thrs)
+function sig_px = threshold_map(img, foreground, tmode, thrs, filt_scale)
+
+if nargin < 5
+    filt_scale = 6;
+end
 
 nan_idx = isnan(img);
 img(nan_idx) =0;
-amp_mimg = imtophat(img, strel('disk', 2));
+amp_mimg = imtophat(img, strel('disk', filt_scale));
 % amp_mimg = map(iD).mimg;
 amp_mimg(nan_idx) = NaN;
 amp_mimg = amp_mimg/nanmax(amp_mimg(:));
