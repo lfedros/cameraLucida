@@ -44,18 +44,20 @@ end
 cd(code_repo);
 addpath(genpath(code_repo));
 set_dendrite_paths(); % edit the paths pointing to the code, contains which packages to download
+addpath('\\znas.cortexlab.net\Code\Spikes');
 %% database of the recording
 clear;
 i = 0;
 
+
 i = i+1;
-db(i).mouse_name    = 'FR213'; % animal name
-db(i).date          = '2022-06-15'; % date of the recording
-db(i).expts         = [4]; % all the experiments in the recording
-db(i).expID         = 1; % the experiment you want to compute pixel map of
+db(i).mouse_name    = 'M160929_FR103'; % animal name
+db(i).date          = '2016-11-10'; % date of the recording
+db(i).expts         = [1 2]; % all the experiments in the recording
+db(i).expID         = 2; % the experiment you want to compute pixel map of
 db(i).expType  = 'gratings';
-db(i).nplanes       = 1;
-db(i).s2p_version = 'python';
+db(i).nplanes       = 10;
+db(i).s2p_version = 'matlab';
 db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 
 % i = i+1;
@@ -68,15 +70,17 @@ db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 % db(i).s2p_version = 'matlab';
 % db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 
+
 %% Use SVD compressed recording to make pixel maps
 
 for iExp = 1:numel(db)
+    for iPlane = 1:db(i).nplanes
     % pxmap
-    [px_map, px_rr]= svd2pxmap(db, 1, db(i).expType);
+    [px_map, px_rr]= svd2pxmap(db, iPlane, db(i).expType);
     % run if you want to generate sta movie, otherwise comment out for
     % speed
-    sta_mov= svd2mov_sta(db, 2, db(i).expType);
-
+%     sta_mov= svd2mov_sta(db, 2, db(i).expType);
+    end
 end
 
 %manually select the dendrites of interest

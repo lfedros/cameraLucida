@@ -38,6 +38,9 @@ rot_coords = R*coords';
 
 combo_px_map.azi_rot= rot_coords(1,:);
 combo_px_map.ele_rot = rot_coords(2,:);
+
+
+
 %% map isoOrientation line
 soma_ori = unwrap_angle(soma_ori, 1, 1);
 
@@ -70,7 +73,30 @@ combo_px_map.angle_axial_um_rel = interp2(ret.map_x_um', ret.map_y_um, ret.map_a
 combo_px_map.angle_axial_rel = combo_px_map.angle_axial;
 combo_px_map.angle_axial_rel(:)= unwrap_angle(combo_px_map.angle_axial_rel(:) - soma_ori*pi/180,1);
 
+%% shuffle ortho and para dendrites by rotating morphology relative to map
+nSh = 1000; 
 
+angle_sh = rand(nSh,1)*360;
+
+for iSh = 1:nSh
+
+R = [cosd(angle_sh(iSh)) sind(angle_sh(iSh)); -sind(angle_sh(iSh)) cosd(angle_sh(iSh))]; % clockwise rotation
+coords = [combo_px_map.sig_x_um, combo_px_map.sig_y_um];
+rot_coords = R*coords';
+
+sh_sig_x_um= rot_coords(1,:);
+sh_sig_y_um = rot_coords(2,:);
+
+% % azimuth and elevation ret
+% combo_px_map.ele = interp2(ret.map_x_um', ret.map_y_um, ret.map_ele, sh.sig_x_um, sh.sig_y_um);
+% combo_px_map.azi = interp2(ret.map_x_um', ret.map_y_um, ret.map_azi, sh.sig_x_um, sh.sig_y_um);
+% visual angle and orientation
+combo_px_map.sh.angle_axial_um_rel(iSh, :) = interp2(ret.map_x_um', ret.map_y_um, ret.map_angle_axial_um_rel, sh_sig_x_um, sh_sig_y_um);
+combo_px_map.sh.angle_axial_rel(iSh, :) = interp2(ret.map_x_um', ret.map_y_um, ret.map_angle_axial, sh_sig_x_um, sh_sig_y_um);
+combo_px_map.sh.angle_axial_rel(iSh, :) = unwrap_angle(combo_px_map.sh.angle_axial_rel(iSh, :)  - soma_ori*pi/180,1);
+end
+
+%%
 
 % figure; 
 % % a = zeros(size(ori_groove));

@@ -174,6 +174,22 @@ else
 
 end
 
+% orientation selectivity circular
+bsl = min(tune.fit_vm_12);
+if bsl>=0
+    
+%     tune.OS_circ = circ_var(tune.oris*2*pi/180, tune.fit_vm_12');
+    tune.DS_circ = circ_r(tune.dirs*pi/180, tune.fit_vm_12');
+    
+elseif sum(tune.fit_vm_12<0) <12
+%     tune.OS_circ = circ_var(tune.oris*2*pi/180, tune.fit_vm_12' - min(tune.fit_vm_12));
+    tune.DS_circ = circ_r(tune.dirs*pi/180, tune.fit_vm_12' - min(tune.fit_vm_12));
+
+else
+%         tune.OS_circ = circ_var(tune.oris*2*pi/180, abs(tune.fit_vm_12'));
+        tune.DS_circ = circ_r(tune.dirs*pi/180, abs(tune.fit_vm_12'));
+
+end
 
 
 

@@ -30,7 +30,8 @@ svd_file = sprintf('%s/SVD_%s_%s_plane%d.mat', s2p_folder, ...
     case 'matlab'
 
 s2p_folder = fullfile(root_folder, db.mouse_name, db.date, ...
-    sprintf('%d', db.expts));
+    sprintf('%d_', db.expts));
+s2p_folder = s2p_folder(1:end-1);
 
 svd_file = sprintf('%s/SVD_%s_%s_plane%d.mat', s2p_folder, ...
     db.mouse_name, db.date, targetPlane);
@@ -63,7 +64,7 @@ switch stim_type
 
         % load stimulus info
         switch db.s2p_version
-    case 'python'
+            case 'python'
         nFrames = svd.ops.frames_per_folder(db.expID);
             case 'matlab'
                 nFrames = svd.ops.Nframes(db.expID);
@@ -78,6 +79,11 @@ switch stim_type
         stimTimes = ppbox.getStimTimes(info);
         [stimSequence, p] = ppbox.getStimSequence_LFR(info);
 
+        if ~isfield(p, 'nDir')
+            p.nDir = 12;
+            p.dirs = 0:30:330;
+        end
+
         nSfTf = floor(p.nstim/p.nDir);
 
         dirs = p.dirs; %dirs = -dirs;
@@ -88,6 +94,7 @@ switch stim_type
 
         %% compute pixel map for each SfTf combo
         if nSfTf >1
+                rr.nSfTf = nSfTf;
 
             stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes);
 
@@ -228,8 +235,8 @@ switch stim_type
 
         map.all_st.mimg = 1-mat2gray(reshape(sS(:,1), nY, nX))'; % for some reason the SVDs are transposed
 
-        plot_px_map(map.all_st, stim_type);
-        print(fullfile(s2p_folder, sprintf('%s_all_st_px_maps', stim_type)), '-dpdf', '-vector', '-bestfit')
+        plot_px_map(map.all_st, stim_type, 0.5, [20 70],0);
+        print(fullfile(s2p_folder, sprintf('plane_%d_%s_all_st_px_maps', targetPlane, stim_type)), '-dpdf', '-vector', '-bestfit')
 
     case 'sparsenoise'
 
@@ -242,7 +249,6 @@ rr.nX = nX;
 rr.nY = nY;
 rr.nRep = nRep;
 rr.nStim = nStim;
-rr.nSfTf = numel(rr.st);
 
 end
 

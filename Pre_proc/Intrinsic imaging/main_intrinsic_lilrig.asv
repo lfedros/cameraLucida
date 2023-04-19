@@ -1,0 +1,117 @@
+%%
+clear;
+addpath(genpath('C:\Users\Federico\Documents\GitHub\cameraLucida\Pre_proc\Intrinsic imaging'));
+addpath(genpath('C:\Users\Federico\Documents\GitHub\widefield'));
+addpath('C:\Users\Federico\Documents\GitHub\npy-matlab\npy-matlab');
+addpath('\\zserver.cortexlab.net\Code\Stimulus')
+addpath('\\zserver.cortexlab.net\Data\xfiles')
+addpath(genpath('C:\Users\Federico\Documents\GitHub\Lilrig'));
+
+%% Define options
+
+mpep_animal = 'FR234';
+day = '2023-04-14';
+experiment = '3';
+rig = 'lilrig'; % kilotrode or bigrig
+cam_color_n = 2;
+cam_color_signal = 'blue';
+cam_color_hemo = 'purple';
+
+
+%% compute the maps
+maps = analyzeKalatskyBscope(ExpRef);
+h = plotPreferenceMaps(maps .maps, maps.pars, true, 'alpha');
+
+%% save
+video_file = dat.expFilePath(ExpRef, 'intrinsic', 'master');
+save_to = [video_file(1:end-4), '_maps.mat'];
+save(save_to, 'maps');
+
+%% analyse previous maps
+clear;
+addpath(genpath('C:\Users\Federico\Documents\GitHub\cameraLucida\Pre_proc\Intrinsic imaging'));
+
+ExpRef = '2022-02-10_5_FR206'; % anaesthesia, 1.45h
+%% load intrinsic maps
+video_file = dat.expFilePath(ExpRef, 'intrinsic', 'master');
+save_to = [video_file(1:end-4), '_maps.mat'];
+load(save_to, 'maps');
+
+h = plotPreferenceMaps(maps.maps, maps.pars, true, 'alpha');
+
+%% Code from here on is under development
+%% load image to align
+
+twoP_vasculature = [];
+
+%% Select points for alignment
+
+wifi_vasculature = maps.meanFrame;
+clear input_points base_points
+cpselect(wifi_vasculature, wifi_vasculature); % don't forget to export input_points/base_points to workspace
+
+%% Do the alignment
+
+mytform = cp2tform(input_points, base_points, 'nonreflective similarity');
+
+registered = imtransform(photo2, mytform,'FillValues',1,...
+    'XData', [1 size(photo1,2)],...
+    'YData', [1 size(photo1,1)]);
+registered(registered>1) = 1;
+
+% show the results of the alignment
+figure; clf; ax = gridplot(1,3);
+axes(ax(1)); image( photo1 ); axis image
+axes(ax(2)); imagesc( registered ); axis image
+axes(ax(3)); image( photo2 ); axis image
+title(ax(1),'Cam 1');
+title(ax(2),'Cam 2, realigned');
+title(ax(3),'Cam 2');
+set(ax,'nextplot','add')
+plot( ax(1), base_points(:,1), base_points(:,2), 'ro' );
+plot( ax(2), base_points(:,1), base_points(:,2), 'ro' );
+colormap bone
+
+if strcmpi(animal,'M111108_AB')
+    save(fullfile(DIRS.datafiles,sprintf('alignment-%s-%d-%d',animal,iseries,iexp)),...
+        'input_points','base_points','photo1','photo2','registered');
+else
+    save(fullfile(DIRS.datafiles,sprintf('alignment-%s-%d-%d-RF%s',animal,iseries,iexp,RF)),...
+        'input_points','base_points','photo1','photo2','registered');
+end
+
+%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+figure; 
+
+
+norm_map = maps.maps.blank.amplitude;
+norm_map(norm_map == Inf) = NaN;
+norm_map(isnan(norm_map)) = nanmax(norm_map(:));
+norm_map = imgaussfilt(norm_map,2)/max(norm_map(:));
+
+maps.maps.ypos.amplitude = imgaussfilt(maps.maps.ypos.amplitude)./...
+    norm_map;
+maps.maps.ypos.amplitude = imgaussfilt(maps.maps.ypos.amplitude)./...
+      norm_map;
+
+h = plotPreferenceMaps(maps .maps, maps.pars, true, 'alpha');
+
+%%
+figure;
+
+subplot(1,2,1)
+imagesc(out.maps.xpos.amplitude)

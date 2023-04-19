@@ -70,55 +70,115 @@ parallel_idx= rel_angle <= pi/4;
 ortho_idx = rel_angle >pi/4;
 
 %%
-dd_all = single(pdist([sig_x_um(:), sig_y_um(:), sig_den_id(:)*1000], 'euclidean'));
-do_all = pdist(ori, 'euclidean');
+d_edges = scale(1):scale(3):scale(2);
+
+dd_all = single(pdist(gpuArray([sig_x_um(:), sig_y_um(:), sig_den_id(:)*1000]), 'euclidean'));
+dd_all = gather(dd_all); 
+do_all = pdist(gpuArray(ori), 'euclidean');
+do_all = gather(do_all); 
 do_all(do_all >=90) = do_all(do_all >=90) -180; %[-90 90]
 
-dd_ortho = single(pdist([sig_x_um(ortho_idx), sig_y_um(ortho_idx), sig_den_id(ortho_idx)*1000], 'euclidean'));
-do_ortho = pdist(ori(ortho_idx), 'euclidean');
+dd_ortho = single(pdist(gpuArray([sig_x_um(ortho_idx), sig_y_um(ortho_idx), sig_den_id(ortho_idx)*1000]), 'euclidean'));
+dd_ortho = gather(dd_ortho); 
+do_ortho = pdist(gpuArray(ori(ortho_idx)), 'euclidean');
 do_ortho(do_ortho >=90) = do_ortho(do_ortho >=90) -180; %[-90 90]
+do_ortho = gather(do_ortho); 
 ortho_num= sum(ortho_idx);
 
-dd_para = single(pdist([sig_x_um(parallel_idx), sig_y_um(parallel_idx), sig_den_id(parallel_idx)*1000], 'euclidean'));
-do_para = pdist(ori(parallel_idx), 'euclidean');
+dd_para = single(pdist(gpuArray([sig_x_um(parallel_idx), sig_y_um(parallel_idx), sig_den_id(parallel_idx)*1000]), 'euclidean'));
+dd_para = gather(dd_para); 
+do_para = pdist(gpuArray(ori(parallel_idx)), 'euclidean');
 do_para(do_para >=90) = do_para(do_para >=90) -180; %[-90 90]
+do_para = gather(do_para); 
 para_num= sum(parallel_idx);
 
-
-d_edges = scale(1):scale(3):scale(2);
 
 [all_clust,clust_bins]=  clusta_hist(dd_all, do_all, d_edges);
 ortho_clust=  clusta_hist(dd_ortho, do_ortho, d_edges);
 para_clust=  clusta_hist(dd_para, do_para, d_edges);
 
-%%
+%% shuffle retinotopy
+% nSh = 1000; 
+% 
+% sh_angle_axial = combo_px_map.sh.angle_axial_rel; %[- pi/2 pi/2]
+% sh_angle_axial(:, nan_idx_ori) = [];
+% 
+% sh_rel_angle = unwrap_angle(sh_angle_axial);
+% sh_rel_angle = abs(sh_rel_angle);
+% sh_parallel_idx= sh_rel_angle <= pi/4;
+% sh_ortho_idx = sh_rel_angle >pi/4;
+% 
+% for iSh = 1:nSh
+% these_idx = sh_ortho_idx(iSh,:);
+% 
+% sh_dd_ortho = single(pdist(gpuArray([sig_x_um(these_idx), sig_y_um(these_idx), sig_den_id(these_idx)*1000]), 'euclidean'));
+% sh_dd_ortho = gather(sh_dd_ortho);
+% sh_do_ortho = pdist(gpuArray(ori(these_idx)), 'euclidean');
+% sh_do_ortho(sh_do_ortho >=90) = sh_do_ortho(sh_do_ortho >=90) -180; %[-90 90]
+% sh_do_ortho = gather(sh_do_ortho);
+% % sh_ortho_num= sum(these_idx);
+% 
+% these_idx = sh_parallel_idx(iSh,:);
+% 
+% sh_dd_para = single(pdist(gpuArray([sig_x_um(these_idx), sig_y_um(these_idx), sig_den_id(these_idx)*1000]), 'euclidean'));
+% sh_dd_para= gather(sh_dd_para); 
+% sh_do_para = pdist(gpuArray(ori(these_idx)), 'euclidean');
+% sh_do_para(sh_do_para >=90) = sh_do_para(sh_do_para >=90) -180; %[-90 90]
+% sh_do_para = gather(sh_do_para);
+% % sh_para_num= sum(these_idx);
+% 
+% sh_ortho_clust(:,iSh)=  clusta_hist(sh_dd_ortho, sh_do_ortho, d_edges);
+% sh_para_clust(:,iSh)=  clusta_hist(sh_dd_para, sh_do_para, d_edges);
+% iSh
+% 
+% 
+% end
 
-nDen = max(sig_den_id);
+%% shuffle position
+nSh = 50; 
 
-for iDen = 1:nDen
+for iSh = 1:nSh
 
-this_den_idx = sig_den_id == iDen;
-dd_all = single(pdist([sig_x_um(this_den_idx), sig_y_um(this_den_idx)], 'euclidean'));
-do_all = pdist(ori(this_den_idx), 'euclidean');
+these_idx = randperm(numel(sig_x_um));
+
+do_all = pdist(gpuArray(ori(these_idx)), 'euclidean');
+do_all = gather(do_all); 
 do_all(do_all >=90) = do_all(do_all >=90) -180; %[-90 90]
 
-dd_ortho = single(pdist([sig_x_um(this_den_idx & ortho_idx), sig_y_um(this_den_idx &ortho_idx)], 'euclidean'));
-do_ortho = pdist(ori(this_den_idx & ortho_idx), 'euclidean');
-do_ortho(do_ortho >=90) = do_ortho(do_ortho >=90) -180; %[-90 90]
+sh_all_clust(:,iSh)=  clusta_hist(dd_all, do_all, d_edges);
+iSh
 
-dd_para = single(pdist([sig_x_um(this_den_idx & parallel_idx), sig_y_um(this_den_idx & parallel_idx)], 'euclidean'));
-do_para = pdist(ori(this_den_idx & parallel_idx), 'euclidean');
-do_para(do_para >=90) = do_para(do_para >=90) -180; %[-90 90]
 
-oned_all_clust(:, iDen)=  clusta_hist(dd_all, do_all, d_edges);
-oned_ortho_clust(:, iDen)=  clusta_hist(dd_ortho, do_ortho, d_edges);
-oned_para_clust(:, iDen)=  clusta_hist(dd_para, do_para, d_edges);
-
-oned_ortho_num(iDen)= sum(this_den_idx & ortho_idx);
-oned_para_num(iDen) = sum(this_den_idx & parallel_idx);
-
-iDen
 end
+
+%% repeat for individual dendrites
+% 
+% nDen = max(sig_den_id);
+% 
+% for iDen = 1:nDen
+% 
+% this_den_idx = sig_den_id == iDen;
+% dd_all = single(pdist([sig_x_um(this_den_idx), sig_y_um(this_den_idx)], 'euclidean'));
+% do_all = pdist(ori(this_den_idx), 'euclidean');
+% do_all(do_all >=90) = do_all(do_all >=90) -180; %[-90 90]
+% 
+% dd_ortho = single(pdist([sig_x_um(this_den_idx & ortho_idx), sig_y_um(this_den_idx &ortho_idx)], 'euclidean'));
+% do_ortho = pdist(ori(this_den_idx & ortho_idx), 'euclidean');
+% do_ortho(do_ortho >=90) = do_ortho(do_ortho >=90) -180; %[-90 90]
+% 
+% dd_para = single(pdist([sig_x_um(this_den_idx & parallel_idx), sig_y_um(this_den_idx & parallel_idx)], 'euclidean'));
+% do_para = pdist(ori(this_den_idx & parallel_idx), 'euclidean');
+% do_para(do_para >=90) = do_para(do_para >=90) -180; %[-90 90]
+% 
+% oned_all_clust(:, iDen)=  clusta_hist(dd_all, do_all, d_edges);
+% oned_ortho_clust(:, iDen)=  clusta_hist(dd_ortho, do_ortho, d_edges);
+% oned_para_clust(:, iDen)=  clusta_hist(dd_para, do_para, d_edges);
+% 
+% oned_ortho_num(iDen)= sum(this_den_idx & ortho_idx);
+% oned_para_num(iDen) = sum(this_den_idx & parallel_idx);
+% 
+% iDen
+% end
 
 %%
 
@@ -134,14 +194,41 @@ end
 % iB
 % end
 
-figure;
-plot(clust_bins, para_clust, 'r');
-hold on
-plot(clust_bins, ortho_clust, 'b');
-plot(clust_bins, all_clust, 'k');
 
-formatAxes
-axis square
+figure;
+hold on;
+plot(clust_bins, sh_all_clust, 'Color', [0.7 0.7 0.7]);
+plot(clust_bins, all_clust, 'k');
+ylim([0.2 0.45])
+
+
+% figure;
+% subplot(1,3,1)
+% plot(clust_bins, para_clust, 'r');
+% hold on
+% plot(clust_bins, ortho_clust, 'b');
+% plot(clust_bins, all_clust, 'k');
+% ylim([0 0.5])
+% 
+% formatAxes
+% axis square
+% 
+% subplot(1,3,2)
+% hold on
+% plot(clust_bins, sh_para_clust, 'Color', [0.7 0.7 0.7]);
+% plot(clust_bins, para_clust, 'r');
+% formatAxes
+% ylim([0 0.5])
+% axis square
+% 
+% subplot(1,3,3)
+% hold on
+% plot(clust_bins, sh_ortho_clust, 'Color', [0.7 0.7 0.7]);
+% plot(clust_bins, ortho_clust, 'b');
+% formatAxes
+% ylim([0 0.5])
+% axis square
+
 
 %%
 
@@ -149,14 +236,16 @@ combo_px_map.para_clust = para_clust;
 combo_px_map.ortho_clust = ortho_clust;
 combo_px_map.all_clust = all_clust;
 combo_px_map.clust_bins = clust_bins;
-combo_px_map.oned_para_clust = oned_para_clust;
-combo_px_map.oned_ortho_clust = oned_ortho_clust;
-combo_px_map.oned_all_clust = oned_all_clust;
 combo_px_map.para_num = para_num;
 combo_px_map.ortho_num = ortho_num;
-combo_px_map.oned_para_num = oned_para_num;
-combo_px_map.oned_ortho_num = oned_ortho_num;
-
+% combo_px_map.oned_para_clust = oned_para_clust;
+% combo_px_map.oned_ortho_clust = oned_ortho_clust;
+% combo_px_map.oned_all_clust = oned_all_clust;
+% combo_px_map.oned_para_num = oned_para_num;
+% combo_px_map.oned_ortho_num = oned_ortho_num;
+% combo_px_map.sh_ortho_clust = sh_ortho_clust;
+% combo_px_map.sh_para_clust = sh_para_clust;
+combo_px_map.sh_all_clust = sh_all_clust;
 
 
 end

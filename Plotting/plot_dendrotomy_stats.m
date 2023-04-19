@@ -112,27 +112,39 @@ for iDb = 1:nDb
         
         % Orientation selectivity
         OS(nthP) = neuron(iDb).tuning(1).OS_circ;
+                DS(nthP) = neuron(iDb).tuning(1).DS_circ;
+
                 if iSeq >1
 
         OS_cut(nthP) =neuron(iDb).tuning(iSeq).relative.OS_circ;
+                DS_cut(nthP) = neuron(iDb).tuning(iSeq).relative.DS_circ;
+
                 else
                   OS_cut(nthP)   =OS(nthP);
+                   DS_cut(nthP) = DS(nthP);
+
                 end
         % OS(iDb) = neuron(iDb).tuning.OS_circ;
-        DS(nthP) = neuron(iDb).tuning(1).DS;
         Rp_ori(nthP) = neuron(iDb).tuning(1).Rp_ori;
+        Rp_dir(nthP) = neuron(iDb).tuning(1).Rp;
+        Rn_dir(nthP) = neuron(iDb).tuning(1).Rn;
+
         Ro_ori(nthP) = neuron(iDb).tuning(1).Ro_ori;
         Rb(nthP) = neuron(iDb).tuning(1).Rb;
         prefOri(nthP) = neuron(iDb).tuning(1).prefOri;
         prefDir(nthP) = neuron(iDb).tuning(1).prefDir;
-        
+%                            DS_cut(nthP) = neuron(iDb).tuning(iSeq).DS_circ;
+
         % OS_cut(iDb) = neuron(iDb).tuning_cut.OS_circ;
-        DS_cut(nthP) = neuron(iDb).tuning(iSeq).DS;
         if iSeq >1
+            Rp_dir_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
+            Rn_dir_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rn;
             Rp_ori_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rp;
             Ro_ori_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Ro;
             Rb_cut(nthP) = neuron(iDb).tuning(iSeq).relative.Rb;
         else
+            Rp_dir_cut(nthP) = neuron(iDb).tuning(iSeq).Rp;
+            Rn_dir_cut(nthP) = neuron(iDb).tuning(iSeq).Rn;
             Rp_ori_cut(nthP) = neuron(iDb).tuning(iSeq).Rp;
             Ro_ori_cut(nthP) = neuron(iDb).tuning(iSeq).Ro;
             Rb_cut(nthP) = neuron(iDb).tuning(iSeq).Rb;
@@ -713,7 +725,8 @@ print(fullfile(saveTo,'RP_vs_dendrotomy') ,  '-dpng');
 
 figure('Position', [470 558 1221 420], 'Color', 'w');
 
-subplot(1, 7, 1)
+subplot(2, 4, 5)
+
 [~,p_dOri] = ttest2(dOri(type & is_cut), dOri(~type & is_cut));
 scatter(ones(1, sum(type & is_cut)), dOri(type & is_cut),40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 scatter(2*ones(1, sum(~type & is_cut)), dOri(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -724,7 +737,7 @@ title(sprintf('dOri, p = %03f', p_dOri), 'Fontsize', 10);
 xlabel('Pre')
 ylabel('Post')
 
-subplot(1, 7, 2)
+subplot(2, 4, 6)
 [~,p_dDir] = ttest2(dDir(type & is_cut), dDir(~type & is_cut));
 scatter(ones(1, sum(type & is_cut)), dDir(type & is_cut),40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
 scatter(2*ones(1, sum(~type & is_cut)), dDir(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -734,7 +747,7 @@ axis square
 title(sprintf('dDir, p = %03f', p_dDir), 'Fontsize', 10);
 xlabel('Pre')
 
-subplot(1, 7, 3)
+subplot(2, 4, 1)
 [~,p_pRp] = ttest(Rp(type & is_cut), Rp_cut(type & is_cut));
 [~,p_oRp] = ttest(Rp(~type & is_cut), Rp_cut(~type & is_cut));
 scatter(Rp(type & is_cut), Rp_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -747,7 +760,7 @@ axis square
 title(sprintf('p_pRp = %03f\np_oRp = %03f', p_pRp, p_oRp), 'Fontsize', 10);
 xlabel('Pre')
 
-subplot(1, 7, 4)
+subplot(2, 4, 3)
 [~,p_pRo] = ttest(Ro(type & is_cut), Ro_cut(type & is_cut));
 [~,p_oRo] = ttest(Ro(~type & is_cut), Ro_cut(~type & is_cut));
 scatter(Ro(type & is_cut), Ro_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -760,7 +773,7 @@ axis square
 title(sprintf('p_pRo = %03f\np_oRo = %03f', p_pRo, p_oRo), 'Fontsize', 10);
 xlabel('Pre')
 
-subplot(1, 7, 5)
+subplot(2, 4, 4)
 [~,p_pRb] = ttest(Rb(type & is_cut), Rb_cut(type & is_cut));
 [~,p_oRb] = ttest(Rb(~type & is_cut), Rb_cut(~type & is_cut));
 scatter(Rb(type & is_cut), Rb_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -773,7 +786,20 @@ axis square
 title(sprintf('p_pRb = %03f\np_oRb = %03f', p_pRb, p_oRb), 'Fontsize', 10);
 xlabel('Pre')
 
-subplot(1, 7, 6)
+subplot(2, 4, 2)
+[~,p_pRn] = ttest(Rn_dir(type & is_cut), Rn_dir_cut(type & is_cut));
+[~,p_oRn] = ttest(Rn_dir(~type & is_cut), Rn_dir_cut(~type & is_cut));
+scatter(Rn_dir(type & is_cut), Rn_dir_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+scatter(Rn_dir(~type & is_cut), Rn_dir_cut(~type & is_cut), 40,[0 0.5 1], 'MarkerFaceColor', [0 0.5 1],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
+plot([-3 3], [-3 3], '--k')
+formatAxes
+xlim([-1 2]);
+ylim([-1 2]);
+axis square
+title(sprintf('p_pRn = %03f\np_oRn = %03f', p_pRn, p_oRn), 'Fontsize', 10);
+xlabel('Pre')
+
+subplot(2, 4, 7)
 [~,p_pDS] = ttest(DS(type & is_cut), DS_cut(type & is_cut));
 [~,p_oDS] = ttest(DS(~type & is_cut), DS_cut(~type & is_cut));
 scatter(DS(type & is_cut), DS_cut(type & is_cut),40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -787,7 +813,7 @@ title(sprintf('p_pDS = %03f\np_oDS = %03f', p_pDS, p_oDS), 'Fontsize', 10);
 xlabel('Pre')
 
 
-subplot(1, 7, 7)
+subplot(2, 4, 8)
 [~,p_pOS] = ttest(OS(type & is_cut), OS_cut(type & is_cut));
 [~, p_oOS] = ttest(OS(~type & is_cut), OS_cut(~type & is_cut));
 scatter(OS(type & is_cut), OS_cut(type & is_cut), 40,[1 0 0], 'MarkerFaceColor', [1 0 0],'MarkerEdgeAlpha', 0.2, 'MarkerFaceAlpha', 0.2);hold on
@@ -804,6 +830,15 @@ xlabel('Pre')
 print(fullfile(saveTo,'dendrotomy_average_tuning') ,  '-dpng');
     print(fullfile(saveTo,'dendrotomy_average_tuning') , '-dpdf', '-painters');
 
+anova_DS = cat(2, DS(type & is_cut), DS(~type & is_cut));
+anova_DScut = cat(2, DS_cut(type & is_cut), DS_cut(~type & is_cut));
+anova_all = cat(2, anova_DS, anova_DScut);
+para_or_orth = cat(2,ones(1, sum(type & is_cut)), ones(1, sum(~type & is_cut))*2);
+para_or_orth = cat(2, para_or_orth, para_or_orth);
+pre_or_post = cat(2, ones(1, numel(anova_DS)), ones(1, numel(anova_DScut))*2);
+
+[p, tbl] = anovan(anova_all, {para_or_orth, pre_or_post }, 'model', 'full', 'varnames', {'DS p vs o', 'cut'});
+
 
 anova_OS = cat(2, OS(type & is_cut), OS(~type & is_cut));
 anova_OScut = cat(2, OS_cut(type & is_cut), OS_cut(~type & is_cut));
@@ -812,7 +847,7 @@ para_or_orth = cat(2,ones(1, sum(type & is_cut)), ones(1, sum(~type & is_cut))*2
 para_or_orth = cat(2, para_or_orth, para_or_orth);
 pre_or_post = cat(2, ones(1, numel(anova_OS)), ones(1, numel(anova_OScut))*2);
 
-[p, tbl] = anovan(anova_all, {para_or_orth, pre_or_post }, 'model', 'full', 'varnames', {'po', 'cut'});
+[p, tbl] = anovan(anova_all, {para_or_orth, pre_or_post }, 'model', 'full', 'varnames', {'OS p vs o', 'cut'});
 
 anova_B = cat(2, Rb(type & is_cut), Rb(~type & is_cut));
 anova_B_cut = cat(2, Rb_cut(type & is_cut), Rb_cut(~type & is_cut));

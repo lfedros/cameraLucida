@@ -58,14 +58,13 @@ switch plot_type
         
         maxZ = maxZ+50;
         maxR = maxR+50;
-        
         for iP = 1:nSubP
             
-            col = mod(iP,10);
+            col = mod(iP,nCols);
             if col ==0
-                col = 10; 
+                col = nCols; 
             end
-            row = ceil(iP/10);
+            row = ceil(iP/nCols);
             
             tree(sort_idx(iP)).Z = tree(sort_idx(iP)).Z + row*maxZ;
             tree(sort_idx(iP)).X = tree(sort_idx(iP)).X + (col-1)*2*maxR;
@@ -80,7 +79,7 @@ switch plot_type
             hold on;
 %             plot_tree_lines_LFR(tree(sort_idx(iP)), [0.5 0 0],[],[],'-3l');
             plot_tree_lines_LFR(basal_tree(sort_idx(iP)), [0 0 0],[],[],'-3l');
-            plot_tree_lines_LFR(apical_tree(sort_idx(iP)), [0 0 0.5],[],[],'-3l');
+            plot_tree_lines_LFR(apical_tree(sort_idx(iP)), [0 0.2 0.7],[],[],'-3l');
 
             xlabel('ML[um] ');
             ylabel('RC[um] ');

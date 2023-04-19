@@ -32,7 +32,7 @@ end
 
 for iDb = 1:nDb
 
-    doPlot = 1;
+    doPlot = 0;
     % if you want to save
     doSave = 0;
     % if you want to recompute and overwrite saved one
@@ -147,7 +147,6 @@ end
 % cameraLucida.tree_poolHist(neuron, 'rot_cortex_vert');
 
 %% plot all neurons on a canvas
-
-plot_forest(neuron, 'canvas', 20);
-
+%  sort_idx = [28,30,29,5,1,8,4,11,9,31,13,12,19,18,22,6,3,7,2,39,10,32,23,42,15,43,33,26,34,25,35,46,40,38,20,44,47,17,48,36,37,14,45,41,24];
+plot_forest(neuron(sort_idx), 'canvas', 20);
 

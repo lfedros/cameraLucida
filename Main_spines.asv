@@ -55,17 +55,14 @@ for iDb = 1:nDb
 
      [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px, neuron(iDb).soma]  = pxmap_combo(neuron(iDb));
 
-end
-
-%% plot pixel maps
-for iDb = 1:nDb
-plot_px_map(neuron(iDb).combo_px_map, 'gratings', 1, [1 3])
+     
 end
 
 %% combine stats about px resps 
 for iDb = 15:nDb
 
      [neuron(iDb).combo_resp]  = pxresp_combo(neuron(iDb));
+
      
 end
 

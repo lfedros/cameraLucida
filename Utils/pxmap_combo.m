@@ -31,7 +31,7 @@ for iD = 1:nDendrites
 
     % remove noise (unconnected components smaller than 6 px)
     signal(iD).bw= bwareaopen(sig_px,6);
-         figure; imagesc(signal(iD).bw)
+%          figure; imagesc(signal(iD).bw)
 
 
     % extract properties of significant pixels.
@@ -42,8 +42,12 @@ for iD = 1:nDendrites
     signal(iD).px_dir = map(iD).dir(signal(iD).bw);
     signal(iD).px_den_id = ones(size(signal(iD).px_ori))*iD;
     % normalise responses to max in each receording
-    signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmax(abs(map(iD).ori(signal(iD).bw)));
-    signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmax(abs(map(iD).dir(signal(iD).bw)));
+%     signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmax(abs(map(iD).ori(signal(iD).bw)));
+%     signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmax(abs(map(iD).dir(signal(iD).bw)));
+
+     signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmedian(abs(map(iD).ori(signal(iD).bw)));
+    signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmedian(abs(map(iD).dir(signal(iD).bw)));
+
 
     signal(iD).px_ori_norm(isnan(signal(iD).px_ori_norm)) = 0;
     signal(iD).px_dir_norm(isnan(signal(iD).px_dir_norm)) = 0;
@@ -221,8 +225,8 @@ if ~isempty(neuron.soma)
     soma.ori_pars_vm_centred = soma.ori_pars_vm;
     soma.ori_pars_vm_centred(1) = 0;
     soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, combo_map.tun_oris*2 );
-
-
+% here add code to compute dendrites relative to soma
+% to shift the non-fitted responses, use circshift(resps,4-maxSoma_pos)
 else
      combo_map.soma_pref_dir = [];
     combo_map.soma_pref_dir_ori = [];
