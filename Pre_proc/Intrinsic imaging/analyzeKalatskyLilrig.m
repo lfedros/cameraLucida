@@ -57,9 +57,32 @@ tn = tn(1:min_frames);
 [ny, nx, nSv] = size(Uh);
 nt = size(Vh, 2);
 
+% decimate frames
+downsample_factor = 3; 
+
+dVn = zeros(nSv, ceil(nt/downsample_factor));
+dVn = zeros(nSv, ceil(nt/downsample_factor));
+
+
+for iSv = 1:nSv
+    dVn(iSv,:) = decimate(Vn(iSv, :), downsample_factor, 'fir'); % filter and downsample
+    dVh(iSv,:) = decimate(Vh(iSv, :), downsample_factor, 'fir');% filter and downsample
+
+end
+
+th = downsample(th, downsample_factor); % downsample
+tn = downsample(tn, downsample_factor); % downsample
+
+nt = size(dVh, 2);
+
+clear Vn Vh;
+
+
 % average h and n channels, since they are the same
-mov = reshape(Uh, [], nSv)*Vh + reshape(Un, [], nSv)*Vn; 
-clear Uh Un Vh Vn;
+mov = reshape(Uh, [], nSv)*dVh + reshape(Un, [], nSv)*dVn; 
+
+clear Uh Un dVh dVn;
+
 mov = fliplr(reshape(mov, ny, nx, nt))/2; % flip lr since svd are inverted for some reason
 
 % average time stamps
