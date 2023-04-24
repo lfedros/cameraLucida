@@ -45,7 +45,7 @@ Uh = readUfromNPY([data_path filesep 'svdSpatialComponents_' cam_color_hemo '.np
 Vh = readVfromNPY([experiment_path filesep 'svdTemporalComponents_' cam_color_hemo '.npy']);
 avg_im_h = readNPY([data_path filesep 'meanImage_' cam_color_hemo '.npy']);
 
-nSV = size(Vn,1);
+[nSV, nT] = size(Vn);
 framerate = 1./nanmedian(diff(tn));
 
 min_frames = min(size(Vn,2),size(Vh,2));
@@ -55,33 +55,57 @@ th = th(1:min_frames);
 tn = tn(1:min_frames);
 
 [ny, nx, nSv] = size(Uh);
-nt = size(Vh, 2);
 
-% decimate frames
-downsample_factor = 3; 
+downsample_factor = 10; 
+idx = [];
 
-dVn = zeros(nSv, ceil(nt/downsample_factor));
-dVn = zeros(nSv, ceil(nt/downsample_factor));
+extra_frames = downsample_factor - mod(min_frames, downsample_factor); 
 
+Vn = cat(2, Vn, nan(nSv, extra_frames));
+Vh = cat(2, Vh, nan(nSv, extra_frames));
+tn = cat(2, tn, tn(end)+(1:extra_frames)/framerate);
+th = cat(2, th, th(end)+(1:extra_frames)/framerate);
 
-for iSv = 1:nSv
-    dVn(iSv,:) = decimate(Vn(iSv, :), downsample_factor, 'fir'); % filter and downsample
-    dVh(iSv,:) = decimate(Vh(iSv, :), downsample_factor, 'fir');% filter and downsample
+nFrames = min_frames + extra_frames;
 
+idx= [];
+for iF = 1:downsample_factor
+    idx = cat(2, idx, iF:downsample_factor:nFrames);
 end
 
-th = downsample(th, downsample_factor); % downsample
-tn = downsample(tn, downsample_factor); % downsample
+Vn = Vn(:, idx);
+Vh = Vh(:, idx);
 
-nt = size(dVh, 2);
+Vn = nanmean(reshape(Vn, nSV, nFrames/downsample_factor, downsample_factor),3);
+Vh = nanmean(reshape(Vh, nSV, nFrames/downsample_factor, downsample_factor),3);
 
-clear Vn Vh;
+th = nanmean(reshape(th(idx), [], downsample_factor),2); % downsample
+tn = nanmean(reshape(tn(idx), [], downsample_factor),2); % downsample
 
+%%
+% % decimate frames
+% 
+% dVn = zeros(nSv, ceil(nt/downsample_factor));
+% dVn = zeros(nSv, ceil(nt/downsample_factor));
+% 
+% 
+% for iSv = 1:nSv
+%     dVn(iSv,:) = decimate(Vn(iSv, :), downsample_factor, 'fir'); % filter and downsample
+%     dVh(iSv,:) = decimate(Vh(iSv, :), downsample_factor, 'fir');% filter and downsample
+% 
+% end
 
-% average h and n channels, since they are the same
-mov = reshape(Uh, [], nSv)*dVh + reshape(Un, [], nSv)*dVn; 
+% th = downsample(th, downsample_factor); % downsample
+% tn = downsample(tn, downsample_factor); % downsample
+%%
 
-clear Uh Un dVh dVn;
+nt = size(Vh, 2);
+
+% average h and n channels, since they are the same. Can be optimised by
+% doing it in chunks.
+mov = reshape(Uh, [], nSv)*Vh + reshape(Un, [], nSv)*Vn; 
+
+clear Uh Un Vh Vn;
 
 mov = fliplr(reshape(mov, ny, nx, nt))/2; % flip lr since svd are inverted for some reason
 

@@ -98,7 +98,7 @@ maps.xpos.hemoPhase = mod(phase{xposStims(1)}+phase{xposStims(2)}, 2*pi)/2; %[0 
 %     +mod(phase{xposStims(2)} -maps.xpos.hemoPhase, 2*pi);
 
 p1 = +phase{xposStims(1)}-maps.xpos.hemoPhase;
-p1(p1>0) = p1(p1>0)-2*pi;
+p1(p1<0) = p1(p1<0)+2*pi;
 p2 = +phase{xposStims(2)}-maps.xpos.hemoPhase;
 p2(p2<0) = p2(p2<0) +2*pi;
 maps.xpos.prefPhase = -p1+p2;
@@ -116,7 +116,7 @@ maps.ypos.hemoPhase = mod(phase{yposStims(1)}+phase{yposStims(2)}, 2*pi)/2;
 %     +mod(phase{yposStims(2)}-maps.ypos.hemoPhase, 2*pi);
 
 p1 = +phase{yposStims(1)}-maps.ypos.hemoPhase;
-p1(p1>0) = p1(p1>0)-2*pi;
+p1(p1<0) = p1(p1<0)+2*pi;
 p2 = +phase{yposStims(2)}-maps.ypos.hemoPhase;
 p2(p2<0) = p2(p2<0) +2*pi;
 maps.ypos.prefPhase = -p1+p2;
