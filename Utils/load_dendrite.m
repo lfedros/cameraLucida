@@ -28,11 +28,19 @@ nDendrites =  numel(neuron.db.spine_seq);
 for iD = 1: nDendrites
     foo = load(fullfile(spine_folder, neuron.db.spine_seq{iD}));
     if ~isfield(foo, 'all_ws')
-        foo.all_ws = ones(numel(foo.ANOVA), 1);
-        foo.best_combAll = ones(numel(foo.ANOVA), 1);
+        try
+            foo.all_ws = ones(numel(foo.ANOVA), 1);
+            foo.best_combAll = ones(numel(foo.ANOVA), 1);
+        catch
+            warning(sprintf('%s s2p rois not found', neuron.db.spine_seq{iD}))
+
+        end
     end
     dendrite(iD) = foo;
     clear foo
+%     figure; 
+%     imagesc(dendrite(iD).meanImg);
+%     axis image
 end
 
 for iD = 1: nDendrites
@@ -40,33 +48,36 @@ for iD = 1: nDendrites
     try
         load(fullfile(spine_folder, neuron.db.pix_map{iD}));
         try
-        pxAmp_ori = abs(px_map.ori);
-        pxAng_ori = angle(px_map.ori);
-        pxAng_ori = -pxAng_ori;
-        px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
+            pxAmp_ori = abs(px_map.ori);
+            pxAng_ori = angle(px_map.ori);
+            pxAng_ori = -pxAng_ori;
+            px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
 
-        pxAmp_dir = abs(px_map.dir);
-        pxAng_dir= angle(px_map.dir);
-        pxAng_dir = -pxAng_dir;
-        px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
-        
+            pxAmp_dir = abs(px_map.dir);
+            pxAng_dir= angle(px_map.dir);
+            pxAng_dir = -pxAng_dir;
+            px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
+
         catch
 
-        pxAmp_ori = abs(px_map.all_st.ori);
-        pxAng_ori = angle(px_map.all_st.ori);
-        pxAng_ori = -pxAng_ori;
-        px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
+            pxAmp_ori = abs(px_map.all_st.ori);
+            pxAng_ori = angle(px_map.all_st.ori);
+            pxAng_ori = -pxAng_ori;
+            px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
 
-        pxAmp_dir = abs(px_map.all_st.dir);
-        pxAng_dir= angle(px_map.all_st.dir);
-        pxAng_dir = -pxAng_dir;
-        px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
+            pxAmp_dir = abs(px_map.all_st.dir);
+            pxAng_dir= angle(px_map.all_st.dir);
+            pxAng_dir = -pxAng_dir;
+            px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
 
-        px_map.mimg = px_map.all_st.mimg;
+            px_map.mimg = px_map.all_st.mimg;
         end
 
         dendrite(iD).pixelMap = px_map;
-        
+    catch
+        warning(sprintf('%s pxMap not found', neuron.db.pix_map{iD}))
+
+
     end
 end
 
@@ -80,36 +91,36 @@ if exist(fullfile(vis_path, vis_file), 'file')
     soma = retune(resps, [], 'date');
     soma.ori_pars_vm_centred = soma.ori_pars_vm;
     soma.ori_pars_vm_centred(1) = 0;
-    soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, soma.ori_fit_pt*2);    
+    soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, soma.ori_fit_pt*2);
     soma.aveOriPeak_centred = soma.aveOriPeak;
     [~, Op] = min(abs(unique(soma.oris) - soma.prefOri));
     soma.aveOriPeak_centred = circshift(soma.aveOriPeak_centred, 4-Op);
-    
+
 else
     soma = [];
     warning(sprintf('%s somatic resps not found', vis_file))
-    
+
 end
 
 
-%%
-
-
-% convert position in pixels to positions in microns referenced to the
-% zstack
+%% convert position in pixels to positions in microns referenced to the zstack
 for iD = 1: numel(neuron.db.spine_seq)
 
-    [umperpx_X,  umperpx_Y] = ppbox.zoom2fov(dendrite(iD).zoomFactor, [], neuron.db.morph.expRef{2});
-    
+    [umperpx_X,  umperpx_Y] = ppbox.zoom2fov(dendrite(iD).zoomFactor, neuron.db.mic2p,  neuron.db.morph.expRef{2});
+
     [Ly, Lx] = size(dendrite(iD).meanImg);
 
     umperpx_X = umperpx_X/Lx;
     umperpx_Y = umperpx_Y/Ly;
 
+    if isfield(dendrite(iD).soma, 'umperpx')
+        umperpx_X_soma = dendrite(iD).soma.umperpx;
+        umperpx_Y_soma = dendrite(iD).soma.umperpx;
+    else
     [umperpx_X_soma,  umperpx_Y_soma] = ppbox.zoom2fov(dendrite(iD).soma.zoomFactor);
     umperpx_X_soma = umperpx_X_soma/1024;
     umperpx_Y_soma = umperpx_Y_soma/1024;
-    
+    end
     %distance of fov ref point from soma in zstack
     dendrite(iD).soma.x_rel = (-dendrite(iD).soma.xpose + dendrite(iD).refpos(2))*umperpx_X_soma; % refpos(2) is X in imageJ;  soma.xpose is soma X position in ImageJ
     dendrite(iD).soma.y_rel = (-dendrite(iD).soma.ypose + dendrite(iD).refpos(4))*umperpx_Y_soma; % refpos(4) is Y in imageJ
@@ -122,51 +133,61 @@ for iD = 1: numel(neuron.db.spine_seq)
     dendrite(iD).fov_x_um = dendrite(iD).fov_x_um + dendrite(iD).soma.x_rel;
     dendrite(iD).fov_y_um = dendrite(iD).fov_y_um + dendrite(iD).soma.y_rel;
 
-    dendrite(iD).X = dendrite(iD).fov_x_um(int32(dendrite(iD).centreMass.y)); % changed
-    dendrite(iD).Y = dendrite(iD).fov_y_um(int32(dendrite(iD).centreMass.x));
-    
-%      dendrite(iD).SigInd = dendrite(iD).ANOVA<=0.05;
-nS = numel(dendrite(iD).ANOVA);
-% nS = numel(dendrite(iD).RANOVA);s
 
-     for iS = 1:nS
-
-     [~, dendrite(iD).bestCombo(iS)] = max(dendrite(iD).all_ws(iS,:));
-     
-     if size(dendrite(iD).response,2) >13
-         blank = 37;
-     else
-         blank = 13;
-     end
-     these_stim = [ [1:12] + (dendrite(iD).bestCombo(iS)-1)*12, blank];
-
-     resps = squeeze(dendrite(iD).response(iS, these_stim,:));
-
-     this_anova = anova1(resps', 1:13, 'off');
-      dendrite(iD).SigInd(iS) = this_anova <=0.05;
-
-%      dendrite(iD).SigInd(iS) = dendrite(iD).ANOVA{iS}.Pval{1} <=0.05;
-%           dendrite(iD).SigInd(iS) = sum(dendrite(iD).RANOVA{iS}.pValue <=0.005)>0; 
-
-if blank ==13
-    dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir( iS,:);
-dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori( iS,:);
-else
-dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir(dendrite(iD).bestCombo(iS), iS,:);
-dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori(dendrite(iD).bestCombo(iS), iS,:);
 end
 
+%%
 
-     end
-    
 
-     dendrite(iD).pars_dir(:,1) = -dendrite(iD).pars_dir(:,1) +360;
-     dendrite(iD).pars_ori(:,1) = -dendrite(iD).pars_ori(:,1) +180;
-     
-%     figure; imagesc(dendrite(iD).fov_x_um,dendrite(iD).fov_y_um, dendrite(iD).meanImg); pause;
+for iD = 1: numel(neuron.db.spine_seq)
+    if isfield(dendrite(iD), 'all_ws')
+
+        dendrite(iD).X = dendrite(iD).fov_x_um(int32(dendrite(iD).centreMass.y)); % changed
+        dendrite(iD).Y = dendrite(iD).fov_y_um(int32(dendrite(iD).centreMass.x));
+
+        %      dendrite(iD).SigInd = dendrite(iD).ANOVA<=0.05;
+        nS = numel(dendrite(iD).ANOVA);
+        % nS = numel(dendrite(iD).RANOVA);s
+
+        for iS = 1:nS
+
+            [~, dendrite(iD).bestCombo(iS)] = max(dendrite(iD).all_ws(iS,:));
+
+            if size(dendrite(iD).response,2) >13
+                blank = 37;
+            else
+                blank = 13;
+            end
+            these_stim = [ [1:12] + (dendrite(iD).bestCombo(iS)-1)*12, blank];
+
+            resps = squeeze(dendrite(iD).response(iS, these_stim,:));
+
+            this_anova = anova1(resps', 1:13, 'off');
+            dendrite(iD).SigInd(iS) = this_anova <=0.05;
+
+            %      dendrite(iD).SigInd(iS) = dendrite(iD).ANOVA{iS}.Pval{1} <=0.05;
+            %           dendrite(iD).SigInd(iS) = sum(dendrite(iD).RANOVA{iS}.pValue <=0.005)>0;
+
+            if blank ==13
+                dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir( iS,:);
+                dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori( iS,:);
+            else
+                dendrite(iD).pars_dir(iS, :) = dendrite(iD).Fitpars_Dir(dendrite(iD).bestCombo(iS), iS,:);
+                dendrite(iD).pars_ori(iS, :) = dendrite(iD).Fitpars_Ori(dendrite(iD).bestCombo(iS), iS,:);
+            end
+
+
+        end
+
+
+        dendrite(iD).pars_dir(:,1) = -dendrite(iD).pars_dir(:,1) +360;
+        dendrite(iD).pars_ori(:,1) = -dendrite(iD).pars_ori(:,1) +180;
+
+        %     figure; imagesc(dendrite(iD).fov_x_um,dendrite(iD).fov_y_um, dendrite(iD).meanImg); pause;
+    end
 end
 
 
 %% create fov image in common reference
-stitch = stitch_dendrite(dendrite);
+stitch = stitch_dendrite(dendrite,1);
 end

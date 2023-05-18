@@ -1,22 +1,12 @@
 %%
 clear;
 addpath(genpath('C:\Users\Federico\Documents\GitHub\cameraLucida\Pre_proc\Intrinsic imaging'));
-addpath(genpath('C:\Users\Federico\Documents\GitHub\widefield'));
-addpath('C:\Users\Federico\Documents\GitHub\npy-matlab\npy-matlab');
-addpath('\\zserver.cortexlab.net\Code\Stimulus')
-addpath('\\zserver.cortexlab.net\Data\xfiles')
-addpath(genpath('C:\Users\Federico\Documents\GitHub\Lilrig'));
 
-%% Define options
-
-mpep_animal = 'FR234';
-day = '2023-04-14';
-experiment = '3';
-rig = 'lilrig'; % kilotrode or bigrig
-cam_color_n = 2;
-cam_color_signal = 'blue';
-cam_color_hemo = 'purple';
-
+%% build exp ref
+% ExpRef = '2022-02-10_5_FR206'; % anaesthesia, 1.45h
+% ExpRef = '2021-12-20_1_FR206';% awake, 1.45h
+% ExpRef = '2021-12-13_7_FR206'; % anaesthesia, 45min
+ExpRef = '2022-12-04_1_FR225'; % anaesthesia, 45min
 
 %% compute the maps
 maps = analyzeKalatskyBscope(ExpRef);

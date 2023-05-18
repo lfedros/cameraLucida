@@ -52,7 +52,7 @@ if ~isnumeric(normalisation)
                 for iS = 1:nSes
                     
                     s_trials = ismember(tune.recDate, sessions(iS,:), 'rows');
-                    z_std(iS) = std(makeVec(tune.allResp(:, s_trials, :)));
+                    z_std(iS) = nanstd(makeVec(tune.allResp(:, s_trials, :)));
                     n_trials(iS) = sum(s_trials);
 %                     z_std(iS) = z_std(iS)/sqrt(n_trials(iS));
                     tune.allResp(:, s_trials, :) = tune.allResp(:, s_trials, :)./z_std(iS);
@@ -91,24 +91,27 @@ if ~isfield(tune, 'F0')
 end
 %% compute average and se of responses
 nRep = size(tune.allResp,2);
-tune.aveResp = squeeze(mean(tune.allResp, 2));
-tune.seResp = squeeze(std(tune.allResp, [], 2))/sqrt(nRep);
-tune.avePeak = squeeze(mean(tune.allPeaks,2));
-tune.sePeak = squeeze(std(tune.allPeaks,[], 2))/sqrt(nRep);
-tune.aveOriPeak = mean(cat(2, tune.allPeaks(1:6, :), tune.allPeaks(7:12, :)),2);
-tune.seOriPeak = std(cat(2, tune.allPeaks(1:6, :), tune.allPeaks(7:12, :)),[], 2)/sqrt(nRep*2);
+tune.aveResp = squeeze(nanmean(tune.allResp, 2));
+tune.seResp = squeeze(nanstd(tune.allResp, [], 2))/sqrt(nRep);
+tune.avePeak = squeeze(nanmean(tune.allPeaks,2));
+tune.sePeak = squeeze(nanstd(tune.allPeaks,[], 2))/sqrt(nRep);
+tune.aveOriPeak = nanmean(cat(2, tune.allPeaks(1:6, :), tune.allPeaks(7:12, :)),2);
+tune.seOriPeak = nanstd(cat(2, tune.allPeaks(1:6, :), tune.allPeaks(7:12, :)),[], 2)/sqrt(nRep*2);
 
 % if forcepositive
 % end
 %% fit model tuning curve
 
-% double gaussian (MatteoBox) direction tuning
 toFit= makeVec(tune.allPeaks(1:end-1, :))';
-[tune.dir_pars_g, ~] = fitori(repmat(tune.dirs, 1,nRep), toFit);
+nan_resp = isnan(toFit);
+fitDirs = repmat(tune.dirs, 1,nRep);
+
+% % double gaussian (MatteoBox) direction tuning
+[tune.dir_pars_g, ~] = fitori(fitDirs (~nan_resp), toFit(~nan_resp));
 tune.fit_g = oritune(tune.dir_pars_g, 0:1:359);
 
 %double von Mises direction tuning
-tune.dir_pars_vm = mfun.fitTuning(repmat(tune.dirs, 1,nRep), toFit, 'vm2', fixPars.dir);
+tune.dir_pars_vm = mfun.fitTuning(fitDirs, toFit, 'vm2', fixPars.dir);
 tune.fit_vm = mfun.vonMises2(tune.dir_pars_vm, 0:1:359);
 tune.fit_vm_12 = mfun.vonMises2(tune.dir_pars_vm, 0:30:330);
 tune.fit_pt = 0:1:359;
@@ -117,7 +120,8 @@ tune.prefDir_Ori = tune.prefDir -90;
 tune.prefDir_Ori(tune.prefDir_Ori >90) = tune.prefDir_Ori(tune.prefDir_Ori >90) -180;
 
 % von Mises orientation tuning
-tune.ori_pars_vm = mfun.fitTuning(repmat(tune.oris*2, 1,nRep), toFit, 'vm1', fixPars.ori);
+fitOris = repmat(tune.oris*2, 1,nRep);
+tune.ori_pars_vm = mfun.fitTuning(fitOris, toFit, 'vm1', fixPars.ori);
 tune.ori_fit_vm = mfun.vonMises(tune.ori_pars_vm, -180:1:179);
 tune.ori_fit_pt = (-180:1:179)/2;
 tune.prefOri = tune.ori_pars_vm(1)/2;

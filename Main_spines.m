@@ -33,7 +33,7 @@ end
 
 %% load all dendrites and register their position to the soma in microns
 
-for iDb = 1:nDb
+for iDb = 18:nDb
 
 %    neuron(iDb).dendrite = load_dendrite_old(neuron(iDb));
       [neuron(iDb).dendrite, neuron(iDb).soma, neuron(iDb).stitch] = load_dendrite(neuron(iDb));
@@ -51,7 +51,7 @@ end
 
 
 %% combine pixel maps
-for iDb = 1:nDb
+for iDb = 17:nDb
 
      [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px, neuron(iDb).soma]  = pxmap_combo(neuron(iDb));
 

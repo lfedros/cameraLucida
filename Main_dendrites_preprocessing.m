@@ -10,7 +10,7 @@ addpath('E:\Google Drive\CarandiniLab\CarandiniLab_MATLAB\FedericoBox\2P')
 nDb = numel(db);
 %% load and save 2 separate mat files in the target folder: gratings and gratings_cut
 
-for iDb = 8
+for iDb = 13
     
     ops.saveDir = 'D:\OneDrive - University College London\Data\Dendrites';
     ops.doLoad = 0;
@@ -31,7 +31,7 @@ for iDb = 8
     
 end
 % plotSweepResp_LFR(resp_abl(iDb).allResp(:, :,:), resp_abl(iDb).time, 2);
-for iDb = 8
+for iDb = 13
 plotSweepResp_LFR(resp(iDb).allResp(:, :,:), resp(iDb).time, 2);
 end
 

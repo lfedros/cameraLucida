@@ -63,13 +63,31 @@ if ~doLoad % recompute from suite2P output
         if strcmp(this_db.date, '2022-09-14') && strcmp(this_db.mouse_name, 'FR225')
                 stimSequence.seq= stimSequence.seq(1:87*5);
         end
+
+
+        if stimTimes.onset(1) <frameTimes{iExp}(1)
+
+            nMissing = ceil((frameTimes{iExp} (1)-stimTimes.onset(1))*frameRate);
+
+            frameTimes{iExp} = cat(2, flip(frameTimes{iExp} (1) - (1:nMissing)/frameRate), frameTimes{iExp} );
+
+            dF{iExp}  = cat(1, NaN(nMissing, 1),  dF{iExp} );
+
+            warning('Your recording started late');
+
+        elseif stimTimes.onset(end) > frameTimes{iExp}(end)
+            warning('Your recording ended early');
+        end
+
+
         stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes{iExp});
         % select a subset of stimuli if specified in the db
         if isfield(db, 'stimList')
             stimSet = db.stimList{iExp};
             stimLabels{iExp} = stimSequence.labels(stimSet);
         end
-        
+       
+
         %% compute stimulus triggered responses
         % STA of neuropil
         [~, aveRespNeu] = ...

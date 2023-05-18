@@ -79,6 +79,7 @@ for iStim = 1:nStims
 
     amp{iStim} = abs(meanFreqData);
 %     amp{iStim} = amplitude;
+
 end
 
 %%
@@ -94,17 +95,9 @@ end
 
 xposStims = find(ismember({p.orientation}, 'xpos')) ;
 maps.xpos.hemoPhase = mod(phase{xposStims(1)}+phase{xposStims(2)}, 2*pi)/2; %[0 pi]
-% maps.xpos.prefPhase = -mod(+phase{xposStims(1)}-maps.xpos.hemoPhase, 2*pi) + ...%2*pi
-%     +mod(phase{xposStims(2)} -maps.xpos.hemoPhase, 2*pi);
+maps.xpos.prefPhase = (-mod(+phase{xposStims(1)}-maps.xpos.hemoPhase, 2*pi) + ...%2*pi
+    +mod(phase{xposStims(2)} -maps.xpos.hemoPhase, 2*pi))/2;
 
-p1 = +phase{xposStims(1)}-maps.xpos.hemoPhase;
-p1(p1<0) = p1(p1<0)+2*pi;
-p2 = +phase{xposStims(2)}-maps.xpos.hemoPhase;
-p2(p2<0) = p2(p2<0) +2*pi;
-maps.xpos.prefPhase = -p1+p2;
-
-
-maps.xpos.prefPhase = maps.xpos.prefPhase/2;
 maps.xpos.prefPhase(maps.xpos.prefPhase <0)=maps.xpos.prefPhase(maps.xpos.prefPhase <0) +2*pi;
 
 maps.xpos.amplitude = (amp{xposStims(1)}+amp{xposStims(2)})/2; 
@@ -112,16 +105,10 @@ maps.xpos.fovAngles = p(xposStims(1)).startEndPos;
 
 yposStims = find(ismember({p.orientation}, 'ypos'));
 maps.ypos.hemoPhase = mod(phase{yposStims(1)}+phase{yposStims(2)}, 2*pi)/2;
-% maps.ypos.prefPhase = -mod(phase{yposStims(1)}-maps.ypos.hemoPhase, 2*pi) + ...%2*pi
-%     +mod(phase{yposStims(2)}-maps.ypos.hemoPhase, 2*pi);
+maps.ypos.prefPhase = -mod(phase{yposStims(1)}-maps.ypos.hemoPhase, 2*pi) + ...%2*pi
+    +mod(phase{yposStims(2)}-maps.ypos.hemoPhase, 2*pi);
 
-p1 = +phase{yposStims(1)}-maps.ypos.hemoPhase;
-p1(p1<0) = p1(p1<0)+2*pi;
-p2 = +phase{yposStims(2)}-maps.ypos.hemoPhase;
-p2(p2<0) = p2(p2<0) +2*pi;
-maps.ypos.prefPhase = -p1+p2;
 
-maps.ypos.prefPhase = maps.ypos.prefPhase/2;
 maps.ypos.prefPhase(maps.ypos.prefPhase <0)=maps.ypos.prefPhase(maps.ypos.prefPhase <0) +2*pi;
 
 maps.ypos.amplitude = (amp{yposStims(1)}+amp{yposStims(2)})/2; 

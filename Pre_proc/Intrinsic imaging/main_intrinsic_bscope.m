@@ -6,7 +6,7 @@ addpath(genpath('C:\Users\Federico\Documents\GitHub\cameraLucida\Pre_proc\Intrin
 % ExpRef = '2022-02-10_5_FR206'; % anaesthesia, 1.45h
 % ExpRef = '2021-12-20_1_FR206';% awake, 1.45h
 % ExpRef = '2021-12-13_7_FR206'; % anaesthesia, 45min
-ExpRef = '2021-11-26_10_FR206'; % anaesthesia, 45min
+ExpRef = '2022-12-04_1_FR225'; % anaesthesia, 45min
 
 %% compute the maps
 maps = analyzeKalatskyBscope(ExpRef);
