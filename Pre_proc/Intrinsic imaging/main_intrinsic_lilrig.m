@@ -9,9 +9,9 @@ addpath(genpath('C:\Users\Federico\Documents\GitHub\Lilrig'));
 
 %% Define options
 
-animal = 'FR234';
-day = '2023-04-18';
-experiment = '4';
+animal = 'FR237';
+day = '2023-06-21';
+experiment = '7';
 
 ExpRef = [day, '_', experiment, '_', animal];
 %% compute the maps

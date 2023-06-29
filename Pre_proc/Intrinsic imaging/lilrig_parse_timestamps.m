@@ -12,9 +12,9 @@
 % actually recorded, manual inspection is necessary. In that case, run the
 % next cell to load and check frame information.
 
-animal = 'FR234'; % animal name
-day = '2023-04-18'; % yyyy-mm-dd
-experiments = [4]; % all experiments run that day (e.g. [1,2,3,4])
+animal = 'FR237'; % animal name
+day = '2023-06-21'; % yyyy-mm-dd
+experiments = [7]; % all experiments run that day (e.g. [1,2,3,4])
 
 [data_path,file_exists] = lilrig_cortexlab_filename(animal,day,[],'imaging');
 

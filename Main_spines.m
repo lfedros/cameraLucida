@@ -33,7 +33,7 @@ end
 
 %% load all dendrites and register their position to the soma in microns
 
-for iDb = 18:nDb
+for iDb = 19%:nDb
 
 %    neuron(iDb).dendrite = load_dendrite_old(neuron(iDb));
       [neuron(iDb).dendrite, neuron(iDb).soma, neuron(iDb).stitch] = load_dendrite(neuron(iDb));
@@ -51,7 +51,7 @@ end
 
 
 %% combine pixel maps
-for iDb = 17:nDb
+for iDb = 1:nDb
 
      [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px, neuron(iDb).soma]  = pxmap_combo(neuron(iDb));
 
@@ -63,7 +63,7 @@ plot_px_map(neuron(iDb).combo_px_map, 'gratings', 1, [1 3])
 end
 
 %% combine stats about px resps 
-for iDb = 15:nDb
+for iDb = 1:nDb
 
      [neuron(iDb).combo_resp]  = pxresp_combo(neuron(iDb));
      
@@ -84,7 +84,7 @@ plot_soma_vs_den_ori(neuron, 1,1);
 
 for iDb = 1:nDb
 
-   neuron(iDb).ret = load_retino(neuron(iDb),0);
+   neuron(iDb).ret = load_retino(neuron(iDb),1);
    
 end
 
@@ -114,7 +114,7 @@ end
 plot_den_ori_vs_ret_stats(neuron);
 %%
 
-for iDb = 1:nDb
+for iDb = 16:nDb
 
      neuron(iDb).combo_px_map = clusta_syn(neuron(iDb).combo_px_map,[0 30 2],1);
 

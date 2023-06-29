@@ -64,9 +64,9 @@ for iB = 1:nBins
 
 end
 
-ave_para_dist = nanmedian(para_clust,2);
-ave_ortho_dist = nanmedian(ortho_clust,2);
-ave_all_dist = nanmedian(all_clust,2);
+ave_para_dist = nanmean(para_clust,2);
+ave_ortho_dist = nanmean(ortho_clust,2);
+ave_all_dist = nanmean(all_clust,2);
 
 semd_para_dist = 1.253*nanstd(para_clust,[],2)/sqrt(nDb);
 semd_ortho_dist = 1.253*nanstd(ortho_clust,[], 2)/sqrt(nDb);
@@ -80,11 +80,11 @@ semd_all_dist = 1.253*nanstd(all_clust,[], 2)/sqrt(nDb);
 % mad_ortho_clust = mad(ortho_clust,0,2);
 % mad_all_clust = mad(all_clust,0,2);
 
-ave_para_clust_norm = nanmedian(para_clust_norm,2);
-ave_ortho_clust_norm = nanmedian(ortho_clust_norm,2);
+ave_para_clust_norm = nanmean(para_clust_norm,2);
+ave_ortho_clust_norm = nanmean(ortho_clust_norm,2);
 
 ratio_clust = para_clust./ortho_clust;
-ave_ratio_clust = nanmedian(ratio_clust,2);
+ave_ratio_clust = nanmean(ratio_clust,2);
 %%
 
 

@@ -22,11 +22,12 @@ function [dendrite, soma, stitch] = load_dendrite(neuron)
 
 
 % load the data from each imaged dendrite
-[~, spine_folder] = build_path(neuron.db);
+[~, neuron.db.spine_folder] = build_path(neuron.db);
+sprintf('Loading dendrites from %s', neuron.db.spine_folder);
 
 nDendrites =  numel(neuron.db.spine_seq);
 for iD = 1: nDendrites
-    foo = load(fullfile(spine_folder, neuron.db.spine_seq{iD}));
+    foo = load(fullfile(neuron.db.spine_folder, neuron.db.spine_seq{iD}));
     if ~isfield(foo, 'all_ws')
         try
             foo.all_ws = ones(numel(foo.ANOVA), 1);
@@ -46,7 +47,7 @@ end
 for iD = 1: nDendrites
 
     try
-        load(fullfile(spine_folder, neuron.db.pix_map{iD}));
+        load(fullfile(neuron.db.spine_folder, neuron.db.pix_map{iD}));
         try
             pxAmp_ori = abs(px_map.ori);
             pxAng_ori = angle(px_map.ori);

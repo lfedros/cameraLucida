@@ -18,8 +18,11 @@ load(fullfile(ret_path, ret_file));
 ret = prettify_ret(maps);
 
 [Px_y, Px_x] = size(ret.azimuth);
-ret.Px_sz_x = 3550/Px_x;
-ret.Px_sz_y = 3550/Px_y;
+
+[fov_x, fov_y] = ppbox.zoom2fov(1, neuron.db.retino.zoom);
+
+ret.Px_sz_x = fov_x/Px_x;
+ret.Px_sz_y = fov_y/Px_y;
 
 ret.x_um = (1:Px_x) * ret.Px_sz_x;
 ret.y_um = (1:Px_y) * ret.Px_sz_y;

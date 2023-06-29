@@ -135,7 +135,7 @@ para_clust=  clusta_hist(dd_para, do_para, d_edges);
 % end
 
 %% shuffle position
-nSh = 50; 
+nSh = 10; 
 
 for iSh = 1:nSh
 

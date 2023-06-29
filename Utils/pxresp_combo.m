@@ -237,7 +237,10 @@ formatAxes
 
 end
 
+[~, spine_folder] = build_path(neuron.db);
 
+file_name = [neuron.db.animal, num2str(neuron.db.neuron_id)];
+print('-vector', '-dpdf', fullfile(spine_folder, file_name));
 
 %%
 % trial_perm = randperm(nRep);
