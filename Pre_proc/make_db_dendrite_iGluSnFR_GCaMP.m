@@ -290,3 +290,35 @@ db(i).respWin       = [2 3];
 % db(i).stimList      = {[1:7:84, 85], [7:7:84, 85]}; 
 % db(i).respWin       = [0 3];
 
+
+%% FR234 neuron 15
+
+i = i+1;
+
+db(i).animal           = 'FR234';
+db(i).mouse_name    = {'FR234', 'FR234'};
+db(i).mouse_name_s2p    = {'FR234', 'FR234'};
+db(i).date          = {'2023-02-25', '2023-03-27'};
+db(i).date_s2p      = {'2023-02-25', '2023-03-27'};
+db(i).expts         = {[3], [1 4]};
+db(i).expID         = {[1], [2]};
+db(i).plane         = [6 6];
+db(i).starterID     = 15;
+db(i).stimList      = {[1:7:84, 85], [1:7:84, 85]}; %[5:7:84, 85] %[4:7:84, 85] %[3:7:84, 85]
+db(i).respWin       = [0 2];
+
+%% FR237 neuron 3
+
+i = i+1;
+
+db(i).animal           = 'FR237';
+db(i).mouse_name    = {'FR237'};
+db(i).mouse_name_s2p    = {'FR237'};
+db(i).date          = {'2023-05-31','2023-06-06','2023-06-06'};
+db(i).date_s2p      = {'2023-05-31','2023-06-06','2023-06-06'};
+db(i).expts         = {[2],[3],[3]};
+db(i).expID         = {[1],[1],[1]};
+db(i).plane         = [3, 3, 3];
+db(i).starterID     = 15;
+db(i).stimList      = {[3:7:84, 85], [1:7:84, 85], [3:7:84, 85]}; 
+db(i).respWin       = [0 2];

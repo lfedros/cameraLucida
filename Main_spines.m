@@ -33,7 +33,7 @@ end
 
 %% load all dendrites and register their position to the soma in microns
 
-for iDb = 19%:nDb
+for iDb = 20%1:nDb
 
 %    neuron(iDb).dendrite = load_dendrite_old(neuron(iDb));
       [neuron(iDb).dendrite, neuron(iDb).soma, neuron(iDb).stitch] = load_dendrite(neuron(iDb));
@@ -114,7 +114,7 @@ end
 plot_den_ori_vs_ret_stats(neuron);
 %%
 
-for iDb = 16:nDb
+for iDb = 1:nDb
 
      neuron(iDb).combo_px_map = clusta_syn(neuron(iDb).combo_px_map,[0 30 2],1);
 

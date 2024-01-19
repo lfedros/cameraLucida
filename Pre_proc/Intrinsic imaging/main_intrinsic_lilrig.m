@@ -10,7 +10,7 @@ addpath(genpath('C:\Users\Federico\Documents\GitHub\Lilrig'));
 %% Define options
 
 animal = 'FR237';
-day = '2023-06-21';
+day = '2023-06-23';
 experiment = '7';
 
 ExpRef = [day, '_', experiment, '_', animal];

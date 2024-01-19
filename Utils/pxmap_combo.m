@@ -22,7 +22,7 @@ for iD = 1:nDendrites
     sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99, 5);
 
     % - find pixels with no signal (amp = 0) and remove them
-    
+
     sig_zero_amp = abs(map(iD).ori) ==0 | abs(map(iD).dir) ==0;
 
     % - combine all significant pixels
@@ -31,7 +31,7 @@ for iD = 1:nDendrites
 
     % remove noise (unconnected components smaller than 6 px)
     signal(iD).bw= bwareaopen(sig_px,6);
-%          figure; imagesc(signal(iD).bw)
+    %          figure; imagesc(signal(iD).bw)
 
 
     % extract properties of significant pixels.
@@ -42,10 +42,10 @@ for iD = 1:nDendrites
     signal(iD).px_dir = map(iD).dir(signal(iD).bw);
     signal(iD).px_den_id = ones(size(signal(iD).px_ori))*iD;
     % normalise responses to max in each receording
-%     signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmax(abs(map(iD).ori(signal(iD).bw)));
-%     signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmax(abs(map(iD).dir(signal(iD).bw)));
+    %     signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmax(abs(map(iD).ori(signal(iD).bw)));
+    %     signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmax(abs(map(iD).dir(signal(iD).bw)));
 
-     signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmedian(abs(map(iD).ori(signal(iD).bw)));
+    signal(iD).px_ori_norm = map(iD).ori(signal(iD).bw)/nanmedian(abs(map(iD).ori(signal(iD).bw)));
     signal(iD).px_dir_norm = map(iD).dir(signal(iD).bw)/nanmedian(abs(map(iD).dir(signal(iD).bw)));
 
 
@@ -70,10 +70,10 @@ for iD = 1:nDendrites
     signal(iD).dir_pars = mfun.fitTuning(signal(iD).dir_bin, circGaussFilt(double(signal(iD).dir_bin_amp),1), 'vm2');
     signal(iD).tuning_fit = mfun.vonMises2(signal(iD).dir_pars, signal(iD).tun_dirs);
 
-     % fit a tuning curve to the distribution or norm resps
-     for iB = 1:numel(signal(iD).dir_bin)
-         signal(iD).dir_bin_amp_norm(iB) = sum(abs(signal(iD).px_dir_norm(signal(iD).dir_bin_idx == iB)));
-     end
+    % fit a tuning curve to the distribution or norm resps
+    for iB = 1:numel(signal(iD).dir_bin)
+        signal(iD).dir_bin_amp_norm(iB) = sum(abs(signal(iD).px_dir_norm(signal(iD).dir_bin_idx == iB)));
+    end
 
     signal(iD).dir_pars_norm = mfun.fitTuning(signal(iD).dir_bin, circGaussFilt(double(signal(iD).dir_bin_amp_norm),1), 'vm2');
     signal(iD).tuning_fit_norm = mfun.vonMises2(signal(iD).dir_pars_norm, signal(iD).tun_dirs);
@@ -95,7 +95,7 @@ for iD = 1:nDendrites
     signal(iD).tun_oris = -90:90;
     signal(iD).ori_pars = mfun.fitTuning(signal(iD).ori_bin*2, circGaussFilt(double(signal(iD).ori_bin_amp),1), 'vm1');
     signal(iD).tuning_fit_ori = mfun.vonMises(signal(iD).ori_pars, signal(iD).tun_oris*2);
-    
+
     % fit a tuning curve to the distribution of norm resps
     for iB = 1:numel(signal(iD).ori_bin)
         signal(iD).ori_bin_amp_norm(iB) = sum(abs(signal(iD).px_ori_norm(signal(iD).ori_bin_idx == iB)));
@@ -203,7 +203,7 @@ combo_map.pref_ori_norm = combo_map.ori_pars_norm(1)/2;
 %% compare single dendrites with soma
 
 if ~isempty(neuron.soma)
-    
+
     combo_map.soma_pref_dir = neuron.soma.dir_pars_vm(1);
     combo_map.soma_pref_dir_ori = combo_map.soma_pref_dir -90; %[-90 270]
     combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori >=180) = combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori >=180) -180;%[0 180];
@@ -225,12 +225,12 @@ if ~isempty(neuron.soma)
     soma.ori_pars_vm_centred = soma.ori_pars_vm;
     soma.ori_pars_vm_centred(1) = 0;
     soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, combo_map.tun_oris*2 );
-% here add code to compute dendrites relative to soma
-% to shift the non-fitted responses, use circshift(resps,4-maxSoma_pos)
+    % here add code to compute dendrites relative to soma
+    % to shift the non-fitted responses, use circshift(resps,4-maxSoma_pos)
 else
-     combo_map.soma_pref_dir = [];
+    combo_map.soma_pref_dir = [];
     combo_map.soma_pref_dir_ori = [];
-       combo_map.soma_pref_ori = [];
+    combo_map.soma_pref_ori = [];
 
 
 end
@@ -304,13 +304,18 @@ allden = combo_map.tuning_fit_ori_centred/sum(combo_map.tuning_fit_ori_centred);
 plot(signal(iD).tun_oris, allden/sum(allden), 'k', 'Linewidth', 2); hold on
 
 if ~isempty(soma)
-soma_fit = soma.ori_fit_vm_rel;
-plot(signal(iD).tun_oris, soma_fit/sum(soma_fit), 'r', 'Linewidth', 2); hold on
+    soma_fit = soma.ori_fit_vm_rel;
+    if min(soma_fit)<0
+        plot(signal(iD).tun_oris, soma_fit/sum(soma_fit-min(soma_fit)), 'r', 'Linewidth', 2); hold on
+
+    else
+        plot(signal(iD).tun_oris, soma_fit/sum(soma_fit), 'r', 'Linewidth', 2); hold on
+    end
 end
 
 for iD = 1: nDendrites
     den = signal(iD).tuning_fit_ori_rel/sum( signal(iD).tuning_fit_ori_rel);
-%     den = den/max(allden);
+    %     den = den/max(allden);
     plot(signal(iD).tun_oris, den, 'Color', [0.2 0.2 0.2]); hold on
 end
 

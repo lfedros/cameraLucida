@@ -98,18 +98,22 @@ maps.xpos.hemoPhase = mod(phase{xposStims(1)}+phase{xposStims(2)}, 2*pi)/2; %[0 
 maps.xpos.prefPhase = (-mod(+phase{xposStims(1)}-maps.xpos.hemoPhase, 2*pi) + ...%2*pi
     +mod(phase{xposStims(2)} -maps.xpos.hemoPhase, 2*pi))/2;
 
-maps.xpos.prefPhase(maps.xpos.prefPhase <0)=maps.xpos.prefPhase(maps.xpos.prefPhase <0) +2*pi;
+% maps.xpos.prefPhase(maps.xpos.prefPhase <0)=maps.xpos.prefPhase(maps.xpos.prefPhase <0) +2*pi;
+maps.xpos.prefPhase = maps.xpos.prefPhase +pi;
+
 
 maps.xpos.amplitude = (amp{xposStims(1)}+amp{xposStims(2)})/2; 
 maps.xpos.fovAngles = p(xposStims(1)).startEndPos;
 
 yposStims = find(ismember({p.orientation}, 'ypos'));
 maps.ypos.hemoPhase = mod(phase{yposStims(1)}+phase{yposStims(2)}, 2*pi)/2;
-maps.ypos.prefPhase = -mod(phase{yposStims(1)}-maps.ypos.hemoPhase, 2*pi) + ...%2*pi
-    +mod(phase{yposStims(2)}-maps.ypos.hemoPhase, 2*pi);
+maps.ypos.prefPhase = (-mod(phase{yposStims(1)}-maps.ypos.hemoPhase, 2*pi) + ...%2*pi
+    +mod(phase{yposStims(2)}-maps.ypos.hemoPhase, 2*pi))/2;
 
 
-maps.ypos.prefPhase(maps.ypos.prefPhase <0)=maps.ypos.prefPhase(maps.ypos.prefPhase <0) +2*pi;
+% maps.ypos.prefPhase(maps.ypos.prefPhase <0)=maps.ypos.prefPhase(maps.ypos.prefPhase <0) +2*pi;
+maps.ypos.prefPhase = maps.ypos.prefPhase +pi;
+
 
 maps.ypos.amplitude = (amp{yposStims(1)}+amp{yposStims(2)})/2; 
 maps.ypos.fovAngles = p(yposStims(1)).startEndPos;

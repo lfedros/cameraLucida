@@ -6,11 +6,12 @@ addpath('C:\Users\Federico\Documents\GitHub\cameraLucida\db');
 make_db_dendrite_iGluSnFR_GCaMP; % master database of orientation tuning recordings
 
 addpath('\\zserver.cortexlab.net\Code\Neuropil Correction\');
-addpath('E:\Google Drive\CarandiniLab\CarandiniLab_MATLAB\FedericoBox\2P')
+addpath('E:\Google Drive\Science\Carandini_Lab\CarandiniLab_MATLAB\FedericoBox\2P');
+
 nDb = numel(db);
 %% load and save 2 separate mat files in the target folder: gratings and gratings_cut
 
-for iDb = 13
+for iDb = 15
     
     ops.saveDir = 'D:\OneDrive - University College London\Data\Dendrites';
     ops.doLoad = 0;
@@ -31,7 +32,7 @@ for iDb = 13
     
 end
 % plotSweepResp_LFR(resp_abl(iDb).allResp(:, :,:), resp_abl(iDb).time, 2);
-for iDb = 13
+for iDb = 15
 plotSweepResp_LFR(resp(iDb).allResp(:, :,:), resp(iDb).time, 2);
 end
 

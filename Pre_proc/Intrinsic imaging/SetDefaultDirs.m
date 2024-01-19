@@ -32,7 +32,7 @@ if isunix
     
     DIRS.Temp      = '/tmp';
 else   
-        serverName     = '\\zaru.cortexlab.net';
+        serverName     = '\\znas.cortexlab.net';
 
 %     serverName     = '\\128.40.224.65';
 %         serverName     = '\\znas.cortexlab.net';
