@@ -32,12 +32,12 @@ for iDb = 1:nDb
         
         if norm_flag
         den_pref(iDb) = neuron(iDb).combo_px_map.pref_ori_norm;
-        den_fit(:, iDb) = neuron(iDb).combo_px_map.tuning_fit_ori_centred_norm/max(neuron(iDb).combo_px_map.tuning_fit_ori_centred_norm);
+        den_fit(:, iDb) = neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma_norm/max(neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma_norm);
         den_osi(iDb) = vis.osi(neuron(iDb).combo_px_map.ori_bin, neuron(iDb).combo_px_map.ori_bin_amp_norm,1);
 
         else
         den_pref(iDb) = neuron(iDb).combo_px_map.pref_ori;
-        den_fit(:, iDb) = neuron(iDb).combo_px_map.tuning_fit_ori_centred/max(neuron(iDb).combo_px_map.tuning_fit_ori_centred);
+        den_fit(:, iDb) = neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma/max(neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma);
         den_osi(iDb) = vis.osi(neuron(iDb).combo_px_map.ori_bin, neuron(iDb).combo_px_map.ori_bin_amp,1);
         end
 
@@ -50,8 +50,10 @@ for iDb = 1:nDb
 %         sort_den(:, iDb)  = (sort(den_fit(:,iDb), 'ascend') - min(den_fit(:,iDb)))/(max(den_fit(:,iDb))- min(den_fit(:,iDb)));
 %         sort_soma(:, iDb) = (sort(soma_fit(:,iDb), 'ascend') - min(soma_fit(:,iDb)))/(max(soma_fit(:,iDb))- min(soma_fit(:,iDb)));
         
-        sort_den(:, iDb)  = sort(den_fit(:,iDb), 'ascend') /max(den_fit(:,iDb));
-        sort_soma(:, iDb) = sort(soma_fit(:,iDb), 'ascend')/max(soma_fit(:,iDb));
+%         sort_den(:, iDb)  = sort(den_fit(:,iDb), 'ascend') /max(den_fit(:,iDb));
+        [sort_soma(:, iDb), idx] = sort(soma_fit(:,iDb), 'ascend');
+        sort_soma(:, iDb) =sort_soma(:, iDb) /max(soma_fit(:,iDb));
+        sort_den(:, iDb)  = den_fit(idx,iDb) /max(den_fit(:,iDb));
 
         
         this_soma = neuron(iDb).soma.aveOriPeak;
@@ -156,7 +158,9 @@ formatAxes
 subplot(2,3,3)
 plot([0.5 1], [0.5 1], '--', 'Color', [0 0 0]); hold on
 for iN = 1: nDb
-    plot(sort_den(:, iN) , sort_soma(:, iN) , 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); 
+%     plot(sort_den(:, iN) , sort_soma(:, iN) , 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); 
+        plot(sort_den(:, iN) , sort_soma(:, iN) , 'o', 'Color', [0.7 0.7 0.7]); 
+
 end
 plot(mean(sort_den ,2), mean(sort_soma ,2), 'Color', [0 0 0], 'LineWidth', 2); 
 xlim([0.45 1.1])

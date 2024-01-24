@@ -118,7 +118,7 @@ for iD = 1: numel(neuron.db.spine_seq)
         umperpx_X_soma = dendrite(iD).soma.umperpx;
         umperpx_Y_soma = dendrite(iD).soma.umperpx;
     else
-    [umperpx_X_soma,  umperpx_Y_soma] = ppbox.zoom2fov(dendrite(iD).soma.zoomFactor);
+    [umperpx_X_soma,  umperpx_Y_soma] = ppbox.zoom2fov(dendrite(iD).soma.zoomFactor, neuron.db.mic2p);
     umperpx_X_soma = umperpx_X_soma/1024;
     umperpx_Y_soma = umperpx_Y_soma/1024;
     end

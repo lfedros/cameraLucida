@@ -250,6 +250,45 @@ for iD = 1: nDendrites
     signal(iD).tuning_fit_ori_rel = mfun.vonMises(signal(iD).ori_pars_rel, signal(iD).tun_oris*2);
 
 end
+
+%% compare global dendrites with soma
+if ~isempty(neuron.soma)
+
+combo_map.ori_pars_rel_soma = combo_map.ori_pars;
+combo_map.ori_pars_rel_soma(1) = (combo_map.pref_ori - combo_map.soma_pref_dir_ori)*2;
+
+    if combo_map.ori_pars_rel_soma(1) <-180
+        combo_map.ori_pars_rel_soma(1) = combo_map.ori_pars_rel_soma(1) +360;
+    elseif combo_map.ori_pars_rel_soma(1) >= 180
+        combo_map.ori_pars_rel_soma(1) = combo_map.ori_pars_rel_soma(1) -360;
+
+    end
+
+combo_map.tuning_fit_ori_rel_soma = mfun.vonMises(combo_map.ori_pars_rel_soma, combo_map.tun_oris*2 );
+
+combo_map.ori_pars_rel_soma_norm = combo_map.ori_pars_norm;
+combo_map.ori_pars_rel_soma_norm(1) = (combo_map.pref_ori_norm - combo_map.soma_pref_dir_ori)*2;
+
+   if combo_map.ori_pars_rel_soma_norm(1) <-180
+        combo_map.ori_pars_rel_soma_norm(1) = combo_map.ori_pars_rel_soma_norm(1) +360;
+    elseif combo_map.ori_pars_rel_soma_norm(1) >= 180
+        combo_map.ori_pars_rel_soma_norm(1) = combo_map.ori_pars_rel_soma_norm(1)-360;
+
+    end
+
+combo_map.tuning_fit_ori_rel_soma_norm = mfun.vonMises(combo_map.ori_pars_rel_soma_norm, combo_map.tun_oris*2 );
+else
+
+combo_map.ori_pars_rel_soma = combo_map.ori_pars_centred;
+
+combo_map.tuning_fit_ori_rel_soma = combo_map.tuning_fit_ori_centred;
+
+combo_map.ori_pars_rel_soma_centred_norm = combo_map.ori_pars_centred_norm;
+
+combo_map.tuning_fit_ori_rel_soma_centred_norm = combo_map.tuning_fit_ori_centred_norm;
+end
+
+
 %%
 
 img = combo_map.mimg;
