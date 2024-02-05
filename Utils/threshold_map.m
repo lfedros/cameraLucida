@@ -1,7 +1,11 @@
-function sig_px = threshold_map(img, foreground, tmode, thrs, filt_scale)
+function sig_px = threshold_map(img, foreground, tmode, thrs, filt_scale, doPlot)
 
 if nargin < 5
     filt_scale = 6;
+end
+
+if nargin <6
+    doPlot = 0;
 end
 
 nan_idx = isnan(img);
@@ -26,5 +30,10 @@ end
 
 sig_px = amp_mimg>thres_mimg & foreground>0;
 
+sig_px  = bwareaopen(sig_px ,6, 4); % remove connected component with less than 6 pixels
+
+if doPlot
+figure; imagesc(sig_px )
+end
 
 end

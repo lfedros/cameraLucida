@@ -228,7 +228,7 @@ switch stim_type
 
         nStim_blank = size(resPeak_blank,2); nRep_blank = size(resPeak_blank,3);
         resPeak_blank = reshape(resPeak_blank, nSVD, nStim_blank*nRep_blank);
-        rr.trial_blank_resp_blank = single(sS*resPeak_blank);
+        rr.trial_blank_resp = single(sS*resPeak_blank);
         rr.blank_resp = single(sS*aveResPeak_blank);
   
 %         rr.all_st.resp_sT = single(resPeak);
