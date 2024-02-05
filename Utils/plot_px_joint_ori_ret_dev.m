@@ -78,6 +78,8 @@ bins = 0:30:90;
 amp_para = amp(parallel_idx);
 for iB = 1:numel(bins)-1
     parallel_count(iB) = sum(amp_para(parallel_ori_bin == iB));
+    parallel_amp(iB) = mean(amp_para(parallel_ori_bin == iB));
+
 end
 
 amp_ortho = amp(ortho_idx);
@@ -85,12 +87,15 @@ amp_ortho = amp(ortho_idx);
 
 for iB = 1:numel(bins)-1
     ortho_count(iB) = sum(amp_ortho(ortho_ori_bin == iB));
+        ortho_amp(iB) = mean(amp_ortho(ortho_ori_bin == iB));
+
 end
 
 [all_count, ~,  all_ori_bin]  = histcounts(d_ori, bins);
 
 for iB = 1:numel(bins)-1
     all_count(iB) = sum(amp(all_ori_bin == iB));
+    all_amp(iB) = mean(amp(all_ori_bin == iB));
 end
 
 parallel_dist= parallel_count/sum(parallel_count);
@@ -168,9 +173,13 @@ combo_px_map.ortho_ori = angle(sum(amp(ortho_idx).*exp(1i*ori(ortho_idx)*2*pi/18
 %%
 combo_px_map.parallel_ori_bin = parallel_ori_bin;
 combo_px_map.parallel_count = parallel_count;
+combo_px_map.parallel_amp = parallel_amp;
 combo_px_map.ortho_count = ortho_count;
+combo_px_map.ortho_amp = ortho_amp;
 combo_px_map.ortho_ori_bin = ortho_ori_bin;
 combo_px_map.all_count = all_count;
+combo_px_map.all_amp = all_amp;
+
 combo_px_map.all_ori_bin = all_ori_bin;
 
 combo_px_map.parallel_dist= parallel_dist;

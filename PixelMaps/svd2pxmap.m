@@ -96,7 +96,7 @@ switch stim_type
         if nSfTf >1
                 rr.nSfTf = nSfTf;
 
-            stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes);
+%             stimMatrix = ppbox.buildStimMatrix(stimSequence, stimTimes, frameTimes);
 
             for iST = 1:nSfTf
                 %select stims
@@ -185,6 +185,7 @@ switch stim_type
         stimMatrix = ppbox.buildStimMatrix(stimSequence_dir, stimTimes, frameTimes);
 
         % remove blank from stimMatrix
+        stimMatrix_blank = stimMatrix(p.nDir+1,:);
         stimMatrix(p.nDir+1,:) = [];
 
         % compute stimulus triggered responses
@@ -197,11 +198,18 @@ switch stim_type
         [resp, aveResp, ~, kernelTime] = ...
             ppbox.getStimulusSweepsLFR(sT, stimTimes, stimMatrix,frameRate); % responses is (nroi, nStim, nResp, nT)
         aveResp = aveResp(:,:,kernelTime>-1 & kernelTime<3);
+
+         [resp_blank, aveResp_blank] = ...
+            ppbox.getStimulusSweepsLFR(sT, stimTimes, stimMatrix_blank,frameRate); % responses is (nroi, nStim, nResp, nT)
+        aveResp_blank = aveResp_blank(:,:,kernelTime>-1 & kernelTime<3);
        
         % measure response in respWindow
         respWin = [0, 2];
         [resPeak, aveResPeak] = ...
             ppbox.gratingOnResp(resp, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
+
+         [resPeak_blank, aveResPeak_blank] = ...
+            ppbox.gratingOnResp(resp_blank, kernelTime, respWin);  % resPeak is (nroi, nStim, nResp)
 
          % gentle spatial smoothing of the spatial components
         sS =reshape( S(:, 1:nSVD), nY, nX, nSVD);
@@ -217,6 +225,12 @@ switch stim_type
         rr.stimSequence = stimSequence;
         rr.stimSequence_dir = stimSequence_dir;
 
+
+        nStim_blank = size(resPeak_blank,2); nRep_blank = size(resPeak_blank,3);
+        resPeak_blank = reshape(resPeak_blank, nSVD, nStim_blank*nRep_blank);
+        rr.trial_blank_resp_blank = single(sS*resPeak_blank);
+        rr.blank_resp = single(sS*aveResPeak_blank);
+  
 %         rr.all_st.resp_sT = single(resPeak);
 %         rr.all_st.aveResp_sT = aveResPeak;
 %         rr.all_st.resp_sS = sS ;
@@ -249,6 +263,7 @@ rr.nX = nX;
 rr.nY = nY;
 rr.nRep = nRep;
 rr.nStim = nStim;
+rr.nRep_blank = nRep_blank;
 
 end
 

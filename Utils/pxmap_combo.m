@@ -14,24 +14,33 @@ for iD = 1:nDendrites
     thrs = 95; % threshold for significance, perctile of background
     filt_scale = 3; % spatial scale of filtering in pixels
     sig_mimg =threshold_map(map(iD).mimg, map(iD).branch_bw, 'tile', thrs, filt_scale);
+    sig_mimg = bwareaopen(sig_mimg,6, 4);
+
+%     figure; imagesc(sig_mimg)
 
     % - threshold pixels based on amplitude of direction tuning
     sig_dir = threshold_map(abs(map(iD).dir), map(iD).branch_bw, 'tile', 99, 5);
+    sig_dir = bwareaopen(sig_dir,6, 4);
+
+%     figure; imagesc(sig_dir)
 
     % - threshold pixels based on amplitude of orientation tuning
     sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99, 5);
+    sig_ori = bwareaopen(sig_ori,6, 4);
+
+%     figure; imagesc(sig_ori)
 
     % - find pixels with no signal (amp = 0) and remove them
-
     sig_zero_amp = abs(map(iD).ori) ==0 | abs(map(iD).dir) ==0;
+%     figure; imagesc(sig_zero_amp )
 
     % - combine all significant pixels
     sig_px = (sig_ori | sig_dir | sig_mimg) & ~sig_zero_amp;
     %     figure; imagesc(sig_px)
 
     % remove noise (unconnected components smaller than 6 px)
-    signal(iD).bw= bwareaopen(sig_px,6);
-    %          figure; imagesc(signal(iD).bw)
+    signal(iD).bw= bwareaopen(sig_px,8, 4);
+             figure; imagesc(signal(iD).bw)
 
 
     % extract properties of significant pixels.
@@ -210,6 +219,8 @@ if ~isempty(neuron.soma)
     combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori <0) = combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori <0) +180;%[0 180];
     combo_map.soma_pref_ori = neuron.soma.ori_pars_vm(1)/2;
 
+
+
     soma.ori_pars_vm_rel = soma.ori_pars_vm;
     soma.ori_pars_vm_rel(1) = soma.ori_pars_vm_rel(1)-combo_map.ori_pars(1);
 
@@ -227,10 +238,24 @@ if ~isempty(neuron.soma)
     soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, combo_map.tun_oris*2 );
     % here add code to compute dendrites relative to soma
     % to shift the non-fitted responses, use circshift(resps,4-maxSoma_pos)
+        [~, d_idx] = max(soma.avePeak(1:12));
+    [~, o_idx] = max(soma.aveOriPeak);
+
+    soma.avePeak_cent = circshift(soma.avePeak(1:12), 7 - d_idx);
+    soma.aveOriPeak_cent = circshift(soma.aveOriPeak, 4 - o_idx);
+    combo_map.dir_bin_amp_soma_rel = circshift(combo_map.dir_bin_amp, 7 - d_idx);
+    combo_map.dir_bin_amp_norm_soma_rel = circshift(combo_map.dir_bin_amp_norm, 7 - d_idx);
+    combo_map.ori_bin_amp_soma_rel = circshift(combo_map.ori_bin_amp, 4 - o_idx);
+    combo_map.ori_bin_amp_norm_soma_rel = circshift(combo_map.ori_bin_amp_norm, 4 - o_idx);
+
 else
     combo_map.soma_pref_dir = [];
     combo_map.soma_pref_dir_ori = [];
     combo_map.soma_pref_ori = [];
+    combo_map.dir_bin_amp_soma_rel = [];
+    combo_map.dir_bin_amp_soma_rel = [];
+    combo_map.ori_bin_amp_soma_rel= [];
+    combo_map.ori_bin_amp_soma_rel = [];
 
 
 end
@@ -255,7 +280,7 @@ end
 if ~isempty(neuron.soma)
 
 combo_map.ori_pars_rel_soma = combo_map.ori_pars;
-combo_map.ori_pars_rel_soma(1) = (combo_map.pref_ori - combo_map.soma_pref_dir_ori)*2;
+combo_map.ori_pars_rel_soma(1) = (combo_map.pref_ori - combo_map.soma_pref_ori)*2;
 
     if combo_map.ori_pars_rel_soma(1) <-180
         combo_map.ori_pars_rel_soma(1) = combo_map.ori_pars_rel_soma(1) +360;
@@ -267,7 +292,7 @@ combo_map.ori_pars_rel_soma(1) = (combo_map.pref_ori - combo_map.soma_pref_dir_o
 combo_map.tuning_fit_ori_rel_soma = mfun.vonMises(combo_map.ori_pars_rel_soma, combo_map.tun_oris*2 );
 
 combo_map.ori_pars_rel_soma_norm = combo_map.ori_pars_norm;
-combo_map.ori_pars_rel_soma_norm(1) = (combo_map.pref_ori_norm - combo_map.soma_pref_dir_ori)*2;
+combo_map.ori_pars_rel_soma_norm(1) = (combo_map.pref_ori_norm -combo_map.soma_pref_ori)*2;
 
    if combo_map.ori_pars_rel_soma_norm(1) <-180
         combo_map.ori_pars_rel_soma_norm(1) = combo_map.ori_pars_rel_soma_norm(1) +360;

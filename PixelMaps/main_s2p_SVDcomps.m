@@ -49,16 +49,26 @@ addpath('\\znas.cortexlab.net\Code\Spikes');
 clear;
 i = 0;
 
-
 i = i+1;
-db(i).mouse_name    = 'M160929_FR103'; % animal name
-db(i).date          = '2016-11-10'; % date of the recording
-db(i).expts         = [1 2]; % all the experiments in the recording
-db(i).expID         = 2; % the experiment you want to compute pixel map of
+db(i).mouse_name    = 'FR213'; % animal name
+db(i).date          = '2022-06-15'; % date of the recording
+db(i).expts         = [4]; % all the experiments in the recording
+db(i).expID         = 1; % the experiment you want to compute pixel map of
 db(i).expType  = 'gratings';
-db(i).nplanes       = 10;
-db(i).s2p_version = 'matlab';
+db(i).nplanes       = 1;
+db(i).s2p_version = 'python';
 db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
+
+
+% i = i+1;
+% db(i).mouse_name    = 'M160929_FR103'; % animal name
+% db(i).date          = '2016-11-10'; % date of the recording
+% db(i).expts         = [1 2]; % all the experiments in the recording
+% db(i).expID         = 2; % the experiment you want to compute pixel map of
+% db(i).expType  = 'gratings';
+% db(i).nplanes       = 10;
+% db(i).s2p_version = 'matlab';
+% db(i).root_folder ='D:\OneDrive - University College London\Data\2P\';
 
 % i = i+1;
 % db(i).mouse_name    = 'FR230'; % animal name

@@ -21,7 +21,7 @@ sig_den_id = combo_px_map.sig_den_id;
 isoOri = combo_px_map.isoOri;
 
 %% for orientation
-% angle_axial = combo_px_map.angle_axial_um; %[- pi/2 pi/2]
+% angle_axial = combo_px_map.angle_axial_um_rel; %[- pi/2 pi/2]
 angle_axial = combo_px_map.angle_axial_rel; %[- pi/2 pi/2]
 
 if ~isempty(combo_px_map.soma_pref_ori)
@@ -75,7 +75,7 @@ d_edges = scale(1):scale(3):scale(2);
 dd_all = single(pdist(gpuArray([sig_x_um(:), sig_y_um(:), sig_den_id(:)*1000]), 'euclidean'));
 dd_all = gather(dd_all); 
 do_all = pdist(gpuArray(ori), 'euclidean');
-do_all = gather(do_all); 
+do_all = gather(do_all); % [0 180]
 do_all(do_all >=90) = do_all(do_all >=90) -180; %[-90 90]
 
 dd_ortho = single(pdist(gpuArray([sig_x_um(ortho_idx), sig_y_um(ortho_idx), sig_den_id(ortho_idx)*1000]), 'euclidean'));

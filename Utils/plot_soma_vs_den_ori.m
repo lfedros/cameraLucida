@@ -26,7 +26,7 @@ nDb = numel(neuron);
 for iDb = 1:nDb
 
     if ori_flag
-        soma_pref(iDb) = neuron(iDb).combo_px_map.soma_pref_dir_ori;
+        soma_pref(iDb) = neuron(iDb).combo_px_map.soma_pref_ori;
         % den_raw(:, iN) = neuron(iDb).combo_px_map.ori_bin_amp/max(neuron(iDb).combo_px_map.ori_bin_amp);
         % soma_raw(:,iN) = neuron(iDb).soma.aveOriPeak/max(neuron(iDb).soma.aveOriPeak);
         
@@ -35,25 +35,48 @@ for iDb = 1:nDb
         den_fit(:, iDb) = neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma_norm/max(neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma_norm);
         den_osi(iDb) = vis.osi(neuron(iDb).combo_px_map.ori_bin, neuron(iDb).combo_px_map.ori_bin_amp_norm,1);
 
+        den(:, iDb) = neuron(iDb).combo_px_map.ori_bin_amp_norm_soma_rel/max(neuron(iDb).combo_px_map.ori_bin_amp_norm_soma_rel);
+
         else
         den_pref(iDb) = neuron(iDb).combo_px_map.pref_ori;
         den_fit(:, iDb) = neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma/max(neuron(iDb).combo_px_map.tuning_fit_ori_rel_soma);
         den_osi(iDb) = vis.osi(neuron(iDb).combo_px_map.ori_bin, neuron(iDb).combo_px_map.ori_bin_amp,1);
+
+        den(:, iDb) = neuron(iDb).combo_px_map.ori_bin_amp_soma_rel/max(neuron(iDb).combo_px_map.ori_bin_amp_soma_rel);
+
         end
 
         soma_fit(:,iDb) = neuron(iDb).soma.ori_fit_vm_centred/max(neuron(iDb).soma.ori_fit_vm_centred);
+        soma(:, iDb) = neuron(iDb).soma.aveOriPeak_cent;
+
         if min(soma_fit(:,iDb)) <0
             soma_fit(:,iDb) = soma_fit(:,iDb)-min(soma_fit(:,iDb));
-            soma_fit(:,iDb) = soma_fit(:,iDb)/max(soma_fit(:,iDb));
+
         end
-% 
+        if min(soma(:, iDb)) <0
+                        soma(:,iDb) = soma(:,iDb)-min(soma(:,iDb));
+
+        end
+           soma_fit(:,iDb) = soma_fit(:,iDb)/max(soma_fit(:,iDb));
+
+            soma(:,iDb) = soma(:,iDb)/max(soma(:,iDb));
+
 %         sort_den(:, iDb)  = (sort(den_fit(:,iDb), 'ascend') - min(den_fit(:,iDb)))/(max(den_fit(:,iDb))- min(den_fit(:,iDb)));
 %         sort_soma(:, iDb) = (sort(soma_fit(:,iDb), 'ascend') - min(soma_fit(:,iDb)))/(max(soma_fit(:,iDb))- min(soma_fit(:,iDb)));
         
 %         sort_den(:, iDb)  = sort(den_fit(:,iDb), 'ascend') /max(den_fit(:,iDb));
-        [sort_soma(:, iDb), idx] = sort(soma_fit(:,iDb), 'ascend');
-        sort_soma(:, iDb) =sort_soma(:, iDb) /max(soma_fit(:,iDb));
-        sort_den(:, iDb)  = den_fit(idx,iDb) /max(den_fit(:,iDb));
+        [sort_soma_fit(:, iDb), idx] = sort(soma_fit(:,iDb), 'ascend');
+        sort_soma_fit(:, iDb) =sort_soma_fit(:, iDb) /max(soma_fit(:,iDb));
+        sort_den_fit(:, iDb)  = den_fit(idx,iDb) /max(den_fit(:,iDb));
+
+        [sort_soma_fit_disc(:, iDb), sort_den_fit_disc(:, iDb)] =  intervalReg(sort_den_fit(:, iDb), sort_soma_fit(:, iDb), 0:0.1:1);
+
+        [sort_soma(:, iDb), idx] = sort(soma(:,iDb), 'ascend');
+        sort_soma(:, iDb) =sort_soma(:, iDb) /max(soma(:,iDb));
+        sort_den(:, iDb)  = den(idx,iDb) /max(den(:,iDb));
+
+        [sort_soma_disc(:, iDb), sort_den_disc(:, iDb)] =  intervalReg(sort_den(:, iDb), sort_soma(:, iDb), 0:0.1:1);
+
 
         
         this_soma = neuron(iDb).soma.aveOriPeak;
@@ -74,6 +97,10 @@ for iDb = 1:nDb
 
     end
 end
+
+        [ave_sort_soma_fit_disc, ave_sort_den_fit_disc] =  intervalReg(sort_den_fit(:), sort_soma_fit(:), 0:0.1:1, 1);
+        [ave_sort_soma_disc, ave_sort_den_disc] =  intervalReg(sort_den(:), sort_soma(:), 0:0.1:1, 1);
+
 
 if ori_flag
 
@@ -126,16 +153,29 @@ else
 
 end
 
+%% average stats
 
+tun_oris = neuron(1).soma.oris(1:6);
+tun_oris = [tun_oris, tun_oris(end)+unique(diff(tun_oris))];
+
+ave_den =  median([den; den(1,:)],2); 
+ave_soma =  median([soma; soma(1,:)],2); 
+
+ave_den_fit =  median([den_fit; den_fit(1,:)],2); 
+ave_soma_fit =  median([soma_fit; soma_fit(1,:)],2); 
+
+[ave_sort_soma, idx] = sort(ave_soma, 'ascend');
+ave_sort_den  = ave_den(idx)/max(ave_den);
+
+[ave_sort_soma_fit, idx] = sort(ave_soma_fit, 'ascend');
+ave_sort_den_fit  = ave_den_fit(idx) /max(ave_den_fit);
 
 %% plot
 figure('Color', 'w', 'Position', [508 534 732 444]);
 
-
-subplot(2,3,1)
-tun_oris = neuron(iDb).combo_px_map.tun_oris;
-plot(tun_oris , den_fit, 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); hold on;
-plot(tun_oris , mean(den_fit,2), 'Color', [0 0 0], 'LineWidth', 2); hold on;
+subplot(3,3,1)
+plot(tun_oris, [den; den(1,:)], 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); hold on;
+plot(tun_oris, median([den; den(1,:)],2), 'Color', [0 0 0], 'LineWidth', 2); hold on;
 xlim([-100 100])
 ylim([ -0.1 1.1])
 set(gca, 'XTick', [-90 0 90]);
@@ -144,25 +184,25 @@ xlabel('D pref ori')
 ylabel('Normalised glut input')
 formatAxes
 
-subplot(2,3,2)
-plot(tun_oris , soma_fit, 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); hold on;
-plot(tun_oris , mean(soma_fit,2), 'Color', [0 0 0], 'LineWidth', 2); hold on;
+subplot(3,3,2)
+plot(tun_oris , [soma; soma(1,:)], 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); hold on;
+plot(tun_oris , median([soma; soma(1,:)],2), 'Color', [0 0 0], 'LineWidth', 2); hold on;
 xlim([-100 100])
 ylim([ -0.1 1.1])
 set(gca, 'XTick', [-90 0 90]);
 axis square;
 xlabel('D pref ori')
-ylabel('Normalised soma resp')
+ylabel('Normalised glut input')
 formatAxes
-
-subplot(2,3,3)
+% 
+subplot(3,3,3)
 plot([0.5 1], [0.5 1], '--', 'Color', [0 0 0]); hold on
 for iN = 1: nDb
-%     plot(sort_den(:, iN) , sort_soma(:, iN) , 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); 
         plot(sort_den(:, iN) , sort_soma(:, iN) , 'o', 'Color', [0.7 0.7 0.7]); 
-
 end
-plot(mean(sort_den ,2), mean(sort_soma ,2), 'Color', [0 0 0], 'LineWidth', 2); 
+% plot(ave_sort_den_disc, ave_sort_soma_disc , 'Color', [0 0 0], 'LineWidth', 2); 
+plot(ave_sort_den_disc,ave_sort_soma_disc, 'Color', [0 0 0], 'LineWidth', 2); 
+
 xlim([0.45 1.1])
 ylim([ -0.1 1.1])
 set(gca, 'XTick', [0.5 1]);
@@ -171,7 +211,50 @@ xlabel('Glut input')
 ylabel('Soma resp')
 formatAxes
 
-subplot(2,3,4)
+
+
+subplot(3,3,4)
+tun_oris = neuron(iDb).combo_px_map.tun_oris;
+plot(tun_oris , den_fit, 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); hold on;
+plot(tun_oris , nanmedian(den_fit,2), 'Color', [0 0 0], 'LineWidth', 2); hold on;
+xlim([-100 100])
+ylim([ -0.1 1.1])
+set(gca, 'XTick', [-90 0 90]);
+axis square;
+xlabel('D pref ori')
+ylabel('Normalised glut input')
+formatAxes
+
+subplot(3,3,5)
+plot(tun_oris , soma_fit, 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); hold on;
+plot(tun_oris , nanmedian(soma_fit,2), 'Color', [0 0 0], 'LineWidth', 2); hold on;
+xlim([-100 100])
+ylim([ -0.1 1.1])
+set(gca, 'XTick', [-90 0 90]);
+axis square;
+xlabel('D pref ori')
+ylabel('Normalised soma resp')
+formatAxes
+
+
+subplot(3,3,6)
+plot([0.5 1], [0.5 1], '--', 'Color', [0 0 0]); hold on
+for iN = 1: nDb
+%     plot(sort_den_fit(:, iN) , sort_soma_fit(:, iN) , 'o', 'Color', [0.7 0.7 0.7], 'LineWidth', 0.5); 
+        plot(sort_den_fit_disc(:, iN) , sort_soma_fit_disc(:, iN) , '-', 'Color', [0.7 0.7 0.7]); 
+
+end
+% plot(ave_sort_den_fit_disc, ave_sort_soma_fit_disc , 'Color', [0 0 0], 'LineWidth', 2);
+plot(ave_sort_den_fit_disc,ave_sort_soma_fit_disc, 'Color', [0 0 0], 'LineWidth', 2); 
+xlim([0.45 1.1])
+ylim([ -0.1 1.1])
+set(gca, 'XTick', [0.5 1]);
+axis square;
+xlabel('Glut input')
+ylabel('Soma resp')
+formatAxes
+
+subplot(3,3,7)
 hold on;
 plot([0 180], [0 180], '--', 'Color', [0 0 0]);
 plot(soma_pref, den_pref, 'o', 'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 0 0], 'MarkerSize', 7);
@@ -188,7 +271,7 @@ xlabel('Soma pref ori')
 ylabel('Input pref ori')
 title(sprintf('rcc = %03f, p = %03f \n  vp = %03f', r, pr, pv));
 
-subplot(2,3,5)
+subplot(3,3,8)
 if ori_flag
     edges = 0:15:90;
 else
@@ -203,7 +286,7 @@ xlabel('Soma-input D ori')
 ylabel('Count')
 formatAxes
 
-subplot(2,3,6)
+subplot(3,3,9)
 hold on;
 plot([0 1], [0 1], '--', 'Color', [0 0 0]);
 plot(soma_osi, den_osi, 'o', 'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 0 0], 'MarkerSize', 7);

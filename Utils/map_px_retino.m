@@ -74,7 +74,7 @@ combo_px_map.angle_axial_rel = combo_px_map.angle_axial;
 combo_px_map.angle_axial_rel(:)= unwrap_angle(combo_px_map.angle_axial_rel(:) - soma_ori*pi/180,1);
 
 %% shuffle ortho and para dendrites by rotating morphology relative to map
-nSh = 1000; 
+nSh = 1; 
 
 angle_sh = rand(nSh,1)*360;
 

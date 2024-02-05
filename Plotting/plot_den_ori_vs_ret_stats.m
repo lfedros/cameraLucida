@@ -11,6 +11,12 @@ ortho_dist(:, iDb) = neuron(iDb).combo_px_map.ortho_dist;
 po_ratio(:, iDb) = neuron(iDb).combo_px_map.po_ratio;
 all_dist(:,iDb) =neuron(iDb).combo_px_map.all_dist;
 
+parallel_amp(:, iDb) = neuron(iDb).combo_px_map.parallel_amp;
+ortho_amp(:, iDb) = neuron(iDb).combo_px_map.ortho_amp;
+po_amp_ratio(:, iDb) =  parallel_amp(:, iDb)./ortho_amp(:, iDb);
+all_amp_dist(:,iDb) =neuron(iDb).combo_px_map.all_amp;
+
+
 angs = [0 120 240];
 
 % r_para(iDb) = circ_r(angs', parallel_dist(:, iDb));
@@ -64,10 +70,53 @@ ave_para_dist = nanmean(parallel_dist, 2);
 ave_ortho_dist = nanmean(ortho_dist, 2);
 ave_po_ratio = nanmean(po_ratio, 2);
 ave_all_dist = nanmean(all_dist, 2);
+
+ave_para_amp = nanmean(parallel_amp, 2);
+ave_ortho_amp = nanmean(ortho_amp, 2);
+ave_po_amp_ratio = nanmean(po_amp_ratio, 2);
+ave_all_amp_dist = nanmean(all_amp_dist, 2);
 %%
 figure('Color', 'w', 'Position', [423 344 972 420]);
 
-subplot(2,4,2); 
+subplot(3,4,2); 
+hold on; axis square; xlim([0 90]); ylim([0.8 1.6])
+plot(ret_ori_bins, parallel_amp, 'Color', [1 0 0],'LineWidth', 0.5);
+plot(ret_ori_bins,ave_para_amp, 'Color', [0.5 0 0], 'LineWidth', 2);
+set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
+xlabel('Delta ori (deg)')
+ylabel('% para spines')
+p = anova1(parallel_amp', [], 'off');
+title(sprintf('p = %.4f', p));
+formatAxes
+
+
+subplot(3,4,3); 
+
+hold on; axis square; xlim([0 90]); ylim([0.6 1.6])
+plot(ret_ori_bins, ortho_amp, 'Color', [0 0.5 1], 'LineWidth', 0.5);
+plot(ret_ori_bins, ave_ortho_amp, 'Color', [0 0.25 0.5], 'LineWidth', 2);
+set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
+xlabel('Delta ori (deg)')
+ylabel('% ortho spines')
+p = anova1(ortho_amp', [], 'off');
+title(sprintf('p = %.4f', p))
+formatAxes
+
+subplot(3,4,4); 
+
+hold on; axis square; xlim([0 90]); %ylim([-0.2 0.2]);
+plot(ret_ori_bins, po_amp_ratio, 'Color', [0.5 0.5 0.5], 'LineWidth', 0.5);
+plot(ret_ori_bins, ave_po_amp_ratio, 'Color', [0 0 0], 'LineWidth', 2);
+set(gca, 'Xtick', [15 45 75], 'XTickLabel', {'0-30', '30-60', '60-90'})
+xlabel('Delta ori (deg)')
+ylabel('% para - ortho')
+p = anova1(po_amp_ratio', [], 'off');
+title(sprintf('p = %.6f', p))
+formatAxes
+
+
+
+subplot(3,4,6); 
 hold on; axis square; xlim([0 90]); ylim([0.1 0.6])
 plot(ret_ori_bins, parallel_dist, 'Color', [1 0 0],'LineWidth', 0.5);
 plot(ret_ori_bins,ave_para_dist, 'Color', [0.5 0 0], 'LineWidth', 2);
@@ -79,7 +128,7 @@ title(sprintf('p = %.4f', p));
 formatAxes
 
 
-subplot(2,4,3); 
+subplot(3,4,7); 
 
 hold on; axis square; xlim([0 90]); ylim([0.1 0.6])
 plot(ret_ori_bins, ortho_dist, 'Color', [0 0.5 1], 'LineWidth', 0.5);
@@ -91,7 +140,7 @@ p = anova1(ortho_dist', [], 'off');
 title(sprintf('p = %.4f', p))
 formatAxes
 
-subplot(2,4,4); 
+subplot(3,4,8); 
 
 hold on; axis square; xlim([0 90]); ylim([-0.2 0.2]);
 plot(ret_ori_bins, po_ratio, 'Color', [0.5 0.5 0.5], 'LineWidth', 0.5);
@@ -103,7 +152,7 @@ p = anova1(po_ratio', [], 'off');
 title(sprintf('p = %.6f', p))
 formatAxes
 
-subplot(2,4,1); 
+subplot(3,4,5); 
 
 hold on; axis square; xlim([0 90]); ylim([0.1 0.6]);
 plot(ret_ori_bins, all_dist, 'Color', [0.5 0.5 0.5], 'LineWidth', 0.5);
@@ -115,7 +164,7 @@ p = anova1(all_dist', [], 'off');
 title(sprintf('p = %.6f', p))
 formatAxes
 
-subplot(2,4,5)
+subplot(3,4,9)
 hold on;
 plot([-90 90], [-90 90], '--', 'Color', [0 0 0]);
 plot(soma_ori, all_ori, 'o', 'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 0 0], 'MarkerSize', 7);
@@ -129,7 +178,7 @@ ylabel('Input pref ori')
 title(sprintf('rcc = %03f',r));
 % title(sprintf('rcc = %03f, p = %03f', r, pr));
 
-subplot(2,4,6)
+subplot(3,4,10)
 hold on;
 plot([-90 90], [-90 90], '--', 'Color', [0 0 0]);
 plot(soma_ori, para_ori, 'o', 'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 0 0], 'MarkerSize', 7);
@@ -143,7 +192,7 @@ ylabel('Input pref ori')
 title(sprintf('rcc = %03f', r));
 % title(sprintf('rcc = %03f, p = %03f', r, pr));
 
-subplot(2,4,7)
+subplot(3,4,11)
 hold on;
 plot([-90 90], [-90 90], '--', 'Color', [0 0 0]);
 plot(soma_ori, ortho_ori, 'o', 'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 0 0], 'MarkerSize', 7);
@@ -156,7 +205,7 @@ ylabel('Input pref ori')
 [r, pr] = circ_corrcc(soma_ori*2*pi/180, ortho_ori*2*pi/180);
 title(sprintf('rcc = %03f', r));
 
-subplot(2, 4, 8)
+subplot(3, 4, 12)
 hold on;
 plot([0 90], [0 90], '--', 'Color', [0 0 0]);
 plot(d_para, d_ortho, 'o', 'MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 0 0], 'MarkerSize', 7);
