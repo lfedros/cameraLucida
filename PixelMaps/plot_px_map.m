@@ -23,7 +23,7 @@ switch map_type
         pxAng_dir = angle(pxTun_dir);
 
         pxAmp_ori = abs(pxTun_ori);
-        pxAng_ori = angle(pxTun_ori);
+        pxAng_ori = angle(pxTun_ori)/2;
 
         Hue = mat2gray(pxAng_dir);
         Sat = mat2gray(pxAmp_dir, lims);

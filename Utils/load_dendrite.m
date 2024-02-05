@@ -51,24 +51,24 @@ for iD = 1: nDendrites
         try
             pxAmp_ori = abs(px_map.ori);
             pxAng_ori = angle(px_map.ori);
-            pxAng_ori = -pxAng_ori;
+            pxAng_ori = -pxAng_ori; % invert mpep angles
             px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
 
             pxAmp_dir = abs(px_map.dir);
             pxAng_dir= angle(px_map.dir);
-            pxAng_dir = -pxAng_dir;
+            pxAng_dir = -pxAng_dir; % invert mpep angles
             px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
 
         catch
 
             pxAmp_ori = abs(px_map.all_st.ori);
             pxAng_ori = angle(px_map.all_st.ori);
-            pxAng_ori = -pxAng_ori;
+            pxAng_ori = -pxAng_ori; % invert mpep angles
             px_map.ori = pxAmp_ori.*exp(1i*pxAng_ori);
 
             pxAmp_dir = abs(px_map.all_st.dir);
             pxAng_dir= angle(px_map.all_st.dir);
-            pxAng_dir = -pxAng_dir;
+            pxAng_dir = -pxAng_dir; % invert mpep angles
             px_map.dir = pxAmp_dir.*exp(1i*pxAng_dir);
 
             px_map.mimg = px_map.all_st.mimg;
