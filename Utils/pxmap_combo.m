@@ -226,6 +226,7 @@ if ~isempty(neuron.soma)
     soma.ori_pars_vm_centred = soma.ori_pars_vm;
     soma.ori_pars_vm_centred(1) = 0;
     soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, combo_map.tun_oris*2 );
+
     % here add code to compute dendrites relative to soma
     % to shift the non-fitted responses, use circshift(resps,4-maxSoma_pos)
         [~, d_idx] = max(soma.avePeak(1:12));

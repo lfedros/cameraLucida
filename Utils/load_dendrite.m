@@ -90,6 +90,14 @@ if exist(fullfile(vis_path, vis_file), 'file')
     resps = load(fullfile(vis_path, vis_file));
 
     soma = retune(resps, [], 'date');
+
+    soma.dir_pars_vm_centred = soma.dir_pars_vm;
+    soma.dir_pars_vm_centred(1) = 0;
+    soma.fit_vm_centred = mfun.vonMises2(soma.dir_pars_vm_centred, soma.fit_pt);
+    soma.avePeak_centred = soma.avePeak;
+    [~, Dp] = min(abs(unique(soma.dirs) - soma.prefDir));
+    soma.avePeak_centred = circshift(soma.avePeak_centred, 7-Dp);
+
     soma.ori_pars_vm_centred = soma.ori_pars_vm;
     soma.ori_pars_vm_centred(1) = 0;
     soma.ori_fit_vm_centred = mfun.vonMises(soma.ori_pars_vm_centred, soma.ori_fit_pt*2);

@@ -40,22 +40,21 @@ for iDb = 1:nDb
  
 end
 
+%% combine spine ROIs
 
-%% pool position and visual properties across dendrites
+for iDb = 14:16%:nDb
+%    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines_old(neuron(iDb),1);
 
-% for iDb = 1:nDb
-% %    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines_old(neuron(iDb),1);
-% 
-%    [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
-% end
-
-
+   [neuron(iDb).spines, neuron(iDb).visual_spines] = pool_spines(neuron(iDb),1);
+end
 %% combine pixel maps
 for iDb = 1:nDb
 
      [neuron(iDb).combo_px_map, neuron(iDb).px_map, neuron(iDb).signal_px, neuron(iDb).soma]  = pxmap_combo(neuron(iDb));
 
 end
+
+
 
 %% plot pixel maps
 for iDb = 1:nDb
