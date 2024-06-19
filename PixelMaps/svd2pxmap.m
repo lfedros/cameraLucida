@@ -88,9 +88,11 @@ switch stim_type
 
         dirs = p.dirs; %dirs = -dirs;
         dirs = deg2rad(dirs);
-        oris = dirs - pi/2;
+        oris = dirs;
+        % oris = dirs - pi/2;
         oris(oris >= pi) = oris(oris >=pi) -pi;
-        oris(oris < 0) = oris(oris <0) +pi;
+        % oris(oris < 0) = oris(oris <0) +pi;
+        oris = oris -pi/2;
         oris = oris*2;
 
         %% compute pixel map for each SfTf combo

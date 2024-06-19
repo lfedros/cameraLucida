@@ -2,15 +2,24 @@ clear;
 
 %% Set path to relevant code
 
+machine_name = getenv('COMPUTERNAME'); % for windows
+
 if ispc
-   code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
+    machine_name = getenv('COMPUTERNAME'); % for windows
+    switch machine_name
+        case 'FANCIBOT'
+            code_repo = 'D:\OneDrive - Fondazione Istituto Italiano Tecnologia\Documents\Code\Dev\cameraLucida';
+        case 'ZUFOLO'
+            code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
+
+    end
 else
 code_repo = '/Users/lfedros/Documents/GitHub/cameraLucida';
 
 end
 cd(code_repo);
 addpath(genpath(code_repo));
-set_dendrite_paths(); % edit the paths pointing to the code
+set_dendrite_paths(code_repo); % edit the paths pointing to the code
 
 %% Populate database - edit build_path.m with location of data
 db_V1_spines_size;

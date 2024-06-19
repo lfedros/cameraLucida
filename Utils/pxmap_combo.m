@@ -16,10 +16,10 @@ for iD = 1:nDendrites
     sig_mimg =threshold_map(map(iD).mimg, map(iD).branch_bw, 'tile', thrs, filt_scale,0);
 
     % - threshold pixels based on amplitude of direction tuning
-    sig_dir = threshold_map(abs(map(iD).dir), map(iD).branch_bw, 'tile', 99.9, 5,0);
+    sig_dir = threshold_map(abs(map(iD).dir), map(iD).branch_bw, 'tile', 99, 5,0);
 
     % - threshold pixels based on amplitude of orientation tuning
-    sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99.9, 5,0);
+    sig_ori = threshold_map(abs(map(iD).ori), map(iD).branch_bw, 'tile', 99, 5,0);
 
     % - find pixels with no signal (amp = 0) and remove them
     sig_zero_amp = abs(map(iD).ori) ==0 | abs(map(iD).dir) ==0;
@@ -30,7 +30,7 @@ for iD = 1:nDendrites
 
     % remove noise (unconnected components smaller than 6 px)
     signal(iD).bw= bwareaopen(sig_px,8, 4);
-    figure; imagesc(signal(iD).bw)
+    % figure; imagesc(signal(iD).bw)
 
 
     % extract properties of significant pixels.
@@ -128,8 +128,6 @@ combo_map.sig_ori_norm = cat(1, signal(:).px_ori_norm);
 combo_map.sig_dir_norm = cat(1, signal(:).px_dir_norm);
 combo_map.sig_den_id = cat(1, signal(:).px_den_id);
 
-% combo_map.sig_ori = cat(1, signal(:).px_ori_norm);
-% combo_map.sig_dir = cat(1, signal(:).px_dir_norm);
 
 %% measure distribution of preferred directions, weighted by OSI
 
@@ -137,7 +135,6 @@ angles = angle(combo_map.sig_dir);
 angles(angles<0)  = angles(angles<0) +2*pi;
 
 [~,~,combo_map.dir_bin_idx] = histcounts(angles,combo_map.dir_edges);
-
 
 % fit a tuning curve to the distribution of resps
 
@@ -204,12 +201,10 @@ combo_map.pref_ori_norm = combo_map.ori_pars_norm(1)/2;
 if ~isempty(neuron.soma)
 
     combo_map.soma_pref_dir = neuron.soma.dir_pars_vm(1);
-    combo_map.soma_pref_dir_ori = combo_map.soma_pref_dir -90; %[-90 270]
+    combo_map.soma_pref_dir_ori = combo_map.soma_pref_dir; 
     combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori >=180) = combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori >=180) -180;%[0 180];
-    combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori <0) = combo_map.soma_pref_dir_ori(combo_map.soma_pref_dir_ori <0) +180;%[0 180];
+    combo_map.soma_pref_dir_ori = combo_map.soma_pref_dir -90; %[-90 90]
     combo_map.soma_pref_ori = neuron.soma.ori_pars_vm(1)/2;
-
-
 
     soma.ori_pars_vm_rel = soma.ori_pars_vm;
     soma.ori_pars_vm_rel(1) = soma.ori_pars_vm_rel(1)-combo_map.ori_pars(1);
@@ -218,7 +213,6 @@ if ~isempty(neuron.soma)
         soma.ori_pars_vm_rel(1) = soma.ori_pars_vm_rel(1) +360;
     elseif soma.ori_pars_vm_rel(1) >= 180
         soma.ori_pars_vm_rel(1) = soma.ori_pars_vm_rel(1) -360;
-
     end
 
     soma.ori_fit_vm_rel = mfun.vonMises(soma.ori_pars_vm_rel, combo_map.tun_oris*2 );
@@ -229,7 +223,8 @@ if ~isempty(neuron.soma)
 
     % here add code to compute dendrites relative to soma
     % to shift the non-fitted responses, use circshift(resps,4-maxSoma_pos)
-        [~, d_idx] = max(soma.avePeak(1:12));
+    
+    [~, d_idx] = max(soma.avePeak(1:12));
     [~, o_idx] = max(soma.aveOriPeak);
 
     soma.avePeak_cent = circshift(soma.avePeak(1:12), 7 - d_idx);
@@ -318,7 +313,7 @@ ori(ori <=0) = ori(ori <=0) +180;
 
 
 amp_dir= abs(combo_map.sig_dir_norm);
-dir= angle(combo_map.sig_dir_norm)*180/pi; %[-90 90]
+dir= angle(combo_map.sig_dir_norm)*180/pi; 
 dir(dir <=0) = dir(dir <=0) +360;
 
 
@@ -331,7 +326,8 @@ axis image; hold on;colormap(1-gray);
 this_amp = ceil((amp_dir/max(amp_dir))/0.2).^2;
 idx = this_amp >0;
 this_amp(this_amp ==0) = NaN;
-scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(dir(idx)),:), 'filled');
+scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(dir(idx)),:), 'filled'); hold on;
+scatter(0, 0, 100, color(round(combo_map.soma_pref_dir),:), 'filled'); hold on;
 formatAxes
 xlabel('um')
 title('Dir')
@@ -345,6 +341,7 @@ this_amp = ceil((amp_ori/max(amp_ori))/0.2).^2;
 idx = this_amp >0;
 this_amp(this_amp ==0) = NaN;
 scatter(sig_x_um(idx), sig_y_um(idx), this_amp(idx), color(ceil(ori(idx)),:), 'filled');
+scatter(0, 0, 100, color(round(combo_map.soma_pref_ori),:), 'filled'); hold on;
 formatAxes
 xlabel('um')
 title('Ori')

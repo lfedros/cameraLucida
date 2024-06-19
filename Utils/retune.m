@@ -23,17 +23,16 @@ dirs = -tune.dirs +360;
 dirs(dirs>=360) = dirs(dirs>=360) -360;
 [~, sort_dirs] = sort(dirs, 'ascend');
 
-% oris = unique(tune.oris, 'stable');
-% oris = -oris +180;
-% oris(oris>=180) =oris (oris>=180) -180;
-
-
 tune.allResp(1:12, :, :) = tune.allResp(sort_dirs, :, :);
 tune.allPeaks(1:12, :) = tune.allPeaks(sort_dirs, :);
 
 tune.oris = tune.dirs; %[0 360]
 tune.oris(tune.oris>=180) = tune.oris(tune.oris>=180)-180; %[0 180]
 tune.oris = tune.oris - 90; %[-90 90]
+
+% tune.oris = tune.dirs -90; %[0 270]
+% tune.oris(tune.oris>=180) = tune.oris(tune.oris>=180)-180; %[-90 90]
+% tune.oris(tune.oris<0) = tune.oris(tune.oris<0)+180; %[-90 90]
 
 %% zscore according to requested normalisation
 

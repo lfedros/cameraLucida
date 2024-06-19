@@ -4,7 +4,13 @@ clear;
 %% Set path to relevant code
 
 if ispc
-   code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
+    machine_name = getenv('COMPUTERNAME'); % for windows
+    switch machine_name
+        case 'FANCIBOT'
+            code_repo = 'D:\OneDrive - Fondazione Istituto Italiano Tecnologia\Documents\Code\Dev\cameraLucida';
+        case 'ZUFOLO'
+            code_repo = 'C:\Users\Federico\Documents\GitHub\cameraLucida';
+    end
 else
 code_repo = '/Users/federico/Documents/GitHub/cameraLucida';
 
